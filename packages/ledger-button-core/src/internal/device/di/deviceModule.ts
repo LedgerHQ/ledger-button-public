@@ -4,10 +4,10 @@ import { ContainerOptions, MockServerConfig } from "@internal/di/diTypes";
 
 import { DefaultDeviceManagementKitService } from "../service/DefaultDeviceManagementKitService";
 import { StubDeviceManagementKitService } from "../service/StubDeviceManagementKitService";
-import { ConnectDevice } from "../use-case/ConnectDevice";
-import { DisconnectDevice } from "../use-case/DisconnectDevice";
-import { ListAvailableDevices } from "../use-case/ListAvailableDevices";
-import { SwitchDevice } from "../use-case/SwitchDevice";
+import { ConnectDeviceUseCase } from "../use-case/ConnectDeviceUseCase";
+import { DisconnectDeviceUseCase } from "../use-case/DisconnectDeviceUseCase";
+import { ListAvailableDevicesUseCase } from "../use-case/ListAvailableDevicesUseCase";
+import { SwitchDeviceUseCase } from "../use-case/SwitchDeviceUseCase";
 import { deviceModuleTypes } from "./deviceModuleTypes";
 
 type DeviceModuleOptions = Pick<
@@ -35,11 +35,11 @@ export function deviceModuleFactory({
       .to(DefaultDeviceManagementKitService)
       .inSingletonScope();
 
-    bind(deviceModuleTypes.ConnectDeviceUseCase).to(ConnectDevice);
-    bind(deviceModuleTypes.DisconnectDeviceUseCase).to(DisconnectDevice);
-    bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
+    bind(deviceModuleTypes.ConnectDeviceUseCase).to(ConnectDeviceUseCase);
+    bind(deviceModuleTypes.DisconnectDeviceUseCase).to(DisconnectDeviceUseCase);
+    bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDeviceUseCase);
     bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
-      ListAvailableDevices,
+      ListAvailableDevicesUseCase,
     );
 
     if (stub) {

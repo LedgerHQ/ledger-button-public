@@ -2,8 +2,6 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
-import { type ContextService } from "@internal/context/ContextService";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
@@ -12,7 +10,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackConsentRemoved {
+export class TrackOpenSessionUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -21,22 +19,18 @@ export class TrackConsentRemoved {
     private readonly eventTrackingService: EventTrackingService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("TrackConsentRemoved UseCase");
+    this.logger = loggerFactory("TrackOpenSession UseCase");
   }
 
   async execute(): Promise<void> {
-    const trustChainId = this.contextService.getContext().trustChainId;
-
-    const event = EventTrackingUtils.createConsentRemovedEvent({
+    const sessionId = this.eventTrackingService.getSessionId();
+    const event = EventTrackingUtils.createOpenSessionEvent({
       dAppId: this.config.dAppIdentifier,
-      trustChainId,
+      sessionId: sessionId,
     });
 
-    this.logger.debug("Tracking consent removed event", { event });
-
+    this.logger.debug("Tracking open session event", { event });
     await this.eventTrackingService.trackEvent(event);
   }
 }

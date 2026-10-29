@@ -1,23 +1,25 @@
-import { sha256 } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
-import type { InvoicedTransaction } from "@api/blockchain-provider/model/types";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
-import { type ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils } from "../EventTrackingUtils";
+import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils";
 import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
+// Typed messages are EIP-712, only signed through the EVM provider.
+const EVM_FAMILY: BlockchainFamily = "ethereum";
+
 @injectable()
-export class TrackTransactionCompleted {
+export class TrackTypedMessageStartedUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -31,44 +33,32 @@ export class TrackTransactionCompleted {
     @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
-    this.logger = loggerFactory("TrackTransactionCompleted UseCase");
+    this.logger = loggerFactory("TrackTypedMessageStarted UseCase");
   }
 
-  async execute(transaction: InvoicedTransaction): Promise<void> {
+  async execute(typedData: unknown): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
+
+    const typedMessageHash = stringToSha256(JSON.stringify(typedData));
     const context = this.contextService.getContext();
-    const chainId = resolveTrackedChainId(
-      context,
-      transaction.family,
-      this.blockchainProviderManager,
-    );
 
-    const completionEvent =
-      EventTrackingUtils.createTransactionFlowCompletionEvent({
-        dAppId: this.config.dAppIdentifier,
-        sessionId: sessionId,
-        trustChainId: context.trustChainId,
-        family: transaction.family,
-        chainId: chainId,
-      });
-
-    const invoicingEvent =
-      EventTrackingUtils.createInvoicingTransactionSignedEvent({
-        dAppId: this.config.dAppIdentifier,
-        sessionId: sessionId,
-        transactionHash: transaction.transactionHash,
-        unsignedTransactionHash: sha256(transaction.unsignedTransaction),
-        family: transaction.family,
-        chainId: chainId,
-        recipientAddress: transaction.recipientAddress,
-      });
-
-    this.logger.debug("Tracking transaction flow completion event", {
-      completionEvent,
-      invoicingEvent,
+    const event = EventTrackingUtils.createTypedMessageFlowInitializationEvent({
+      dAppId: this.config.dAppIdentifier,
+      sessionId: sessionId,
+      trustChainId: context.trustChainId,
+      typedMessageHash: typedMessageHash,
+      family: EVM_FAMILY,
+      chainId: resolveTrackedChainId(
+        context,
+        EVM_FAMILY,
+        this.blockchainProviderManager,
+      ),
     });
 
-    await this.eventTrackingService.trackEvent(completionEvent);
-    await this.eventTrackingService.trackEvent(invoicingEvent);
+    this.logger.debug("Tracking typed message flow initialization event", {
+      event,
+    });
+
+    await this.eventTrackingService.trackEvent(event);
   }
 }

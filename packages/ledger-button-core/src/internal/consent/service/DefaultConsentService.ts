@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
-import type { TrackConsentGiven } from "@internal/event-tracking/use-case/TrackConsentGiven";
-import type { TrackConsentRemoved } from "@internal/event-tracking/use-case/TrackConsentRemoved";
+import type { TrackConsentGivenUseCase } from "@internal/event-tracking/use-case/TrackConsentGivenUseCase";
+import type { TrackConsentRemovedUseCase } from "@internal/event-tracking/use-case/TrackConsentRemovedUseCase";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
 import type { UserConsent } from "@internal/storage/model/UserConsent";
 import type { StorageService } from "@internal/storage/StorageService";
@@ -14,10 +14,10 @@ export class DefaultConsentService implements ConsentService {
   constructor(
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(eventTrackingModuleTypes.TrackConsentGiven)
-    private readonly trackConsentGiven: TrackConsentGiven,
-    @inject(eventTrackingModuleTypes.TrackConsentRemoved)
-    private readonly trackConsentRemoved: TrackConsentRemoved,
+    @inject(eventTrackingModuleTypes.TrackConsentGivenUseCase)
+    private readonly trackConsentGiven: TrackConsentGivenUseCase,
+    @inject(eventTrackingModuleTypes.TrackConsentRemovedUseCase)
+    private readonly trackConsentRemoved: TrackConsentRemovedUseCase,
   ) {}
 
   async hasConsent(): Promise<boolean> {

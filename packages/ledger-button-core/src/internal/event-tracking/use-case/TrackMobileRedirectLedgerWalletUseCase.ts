@@ -10,7 +10,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackConsentGiven {
+export class TrackMobileRedirectLedgerWalletUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -20,18 +20,21 @@ export class TrackConsentGiven {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("TrackConsentGiven UseCase");
+    this.logger = loggerFactory(
+      "TrackMobileRedirectLedgerWallet UseCase",
+    );
   }
 
   async execute(): Promise<void> {
-    const sessionId = this.eventTrackingService.getSessionId();
+    const event =
+      EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+        dAppId: this.config.dAppIdentifier,
+      });
 
-    const event = EventTrackingUtils.createConsentGivenEvent({
-      dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
-    });
-
-    this.logger.debug("Tracking consent given event", { event });
+    this.logger.debug(
+      "Tracking mobile redirect to Ledger Wallet event",
+      { event },
+    );
 
     await this.eventTrackingService.trackEvent(event);
   }

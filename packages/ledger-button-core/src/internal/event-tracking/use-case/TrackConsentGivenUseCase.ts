@@ -10,7 +10,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackLedgerSyncOpened {
+export class TrackConsentGivenUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -20,16 +20,19 @@ export class TrackLedgerSyncOpened {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("TrackLedgerSyncOpened UseCase");
+    this.logger = loggerFactory("TrackConsentGiven UseCase");
   }
 
   async execute(): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
-    const event = EventTrackingUtils.createOpenLedgerSyncEvent({
+
+    const event = EventTrackingUtils.createConsentGivenEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
     });
-    this.logger.debug("Tracking ledger sync opened event", { event });
+
+    this.logger.debug("Tracking consent given event", { event });
+
     await this.eventTrackingService.trackEvent(event);
   }
 }

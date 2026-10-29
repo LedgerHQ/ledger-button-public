@@ -6,10 +6,10 @@ import {
   createMockLoggerFactory,
   mockDiscoveredDevices,
 } from "../__tests__/mocks";
-import { ListAvailableDevices } from "./ListAvailableDevices";
+import { ListAvailableDevicesUseCase } from "./ListAvailableDevicesUseCase";
 
 describe("ListAvailableDevices", () => {
-  let listAvailableDevices: ListAvailableDevices;
+  let listAvailableDevices: ListAvailableDevicesUseCase;
   let mockDeviceManagementKitService: ReturnType<
     typeof createMockDeviceManagementKitService
   >;
@@ -17,7 +17,7 @@ describe("ListAvailableDevices", () => {
   beforeEach(() => {
     mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
-    listAvailableDevices = new ListAvailableDevices(
+    listAvailableDevices = new ListAvailableDevicesUseCase(
       createMockLoggerFactory(),
       asMockService(mockDeviceManagementKitService),
     );

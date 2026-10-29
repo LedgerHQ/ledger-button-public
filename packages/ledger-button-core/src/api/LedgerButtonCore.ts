@@ -65,25 +65,25 @@ import {
   type ConnectionType,
   type DeviceManagementKitService,
 } from "../internal/device/service/DeviceManagementKitService";
-import { ConnectDevice } from "../internal/device/use-case/ConnectDevice";
-import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice";
-import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices";
-import { SwitchDevice } from "../internal/device/use-case/SwitchDevice";
+import { ConnectDeviceUseCase } from "../internal/device/use-case/ConnectDeviceUseCase";
+import { DisconnectDeviceUseCase } from "../internal/device/use-case/DisconnectDeviceUseCase";
+import { ListAvailableDevicesUseCase } from "../internal/device/use-case/ListAvailableDevicesUseCase";
+import { SwitchDeviceUseCase } from "../internal/device/use-case/SwitchDeviceUseCase";
 import { createContainer } from "../internal/di/di";
 import { type ContainerOptions } from "../internal/di/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
-import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
-import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
-import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
-import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
-import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened";
-import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet";
-import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding";
+import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case/TrackCurrencyChangedUseCase";
+import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
+import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
+import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncOpenedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncOpenedUseCase";
+import { TrackMobileRedirectLedgerWalletUseCase } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWalletUseCase";
+import { TrackOnboardingUseCase } from "../internal/event-tracking/use-case/TrackOnboardingUseCase";
 import {
   TrackViewAllTransactions,
   type TrackViewAllTransactionsParams,
 } from "../internal/event-tracking/use-case/TrackViewAllTransactions";
-import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick";
+import { TrackViewTransactionDetailsClickUseCase } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClickUseCase";
 import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService";
@@ -333,7 +333,7 @@ export class LedgerButtonCore {
   private async releaseDeviceSafely(): Promise<void> {
     try {
       await this.container
-        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .get<DisconnectDeviceUseCase>(deviceModuleTypes.DisconnectDeviceUseCase)
         .execute();
     } catch (error) {
       this._logger.warn("Failed to release the device session", { error });
@@ -397,7 +397,7 @@ export class LedgerButtonCore {
     await this.releaseCurrentDeviceIfNeeded();
 
     const device = await this.container
-      .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
+      .get<ConnectDeviceUseCase>(deviceModuleTypes.ConnectDeviceUseCase)
       .execute({ type });
 
     this._contextService.onEvent({
@@ -414,7 +414,7 @@ export class LedgerButtonCore {
     this.stopListeningToDevice();
 
     const result = await this.container
-      .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+      .get<DisconnectDeviceUseCase>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
 
     this._contextService.onEvent({
@@ -434,7 +434,7 @@ export class LedgerButtonCore {
   async switchDevice(type: ConnectionType) {
     this._logger.debug("Switching device", { type });
     return this.container
-      .get<SwitchDevice>(deviceModuleTypes.SwitchDeviceUseCase)
+      .get<SwitchDeviceUseCase>(deviceModuleTypes.SwitchDeviceUseCase)
       .execute({ type });
   }
 
@@ -511,7 +511,7 @@ export class LedgerButtonCore {
     });
 
     this.container
-      .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
+      .get<TrackOnboardingUseCase>(eventTrackingModuleTypes.TrackOnboardingUseCase)
       .execute(account, family);
   }
 
@@ -571,7 +571,7 @@ export class LedgerButtonCore {
   async listAvailableDevices() {
     this._logger.debug("Listing available devices");
     return this.container
-      .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
+      .get<ListAvailableDevicesUseCase>(deviceModuleTypes.ListAvailableDevicesUseCase)
       .execute();
   }
 
@@ -749,8 +749,8 @@ export class LedgerButtonCore {
 
     if (!isOnboarded) {
       this.container
-        .get<TrackLedgerSyncOpened>(
-          eventTrackingModuleTypes.TrackLedgerSyncOpened,
+        .get<TrackLedgerSyncOpenedUseCase>(
+          eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase,
         )
         .execute();
     }
@@ -773,8 +773,8 @@ export class LedgerButtonCore {
 
         //TODO move inside context service onEvent
         await this.container
-          .get<TrackLedgerSyncActivated>(
-            eventTrackingModuleTypes.TrackLedgerSyncActivated,
+          .get<TrackLedgerSyncActivatedUseCase>(
+            eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase,
           )
           .execute();
       }),
@@ -878,16 +878,16 @@ export class LedgerButtonCore {
 
   async trackMobileRedirectLedgerWallet(): Promise<void> {
     await this.container
-      .get<TrackMobileRedirectLedgerWallet>(
-        eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
+      .get<TrackMobileRedirectLedgerWalletUseCase>(
+        eventTrackingModuleTypes.TrackMobileRedirectLedgerWalletUseCase,
       )
       .execute();
   }
 
   async trackFloatingButtonClick(): Promise<void> {
     await this.container
-      .get<TrackFloatingButtonClick>(
-        eventTrackingModuleTypes.TrackFloatingButtonClick,
+      .get<TrackFloatingButtonClickUseCase>(
+        eventTrackingModuleTypes.TrackFloatingButtonClickUseCase,
       )
       .execute();
   }
@@ -897,8 +897,8 @@ export class LedgerButtonCore {
     family: BlockchainFamily,
   ): Promise<void> {
     await this.container
-      .get<TrackViewTransactionDetailsClick>(
-        eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
+      .get<TrackViewTransactionDetailsClickUseCase>(
+        eventTrackingModuleTypes.TrackViewTransactionDetailsClickUseCase,
       )
       .execute(transactionHash, family);
   }
@@ -935,13 +935,13 @@ export class LedgerButtonCore {
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
     await this.container
-      .get<TrackLanguageChanged>(eventTrackingModuleTypes.TrackLanguageChanged)
+      .get<TrackLanguageChangedUseCase>(eventTrackingModuleTypes.TrackLanguageChangedUseCase)
       .execute(languageKey);
   }
 
   async trackCurrencyChanged(currencyCode: string): Promise<void> {
     await this.container
-      .get<TrackCurrencyChanged>(eventTrackingModuleTypes.TrackCurrencyChanged)
+      .get<TrackCurrencyChangedUseCase>(eventTrackingModuleTypes.TrackCurrencyChangedUseCase)
       .execute(currencyCode);
   }
 

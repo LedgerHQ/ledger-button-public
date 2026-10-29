@@ -4,10 +4,13 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { deviceModuleTypes } from "../di/deviceModuleTypes";
-import { type DeviceManagementKitService } from "../service/DeviceManagementKitService";
+import {
+  ConnectionType,
+  type DeviceManagementKitService,
+} from "../service/DeviceManagementKitService";
 
 @injectable()
-export class DisconnectDevice {
+export class SwitchDeviceUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -15,11 +18,17 @@ export class DisconnectDevice {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("DisconnectDevice UseCase");
+    this.logger = loggerFactory("SwitchDevice UseCase");
   }
 
-  async execute(): Promise<void> {
-    this.logger.info("Disconnecting from device");
-    return this.deviceManagementKitService.disconnectFromDevice();
+  async execute({ type }: { type: ConnectionType }): Promise<void> {
+    try {
+      this.logger.info("Switching device", { type });
+      await this.deviceManagementKitService.disconnectFromDevice();
+      await this.deviceManagementKitService.connectToDevice({ type });
+    } catch (error) {
+      this.logger.error(`Failed to switch device`, { error });
+      throw error;
+    }
   }
 }

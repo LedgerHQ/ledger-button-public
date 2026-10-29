@@ -10,8 +10,9 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackOpenSession {
+export class TrackCurrencyChangedUseCase {
   private readonly logger: LoggerPublisher;
+
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
@@ -20,17 +21,20 @@ export class TrackOpenSession {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("TrackOpenSession UseCase");
+    this.logger = loggerFactory("TrackCurrencyChanged UseCase");
   }
 
-  async execute(): Promise<void> {
+  async execute(currencyCode: string): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
-    const event = EventTrackingUtils.createOpenSessionEvent({
+
+    const event = EventTrackingUtils.createCurrencyChangedEvent({
       dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
+      sessionId,
+      currencyCode,
     });
 
-    this.logger.debug("Tracking open session event", { event });
+    this.logger.debug("Tracking currency changed event", { event });
+
     await this.eventTrackingService.trackEvent(event);
   }
 }

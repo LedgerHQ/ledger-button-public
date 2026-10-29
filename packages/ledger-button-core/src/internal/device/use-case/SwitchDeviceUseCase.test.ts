@@ -5,10 +5,10 @@ import {
   createMockDeviceManagementKitService,
   createMockLoggerFactory,
 } from "../__tests__/mocks";
-import { SwitchDevice } from "./SwitchDevice";
+import { SwitchDeviceUseCase } from "./SwitchDeviceUseCase";
 
 describe("SwitchDevice", () => {
-  let switchDevice: SwitchDevice;
+  let switchDevice: SwitchDeviceUseCase;
   let mockDeviceManagementKitService: ReturnType<
     typeof createMockDeviceManagementKitService
   >;
@@ -16,7 +16,7 @@ describe("SwitchDevice", () => {
   beforeEach(() => {
     mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
-    switchDevice = new SwitchDevice(
+    switchDevice = new SwitchDeviceUseCase(
       createMockLoggerFactory(),
       asMockService(mockDeviceManagementKitService),
     );

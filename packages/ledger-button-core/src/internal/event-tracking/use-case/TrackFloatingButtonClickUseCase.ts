@@ -10,7 +10,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackFloatingButtonClick {
+export class TrackFloatingButtonClickUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)

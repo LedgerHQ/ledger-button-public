@@ -38,10 +38,10 @@ import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
-import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted";
-import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted";
-import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted";
-import type { TrackTypedMessageStarted } from "@internal/event-tracking/use-case/TrackTypedMessageStarted";
+import type { TrackTransactionCompletedUseCase } from "@internal/event-tracking/use-case/TrackTransactionCompletedUseCase";
+import type { TrackTransactionStartedUseCase } from "@internal/event-tracking/use-case/TrackTransactionStartedUseCase";
+import type { TrackTypedMessageCompletedUseCase } from "@internal/event-tracking/use-case/TrackTypedMessageCompletedUseCase";
+import type { TrackTypedMessageStartedUseCase } from "@internal/event-tracking/use-case/TrackTypedMessageStartedUseCase";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { modalModuleTypes } from "@internal/modal/di/modalModuleTypes";
@@ -78,14 +78,14 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _coinServiceDataSource: CoinServiceDataSource,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly _calDataSource: CalDataSource,
-    @inject(eventTrackingModuleTypes.TrackTransactionStarted)
-    private readonly _trackTransactionStarted: TrackTransactionStarted,
-    @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
-    private readonly _trackTransactionCompleted: TrackTransactionCompleted,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
-    private readonly _trackTypedMessageStarted: TrackTypedMessageStarted,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
-    private readonly _trackTypedMessageCompleted: TrackTypedMessageCompleted,
+    @inject(eventTrackingModuleTypes.TrackTransactionStartedUseCase)
+    private readonly _trackTransactionStarted: TrackTransactionStartedUseCase,
+    @inject(eventTrackingModuleTypes.TrackTransactionCompletedUseCase)
+    private readonly _trackTransactionCompleted: TrackTransactionCompletedUseCase,
+    @inject(eventTrackingModuleTypes.TrackTypedMessageStartedUseCase)
+    private readonly _trackTypedMessageStarted: TrackTypedMessageStartedUseCase,
+    @inject(eventTrackingModuleTypes.TrackTypedMessageCompletedUseCase)
+    private readonly _trackTypedMessageCompleted: TrackTypedMessageCompletedUseCase,
     @inject(pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase)
     private readonly _trackBroadcastedTransaction: TrackBroadcastedTransactionUseCase,
     @inject(loggerModuleTypes.LoggerPublisher)

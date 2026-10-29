@@ -4,7 +4,7 @@ import { Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
 
 import type { EncryptKeyPairUseCase } from "@internal/cryptographic/use-case/EncryptKeyPairUseCase";
-import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKey";
+import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKeyUseCase";
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

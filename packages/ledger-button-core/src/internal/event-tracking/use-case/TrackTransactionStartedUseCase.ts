@@ -16,7 +16,7 @@ import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackTransactionStarted {
+export class TrackTransactionStartedUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)

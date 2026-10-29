@@ -10,7 +10,7 @@ import type { ContextService } from "@internal/context/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackViewTransactionDetailsClick } from "./TrackViewTransactionDetailsClick";
+import { TrackViewTransactionDetailsClickUseCase } from "./TrackViewTransactionDetailsClickUseCase";
 
 const polygonAccount: Account = {
   id: "acc-pol",
@@ -44,7 +44,7 @@ const solanaSignature =
 describe("TrackViewTransactionDetailsClick", () => {
   let mockEventTrackingService: EventTrackingService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackViewTransactionDetailsClick;
+  let useCase: TrackViewTransactionDetailsClickUseCase;
 
   beforeEach(() => {
     mockEventTrackingService = {
@@ -56,7 +56,7 @@ describe("TrackViewTransactionDetailsClick", () => {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackViewTransactionDetailsClick(
+    useCase = new TrackViewTransactionDetailsClickUseCase(
       () =>
         ({
           debug: vi.fn(),

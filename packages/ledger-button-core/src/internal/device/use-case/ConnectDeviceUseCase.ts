@@ -20,7 +20,7 @@ import {
 } from "../service/DeviceManagementKitService";
 
 @injectable()
-export class ConnectDevice {
+export class ConnectDeviceUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
