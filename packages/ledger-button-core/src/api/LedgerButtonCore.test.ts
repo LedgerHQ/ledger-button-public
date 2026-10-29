@@ -25,7 +25,7 @@ const hoisted = vi.hoisted(() => ({
   container: undefined as any,
   createContainer: vi.fn(),
 }));
-vi.mock("../internal/di", () => ({
+vi.mock("../internal/di/di", () => ({
   createContainer: hoisted.createContainer,
 }));
 

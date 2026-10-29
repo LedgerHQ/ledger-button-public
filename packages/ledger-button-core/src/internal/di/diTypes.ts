@@ -1,8 +1,9 @@
 import { type DmkConfig } from "@ledgerhq/device-management-kit";
 
-import type { Environment } from "./config/model/config";
-import { LogLevelKey } from "./logger/model/constant";
-import type { BlockchainProviderFactory } from "../api/blockchain-provider/model/BlockchainProviderFactory";
+import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+
+import type { Environment } from "../config/model/config";
+import { LogLevelKey } from "../logger/model/constant";
 
 export type DeviceModuleOptions = Partial<DmkConfig>;
 

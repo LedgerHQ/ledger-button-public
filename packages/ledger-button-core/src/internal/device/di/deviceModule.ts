@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { ContainerOptions, MockServerConfig } from "@internal/diTypes";
+import { ContainerOptions, MockServerConfig } from "@internal/di/diTypes";
 
 import { DefaultDeviceManagementKitService } from "../service/DefaultDeviceManagementKitService";
 import { StubDeviceManagementKitService } from "../service/StubDeviceManagementKitService";
