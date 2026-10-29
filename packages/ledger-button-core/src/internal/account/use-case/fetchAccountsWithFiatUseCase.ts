@@ -18,9 +18,9 @@ import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { enrichWithLoadingStates } from "../accountFiatUtils";
 import { accountModuleTypes } from "../di/accountModuleTypes";
 import type { AccountUpdate } from "../service/AccountService";
+import { enrichWithLoadingStates } from "../utils/accountFiatUtils";
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
 @injectable()

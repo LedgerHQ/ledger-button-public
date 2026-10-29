@@ -25,8 +25,8 @@ import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncS
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { calculateTotalFiatValue } from "../accountFiatUtils";
 import { accountModuleTypes } from "../di/accountModuleTypes";
+import { calculateTotalFiatValue } from "../utils/accountFiatUtils";
 import type { BuildNetworksUseCase } from "./buildNetworksUseCase";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";

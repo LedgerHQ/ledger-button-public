@@ -9,7 +9,7 @@ import type {
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
 import type { ContextService } from "@internal/context/ContextService";
 
-import { enrichWithLoadingStates } from "../accountFiatUtils";
+import { enrichWithLoadingStates } from "../utils/accountFiatUtils";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase";
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
