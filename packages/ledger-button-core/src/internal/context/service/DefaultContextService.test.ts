@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, test, vi } from "vitest";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/constant";
+import type { Device } from "@internal/device/model/Device";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
-import type { Device } from "../device/model/Device";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
 import { DefaultContextService } from "./DefaultContextService";
 
 describe("DefaultContextService", () => {

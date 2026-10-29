@@ -7,11 +7,11 @@ import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
 } from "@api/model/ButtonCoreContext";
+import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/constant";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { type ContextEvent } from "./model/ContextEvent";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
-import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { type ContextEvent } from "../model/ContextEvent";
 import { type ContextService } from "./ContextService";
 
 @injectable()

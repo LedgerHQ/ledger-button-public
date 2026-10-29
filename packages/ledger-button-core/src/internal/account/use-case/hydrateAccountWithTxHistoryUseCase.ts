@@ -3,8 +3,8 @@ import { inject, injectable } from "inversify";
 
 import type { Account } from "@api/model/Account";
 import type { TransactionHistoryItem } from "@api/model/TransactionHistory";
-import { type ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { transactionHistoryModuleTypes } from "@internal/transaction-history/di/transactionHistoryModuleTypes";

@@ -10,8 +10,8 @@ import type {
 import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
 import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

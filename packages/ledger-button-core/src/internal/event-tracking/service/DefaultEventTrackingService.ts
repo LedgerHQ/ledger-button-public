@@ -8,8 +8,8 @@ import {
 } from "@internal/backend/model/trackEvent";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import type { Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

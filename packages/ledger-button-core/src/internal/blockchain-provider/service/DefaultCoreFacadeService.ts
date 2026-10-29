@@ -33,8 +33,8 @@ import type { CoinServiceDataSource } from "@internal/balance/datasource/coinSer
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import type { Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";

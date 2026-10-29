@@ -8,7 +8,7 @@ import type {
   BlockchainConfig,
   BlockchainNetwork,
 } from "@api/model/dappConfig/BlockchainConfig";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 import type { StorageService } from "@internal/storage/StorageService";
 

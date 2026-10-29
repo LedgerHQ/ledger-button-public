@@ -3,7 +3,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 
 import type { PendingTransaction } from "../model/PendingTransaction";
 import type { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase";
