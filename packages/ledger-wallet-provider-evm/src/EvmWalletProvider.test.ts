@@ -248,6 +248,35 @@ describe("EvmWalletProvider", () => {
     });
   });
 
+  describe("sign flow finish", () => {
+    it("rejects the pending request when the UI finishes the intent after an error", async () => {
+      provider.setSelectedAccount(createAccount());
+      vi.mocked(deps.signPersonalMessage.execute).mockReturnValue(
+        of({
+          signType: "personal-sign",
+          status: "error",
+          error: new Error("device disconnected"),
+        } as SignFlowStatus),
+      );
+
+      const pending = provider.request({
+        method: "personal_sign",
+        params: ["0x6869", EVM_ADDRESS],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        finish: () => void;
+      };
+      intent.finish();
+
+      await expect(pending).rejects.toHaveProperty(
+        "code",
+        CommonEIP1193ErrorCode.UserRejectedRequest,
+      );
+    });
+  });
+
   describe("config-driven routing", () => {
     it("broadcasts a method the dApp config marks as broadcasted (not a static node method)", async () => {
       const loadRpcMethods = vi.fn().mockResolvedValue({

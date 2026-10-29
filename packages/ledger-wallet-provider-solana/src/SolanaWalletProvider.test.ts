@@ -528,6 +528,33 @@ describe("SolanaWalletProvider (connection)", () => {
       await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
     });
 
+    it("rejects the pending request when the UI finishes the intent after an error", async () => {
+      signUseCase.execute.mockReturnValue(
+        of({
+          signType: "transaction",
+          status: "error",
+          error: new Error("device disconnected"),
+        } as SignFlowStatus),
+      );
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const pending = wallet.features["solana:signTransaction"].signTransaction(
+        {
+          account: {} as never,
+          transaction,
+        },
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        finish: () => void;
+      };
+      intent.finish();
+
+      await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
+    });
+
     it("rejects with a Wallet Standard user-rejection error when the modal is closed", async () => {
       const status$ = new Subject<SignFlowStatus>();
       signUseCase.execute.mockReturnValue(status$.asObservable());
