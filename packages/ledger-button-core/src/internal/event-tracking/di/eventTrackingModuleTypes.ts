@@ -16,7 +16,7 @@ export const eventTrackingModuleTypes = {
   TrackWalletAction: Symbol.for("TrackWalletAction"),
   TrackMobileRedirectLedgerWalletUseCase: Symbol.for("TrackMobileRedirectLedgerWalletUseCase"),
   TrackViewTransactionDetailsClickUseCase: Symbol.for(
-    "TrackViewTransactionDetailsClick",
+    "TrackViewTransactionDetailsClickUseCase",
   ),
   TrackViewAllTransactions: Symbol.for("TrackViewAllTransactions"),
 };
