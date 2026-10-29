@@ -26,6 +26,32 @@ async function callRippled<T>(
   return result;
 }
 
+// Same set the provider accepts: applied, or queued for a later ledger.
+const ACCEPTED_ENGINE_RESULTS = new Set(["tesSUCCESS", "terQUEUED"]);
+
+type SubmitResult = {
+  engine_result: string;
+  engine_result_message: string;
+  tx_json: { hash: string };
+};
+
+/**
+ * Submits a signed transaction to the public node.
+ * @todo: Use the provider's signAndSubmit once the button backend supports XRP
+ * (backend `NetworkFamily` and the chain id, LBD-913).
+ */
+export async function submitTransaction(txBlob: string): Promise<SubmitResult> {
+  const result = await callRippled<SubmitResult>("submit", {
+    tx_blob: txBlob,
+  });
+  if (!ACCEPTED_ENGINE_RESULTS.has(result.engine_result)) {
+    throw new Error(
+      `submit: ${result.engine_result} (${result.engine_result_message})`,
+    );
+  }
+  return result;
+}
+
 export type PaymentValues = {
   destination: string;
   amountDrops: string;
