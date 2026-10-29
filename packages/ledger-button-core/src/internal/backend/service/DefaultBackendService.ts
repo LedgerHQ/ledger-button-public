@@ -2,21 +2,21 @@ import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
 import { BroadcastTransactionError } from "@api/errors/NetworkErrors";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
-import type { EventRequest, EventResponse } from "./model/trackEvent";
-import { configModuleTypes } from "../config/di/configModuleTypes";
-import { Config } from "../config/model/config";
-import { networkModuleTypes } from "../network/di/networkModuleTypes";
-import type { NetworkServiceOpts } from "../network/model/types";
-import type { NetworkService } from "../network/service/NetworkService";
-import type { BackendService } from "./BackendService";
-import { ConfigResponseSchema } from "./schemas";
+import { ConfigResponseSchema } from "../model/schemas";
+import type { EventRequest, EventResponse } from "../model/trackEvent";
 import type {
   BroadcastRequest,
   BroadcastResponse,
   ConfigRequest,
   ConfigResponse,
-} from "./types";
+} from "../model/types";
+import type { BackendService } from "./BackendService";
 
 @injectable()
 export class DefaultBackendService implements BackendService {

@@ -32,12 +32,12 @@ export type {
   JsonRpcResponse,
   JsonRpcResponseError,
   JsonRpcResponseSuccess,
-} from "@internal/backend/types";
+} from "@internal/backend/model/types";
 export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
-} from "@internal/backend/types";
+} from "@internal/backend/model/types";
 export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes";
 export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking";
 export type { PendingTransaction } from "@internal/pending-transaction/model/PendingTransaction";

@@ -46,7 +46,7 @@ export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
-} from "./utils";
+} from "../utils/utils";
 
 export type ConfigRequest = {
   dAppIdentifier: string;
