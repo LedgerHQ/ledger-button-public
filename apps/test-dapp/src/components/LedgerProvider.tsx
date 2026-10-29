@@ -1,8 +1,9 @@
 "use client";
 
-// Side-effect: SignedResultRegistry augmentations for EVM + Solana
+// Side-effect: SignedResultRegistry augmentations for EVM + Solana + XRP
 import "@ledgerhq/ledger-wallet-provider-evm";
 import "@ledgerhq/ledger-wallet-provider-solana";
+import "@ledgerhq/ledger-wallet-provider-xrp";
 
 import {
   createContext,
@@ -16,6 +17,7 @@ import {
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm";
 import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
 import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
+import { xrpBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-xrp";
 
 import { MOCK_SERVER_URL } from "../mock-server";
 
@@ -194,6 +196,7 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         blockchainProviderFactories: [
           evmBlockchainProviderFactory,
           solanaBlockchainProviderFactory,
+          xrpBlockchainProviderFactory,
         ],
         devConfig: {
           stub: {

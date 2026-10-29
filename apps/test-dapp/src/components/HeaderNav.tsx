@@ -22,6 +22,11 @@ const LINKS: NavLink[] = [
     label: "Solana",
     match: (pathname) => pathname.startsWith("/solana"),
   },
+  {
+    href: "/xrp",
+    label: "XRP",
+    match: (pathname) => pathname.startsWith("/xrp"),
+  },
 ];
 
 export function HeaderNav() {
@@ -36,10 +41,10 @@ export function HeaderNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              "px-12 py-6 rounded-lg body-2-semi-bold transition-colors",
+              "body-2-semi-bold rounded-lg px-12 py-6 transition-colors",
               isActive
-                ? "bg-muted-transparent text-base border border-active"
-                : "text-muted hover:text-base hover:bg-muted-transparent border border-transparent",
+                ? "bg-muted-transparent border-active border text-base"
+                : "text-muted hover:bg-muted-transparent border border-transparent hover:text-base",
             )}
           >
             {link.label}
