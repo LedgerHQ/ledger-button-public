@@ -12,9 +12,9 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils } from "../EventTrackingUtils";
-import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
+import { resolveTrackedChainId } from "../utils/resolveTrackedChainId";
 
 @injectable()
 export class TrackTransactionCompletedUseCase {

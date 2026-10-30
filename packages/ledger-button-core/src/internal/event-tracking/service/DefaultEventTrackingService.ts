@@ -13,8 +13,8 @@ import type { ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { EventTrackingUtils } from "../EventTrackingUtils";
-import { generateUUID } from "../utils";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
+import { generateUUID } from "../utils/utils";
 import type { EventTrackingService } from "./EventTrackingService";
 
 @injectable()
