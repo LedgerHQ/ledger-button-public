@@ -11,9 +11,9 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils";
-import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils, stringToSha256 } from "../utils/EventTrackingUtils";
+import { resolveTrackedChainId } from "../utils/resolveTrackedChainId";
 
 // Typed messages are EIP-712, only signed through the EVM provider.
 const EVM_FAMILY: BlockchainFamily = "ethereum";
