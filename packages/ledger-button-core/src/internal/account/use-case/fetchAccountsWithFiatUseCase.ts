@@ -13,8 +13,8 @@ import {
 } from "rxjs";
 
 import type { Account, AccountWithFiat } from "@api/model/Account";
-import { type ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

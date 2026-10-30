@@ -7,7 +7,7 @@ import type {
   FiatBalance,
 } from "@api/model/Account";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 
 import { enrichWithLoadingStates } from "../utils/accountFiatUtils";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase";

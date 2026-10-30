@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 
 import type { AccountService } from "../service/AccountService";
 import { FindAccountForNetworkUseCase } from "./findAccountForNetworkUseCase";

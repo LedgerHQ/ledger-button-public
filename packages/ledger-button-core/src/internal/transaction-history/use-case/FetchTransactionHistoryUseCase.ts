@@ -7,7 +7,7 @@ import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
-import { UNRESOLVED_DECIMALS } from "@internal/currency/currencyUtils";
+import { UNRESOLVED_DECIMALS } from "@internal/currency/utils/currencyUtils";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

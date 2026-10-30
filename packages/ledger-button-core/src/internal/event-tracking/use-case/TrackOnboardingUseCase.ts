@@ -6,14 +6,14 @@ import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
-import { type ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
 
 @injectable()
 export class TrackOnboardingUseCase {

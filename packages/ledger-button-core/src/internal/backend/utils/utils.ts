@@ -2,7 +2,7 @@ import type {
   CoinServiceBroadcastResponse,
   JsonRpcResponse,
   JsonRpcResponseSuccess,
-} from "./types";
+} from "../model/types";
 
 export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
   return (

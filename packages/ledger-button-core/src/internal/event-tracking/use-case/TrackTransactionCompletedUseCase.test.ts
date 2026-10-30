@@ -8,11 +8,11 @@ import type { EventRequest } from "@internal/backend/model/trackEvent";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import type { Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
 import { TrackTransactionCompletedUseCase } from "./TrackTransactionCompletedUseCase";
 
 const polygonAccount: Account = {

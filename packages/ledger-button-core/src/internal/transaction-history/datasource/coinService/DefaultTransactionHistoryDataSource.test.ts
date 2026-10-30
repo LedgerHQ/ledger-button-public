@@ -5,7 +5,7 @@ import type { CurrencyDescriptor } from "@api/blockchain-provider/model/Currency
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import type { Config } from "@internal/config/model/config";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 
 import {

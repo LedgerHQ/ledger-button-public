@@ -12,7 +12,7 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { storageModuleTypes } from "../di/storageModuleTypes";
-import type { StorageService } from "../StorageService";
+import type { StorageService } from "../service/StorageService";
 
 @injectable()
 export class KeyPairMigrationService {
