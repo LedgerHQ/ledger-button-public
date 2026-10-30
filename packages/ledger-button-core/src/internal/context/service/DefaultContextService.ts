@@ -7,7 +7,7 @@ import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
 } from "@api/model/ButtonCoreContext";
-import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/constant";
+import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/model/constant";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

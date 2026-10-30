@@ -1,11 +1,11 @@
 import { LedgerButtonError } from "@api/errors/LedgerButtonError";
-
-import { TrackedErrorType } from "./config/ErrorTrackingConfig";
 import {
   ErrorOccurredEventData,
   EventRequest,
   EventType,
-} from "../backend/model/trackEvent";
+} from "@internal/backend/model/trackEvent";
+
+import { TrackedErrorType } from "../config/ErrorTrackingConfig";
 import { generateUUID } from "./utils";
 
 interface ErrorTrackingParams {

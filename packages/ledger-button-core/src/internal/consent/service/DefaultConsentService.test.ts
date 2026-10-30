@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrackConsentGivenUseCase } from "@internal/event-tracking/use-case/TrackConsentGivenUseCase";
 import type { TrackConsentRemovedUseCase } from "@internal/event-tracking/use-case/TrackConsentRemovedUseCase";
 import type { UserConsent } from "@internal/storage/model/UserConsent";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import { DefaultConsentService } from "./DefaultConsentService";
 

@@ -1,13 +1,14 @@
 import { Left, Right } from "purify-ts";
 
+import type { NetworkService } from "@internal/network/service/NetworkService";
+
 import {
   type EventRequest,
   type EventResponse,
   EventType,
-} from "./model/trackEvent";
-import type { NetworkService } from "../network/NetworkService";
+} from "../model/trackEvent";
+import type { BroadcastRequest } from "../model/types";
 import { DefaultBackendService } from "./DefaultBackendService";
-import type { BroadcastRequest } from "./types";
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;

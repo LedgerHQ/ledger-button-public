@@ -11,7 +11,7 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
 import type { NetworkServiceOpts } from "@internal/network/model/types";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 import {
   TransactionHistoryEntry,

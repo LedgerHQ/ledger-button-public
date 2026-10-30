@@ -7,12 +7,12 @@ import {
   type TokenBalance,
 } from "@internal/balance/model/types";
 import type { BalanceService } from "@internal/balance/service/BalanceService";
+import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes";
+import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
 import {
   formatBalance,
   UNRESOLVED_DECIMALS,
-} from "@internal/currency/currencyUtils";
-import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes";
-import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
+} from "@internal/currency/utils/currencyUtils";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
