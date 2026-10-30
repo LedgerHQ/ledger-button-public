@@ -39,7 +39,7 @@ export function XrpActionsBlock({
   return (
     <>
       <div className="border-muted bg-canvas rounded-lg border p-20">
-        <span className="body-2-semi-bold text-muted mb-12 block tracking-wider uppercase">
+        <span className="body-2-semi-bold text-muted mb-12 block uppercase">
           Payment
         </span>
         <p className="body-2 text-error mb-14">
@@ -92,7 +92,7 @@ export function XrpActionsBlock({
       </div>
 
       <div className="border-muted bg-canvas rounded-lg border p-20">
-        <span className="body-2-semi-bold text-muted mb-12 block tracking-wider uppercase">
+        <span className="body-2-semi-bold text-muted mb-12 block uppercase">
           Sign message
         </span>
         <p className="body-2 text-muted mb-14">

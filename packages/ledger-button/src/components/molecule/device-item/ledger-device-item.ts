@@ -11,9 +11,9 @@ import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 const deviceItemVariants = cva(
   [
-    "group group flex items-center justify-between rounded-md",
+    "group flex items-center justify-between rounded-md",
     "min-w-full",
-    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
+    "bg-muted p-12 transition duration-150 hover:bg-muted-hover",
   ],
   {
     variants: {
@@ -38,7 +38,7 @@ const statusIndicatorVariants = cva(
   {
     variants: {
       status: {
-        connected: ["text-success-foreground bg-success-transparent"],
+        connected: ["bg-success-transparent"],
         available: ["bg-muted text-muted"],
       },
     },

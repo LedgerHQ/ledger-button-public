@@ -19,7 +19,7 @@ const infoStateVariants = cva(
         flex: "p-24 pt-0",
         apexp: "p-24 pt-0",
         nanox: "p-20 pt-0",
-        stax: "p-28 pt-0",
+        stax: "pt-0",
       },
     },
     defaultVariants: {
