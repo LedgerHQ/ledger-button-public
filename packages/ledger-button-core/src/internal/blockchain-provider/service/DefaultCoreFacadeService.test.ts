@@ -6,7 +6,7 @@ import { Maybe, Right } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
-import type { BackendService } from "@internal/backend/BackendService";
+import type { BackendService } from "@internal/backend/service/BackendService";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/service/ContextService";

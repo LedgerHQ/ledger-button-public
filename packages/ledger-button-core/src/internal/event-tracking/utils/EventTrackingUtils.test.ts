@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import type {
   InvoicingTransactionSignedEventData,
   MobileRedirectLedgerWalletEventData,
-} from "../backend/model/trackEvent";
-import { EventType } from "../backend/model/trackEvent";
+} from "@internal/backend/model/trackEvent";
+import { EventType } from "@internal/backend/model/trackEvent";
+
 import { EventTrackingUtils } from "./EventTrackingUtils";
 
 describe("EventTrackingUtils", () => {

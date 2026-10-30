@@ -10,7 +10,7 @@ import type {
 } from "@api/model/dappConfig/BlockchainConfig";
 import type { ContextService } from "@internal/context/service/ContextService";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
 import { aCurrencyDescriptor } from "../__mocks__/currencyDescriptorMock";

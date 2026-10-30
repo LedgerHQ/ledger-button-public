@@ -3,20 +3,20 @@ import { Either, Maybe, Nothing } from "purify-ts";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { storageModuleTypes } from "./di/storageModuleTypes";
-import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel";
+import { storageModuleTypes } from "../di/storageModuleTypes";
+import { AccountDbModel, mapToAccountDbModel } from "../model/accountDbModel";
 import {
   type ConfigOverrides,
   DEFAULT_CONFIG_OVERRIDES,
-} from "./model/ConfigOverrides";
-import { STORAGE_KEYS } from "./model/constant";
-import { StorageIDBErrors } from "./model/errors";
-import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from "./model/FeatureFlags";
-import { type UserConsent } from "./model/UserConsent";
-import { type IndexedDbService } from "./service/IndexedDbService";
-import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
-import { type LoggerPublisher } from "../logger/service/LoggerPublisher";
+} from "../model/ConfigOverrides";
+import { STORAGE_KEYS } from "../model/constant";
+import { StorageIDBErrors } from "../model/errors";
+import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from "../model/FeatureFlags";
+import { type UserConsent } from "../model/UserConsent";
+import { type IndexedDbService } from "./IndexedDbService";
 import { type StorageService } from "./StorageService";
 
 @injectable()

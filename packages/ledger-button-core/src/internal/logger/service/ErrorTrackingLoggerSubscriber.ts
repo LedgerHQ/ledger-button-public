@@ -6,7 +6,7 @@ import {
   DEFAULT_ERROR_TRACKING_CONFIG,
   shouldTrackError,
 } from "@internal/event-tracking/config/ErrorTrackingConfig";
-import { createErrorEvent } from "@internal/event-tracking/ErrorTrackingUtils";
+import { createErrorEvent } from "@internal/event-tracking/utils/ErrorTrackingUtils";
 
 import { LOG_LEVELS } from "../model/constant";
 import { LogData } from "./LoggerPublisher";

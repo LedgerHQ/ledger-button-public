@@ -1,11 +1,11 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { BackendService } from "@internal/backend/BackendService";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import {
   type EventRequest,
   EventType,
 } from "@internal/backend/model/trackEvent";
+import type { BackendService } from "@internal/backend/service/BackendService";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import type { Config } from "@internal/config/model/config";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
@@ -13,8 +13,8 @@ import type { ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { EventTrackingUtils } from "../EventTrackingUtils";
-import { generateUUID } from "../utils";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
+import { generateUUID } from "../utils/utils";
 import type { EventTrackingService } from "./EventTrackingService";
 
 @injectable()
