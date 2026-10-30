@@ -11,8 +11,8 @@ import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/service/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
 import { TrackTransactionCompletedUseCase } from "./TrackTransactionCompletedUseCase";
 
 const polygonAccount: Account = {

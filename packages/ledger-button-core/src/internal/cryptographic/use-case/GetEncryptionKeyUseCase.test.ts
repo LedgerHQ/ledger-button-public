@@ -1,7 +1,7 @@
 import { Just, Nothing } from "purify-ts";
 
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
-import { StorageService } from "@internal/storage/StorageService";
+import { StorageService } from "@internal/storage/service/StorageService";
 
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKeyUseCase";
 

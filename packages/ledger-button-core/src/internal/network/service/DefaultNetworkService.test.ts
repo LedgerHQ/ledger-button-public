@@ -1,6 +1,6 @@
 import { NetworkError } from "@api/errors/NetworkErrors";
+import { Config } from "@internal/config/model/config";
 
-import { Config } from "../config/model/config";
 import { DefaultNetworkService } from "./DefaultNetworkService";
 
 describe("DefaultNetworkService", () => {

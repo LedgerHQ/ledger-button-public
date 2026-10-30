@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import type { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource";
 import type { FiatCurrency } from "../datasource/fiatCurrencyTypes";

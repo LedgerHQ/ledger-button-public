@@ -3,10 +3,10 @@ import { Either, Maybe } from "purify-ts";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 
-import type { ConfigOverrides } from "./model/ConfigOverrides";
-import { StorageIDBErrors } from "./model/errors";
-import type { FeatureFlags } from "./model/FeatureFlags";
-import { UserConsent } from "./model/UserConsent";
+import type { ConfigOverrides } from "../model/ConfigOverrides";
+import { StorageIDBErrors } from "../model/errors";
+import type { FeatureFlags } from "../model/FeatureFlags";
+import { UserConsent } from "../model/UserConsent";
 
 export interface StorageService {
   setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;

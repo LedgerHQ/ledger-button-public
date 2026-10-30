@@ -1,7 +1,7 @@
 import { Just, Left, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import type { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource";
 import type { FiatCurrency } from "../datasource/fiatCurrencyTypes";

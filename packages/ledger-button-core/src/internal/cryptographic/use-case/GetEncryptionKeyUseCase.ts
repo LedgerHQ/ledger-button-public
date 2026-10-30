@@ -3,7 +3,7 @@ import { type Factory, inject } from "inversify";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 export class GetEncryptionKeyUseCase {
   private logger: LoggerPublisher;

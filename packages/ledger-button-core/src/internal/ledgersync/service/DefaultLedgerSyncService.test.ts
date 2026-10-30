@@ -22,7 +22,7 @@ import type { Config } from "@internal/config/model/config";
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
 import type { GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 import { mockConstructable } from "@internal/test-support/mockConstructable";
 
 import { LedgerSyncAuthContextMissingError } from "../model/errors";

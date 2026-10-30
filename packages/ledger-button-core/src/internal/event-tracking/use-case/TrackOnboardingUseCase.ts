@@ -12,8 +12,8 @@ import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
+import { EventTrackingUtils } from "../utils/EventTrackingUtils";
 
 @injectable()
 export class TrackOnboardingUseCase {
