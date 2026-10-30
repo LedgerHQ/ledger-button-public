@@ -42,7 +42,7 @@ import type {
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
 import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
 import { type WalletActionType } from "../internal/backend/model/trackEvent";
-import type { JSONRPCRequest } from "../internal/backend/types";
+import type { JSONRPCRequest } from "../internal/backend/model/types";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
 import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
@@ -52,11 +52,11 @@ import { configModuleTypes } from "../internal/config/di/configModuleTypes";
 import { Config } from "../internal/config/model/config";
 import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes";
 import { type ConsentService } from "../internal/consent/service/ConsentService";
-import { ContextService } from "../internal/context/ContextService";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
-import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant";
+import { ContextService } from "../internal/context/service/ContextService";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes";
 import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/model/constant";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes";
 import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase";
@@ -104,7 +104,7 @@ import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupp
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
 import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
-import { type StorageService } from "../internal/storage/StorageService";
+import { type StorageService } from "../internal/storage/service/StorageService";
 import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
 
 export type LedgerButtonCoreOptions = ContainerOptions;

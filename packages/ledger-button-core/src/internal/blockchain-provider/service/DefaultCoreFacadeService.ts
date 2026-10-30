@@ -19,22 +19,22 @@ import type {
 import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
 import { getSelectedAccount } from "@api/model/ButtonCoreContext";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
-import type { BackendService } from "@internal/backend/BackendService";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import {
   type BroadcastResponse,
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "@internal/backend/types";
+} from "@internal/backend/model/types";
+import type { BackendService } from "@internal/backend/service/BackendService";
 import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
 import type { CoinServiceDataSource } from "@internal/balance/datasource/coinService/CoinServiceDataSource";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import type { Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";

@@ -3,8 +3,6 @@ import { EventDataSchema } from "@schemas/event-schemas";
 import { sha256 } from "ethers";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
-import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
-
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
@@ -31,7 +29,9 @@ import {
   type WalletActionType,
   type WalletRedirectCancelledEventData,
   type WalletRedirectConfirmedEventData,
-} from "../backend/model/trackEvent";
+} from "@internal/backend/model/trackEvent";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
+
 import { generateUUID } from "./utils";
 
 export function normalizeTransactionHash(hash: string): string {

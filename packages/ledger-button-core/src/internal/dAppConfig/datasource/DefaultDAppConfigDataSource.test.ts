@@ -1,8 +1,8 @@
 import { Left, Right } from "purify-ts";
 import { ZodError } from "zod";
 
-import type { BackendService } from "@internal/backend/BackendService";
-import type { ConfigResponse } from "@internal/backend/types";
+import type { ConfigResponse } from "@internal/backend/model/types";
+import type { BackendService } from "@internal/backend/service/BackendService";
 import type { Config } from "@internal/config/model/config";
 
 import { DefaultDAppConfigDataSource } from "./DefaultDAppConfigDataSource";

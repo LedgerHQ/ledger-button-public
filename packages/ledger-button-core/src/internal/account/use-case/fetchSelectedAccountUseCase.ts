@@ -18,15 +18,15 @@ import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
 } from "@api/model/ButtonCoreContext";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes";
 import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { calculateTotalFiatValue } from "../accountFiatUtils";
 import { accountModuleTypes } from "../di/accountModuleTypes";
+import { calculateTotalFiatValue } from "../utils/accountFiatUtils";
 import type { BuildNetworksUseCase } from "./buildNetworksUseCase";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";

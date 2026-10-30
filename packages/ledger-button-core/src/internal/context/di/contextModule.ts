@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultContextService } from "../DefaultContextService";
+import { DefaultContextService } from "../service/DefaultContextService";
 import { contextModuleTypes } from "./contextModuleTypes";
 
 export function contextModuleFactory() {

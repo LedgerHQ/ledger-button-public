@@ -1,11 +1,11 @@
 import { Just, Left, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
-import { DEFAULT_FIAT_CURRENCY, DEFAULT_SUPPORTED_FIAT_CURRENCIES } from "../constant";
 import type { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource";
 import type { FiatCurrency } from "../datasource/fiatCurrencyTypes";
+import { DEFAULT_FIAT_CURRENCY, DEFAULT_SUPPORTED_FIAT_CURRENCIES } from "../model/constant";
 import { DefaultCurrencyService } from "./DefaultCurrencyService";
 
 const MOCK_CURRENCIES: FiatCurrency[] = [

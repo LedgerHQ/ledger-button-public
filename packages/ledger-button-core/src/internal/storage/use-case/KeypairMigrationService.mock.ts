@@ -8,7 +8,7 @@ import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/G
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { StorageService } from "../StorageService";
+import type { StorageService } from "../service/StorageService";
 import { KeyPairMigrationService } from "./KeypairMigrationService";
 
 export const mockKeyPairBuffer = new Uint8Array([1, 2, 3, 4, 5]);

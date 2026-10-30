@@ -8,7 +8,7 @@ import {
 } from "@api/errors/LedgerSyncErrors";
 import type { Account, DetailedAccount } from "@api/model/Account";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

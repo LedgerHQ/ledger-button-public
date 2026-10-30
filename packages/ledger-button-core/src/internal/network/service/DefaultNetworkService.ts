@@ -2,17 +2,17 @@ import { inject, injectable } from "inversify";
 import { Either, EitherAsync } from "purify-ts";
 
 import { NetworkError } from "@api/errors/NetworkErrors";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
 
+import PACKAGE from "../../../../package.json" with { type: "json" };
 import {
   DEFAULT_HEADERS,
   LEDGER_CLIENT_VERSION_HEADER,
   LEDGER_ORIGIN_TOKEN_HEADER,
-} from "./model/constant";
-import { type NetworkServiceOpts } from "./model/types";
-import { merge } from "./utils/merge";
-import PACKAGE from "../../../package.json" with { type: "json" };
-import { configModuleTypes } from "../config/di/configModuleTypes";
-import { Config } from "../config/model/config";
+} from "../model/constant";
+import { type NetworkServiceOpts } from "../model/types";
+import { merge } from "../utils/merge";
 import { NetworkService } from "./NetworkService";
 
 @injectable()
