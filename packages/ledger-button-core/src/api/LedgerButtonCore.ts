@@ -176,26 +176,24 @@ export class LedgerButtonCore {
     // (e.g. EIP-1193 `disconnect`) can drop its family through the port.
     coreFacade.setDisconnectHandler((family) => this.disconnect(family));
 
-    const isGeoBlocked = await this.container
+    // Providers are built once and handed to dApps, which keep the object they
+    // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
+    // orphan their reference, so it must stay out of `restoreContext`.
+    // They are announced even to a geo-blocked user: the block is shown when
+    // the user acts (the UI swaps every screen for the geo-block one), not as
+    // a modal nobody asked for.
+    this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+
+    // Not awaited: the probe only flags the context and must never delay the
+    // announcement (it can take up to its 3s timeout). It is fail-open and
+    // never rejects.
+    void this.container
       .get<CheckGeoBlockUseCase>(geoBlockModuleTypes.CheckGeoBlockUseCase)
       .execute();
-
-    // A geo-blocked user must not be advertised a wallet they cannot use, so no
-    // provider is announced to the dApp.
-    if (!isGeoBlocked) {
-      // Providers are built once and handed to dApps, which keep the object they
-      // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
-      // orphan their reference, so it must stay out of `restoreContext`.
-      this.container
-        .get<BlockchainProviderManager>(
-          blockchainProviderModuleTypes.BlockchainProviderManager,
-        )
-        .init(
-          coreFacade,
-          dappConfig,
-          this.opts.blockchainProviderFactories ?? [],
-        );
-    }
 
     await this.restoreContext();
 

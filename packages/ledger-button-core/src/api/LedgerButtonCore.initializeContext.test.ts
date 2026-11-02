@@ -38,7 +38,7 @@ describe("LedgerButtonCore initializeContext", () => {
     onEvent: ReturnType<typeof vi.fn>;
   };
 
-  const createCore = async () => {
+  const createCore = async ({ probePending = false } = {}) => {
     const logger = {
       debug: vi.fn(),
       info: vi.fn(),
@@ -46,7 +46,11 @@ describe("LedgerButtonCore initializeContext", () => {
       error: vi.fn(),
       fatal: vi.fn(),
     };
-    checkGeoBlock = { execute: vi.fn().mockResolvedValue(isGeoBlocked) };
+    checkGeoBlock = {
+      execute: probePending
+        ? vi.fn(() => new Promise<boolean>(() => undefined))
+        : vi.fn().mockResolvedValue(isGeoBlocked),
+    };
     blockchainProviderManager = {
       init: vi.fn(),
       describeCurrency: vi.fn(() => Maybe.empty()),
@@ -133,6 +137,15 @@ describe("LedgerButtonCore initializeContext", () => {
       );
     });
 
+    it("should not wait for a probe that never answers", async () => {
+      isGeoBlocked = false;
+      const core = await createCore({ probePending: true });
+
+      expect(core).toBeDefined();
+      expect(blockchainProviderManager.init).toHaveBeenCalledTimes(1);
+      expect(blockchainProviderManager.setSelectedAccounts).toHaveBeenCalled();
+    });
+
     it("should restore the context as not geo-blocked", async () => {
       await createCore();
 
@@ -148,10 +161,14 @@ describe("LedgerButtonCore initializeContext", () => {
       isGeoBlocked = true;
     });
 
-    it("should not announce any blockchain provider", async () => {
+    it("should still announce the blockchain providers", async () => {
       await createCore();
 
-      expect(blockchainProviderManager.init).not.toHaveBeenCalled();
+      expect(blockchainProviderManager.init).toHaveBeenCalledWith(
+        expect.anything(),
+        dappConfig,
+        factories,
+      );
     });
 
     it("should keep the geo-block flag when restoring the context", async () => {
