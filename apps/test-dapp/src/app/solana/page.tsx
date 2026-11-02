@@ -685,11 +685,13 @@ async function buildTransferMessage(
   rpc: SolanaRpc,
   chain: SolanaChain,
   feePayer: TransactionSigner,
-  { recipient, lamports: amount }: SolanaTransferValues,
+  { recipient, lamports: amount, useV1 }: SolanaTransferValues,
 ) {
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
   return pipe(
-    createTransactionMessage({ version: 0 }),
+    // @solana/kit compiles and encodes v1 messages, but the type of
+    // createTransactionMessage does not list version 1 yet.
+    createTransactionMessage({ version: useV1 ? (1 as unknown as 0) : 0 }),
     (message) => setTransactionMessageFeePayerSigner(feePayer, message),
     (message) =>
       setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message),
