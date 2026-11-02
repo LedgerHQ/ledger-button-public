@@ -3,6 +3,7 @@
 ### 🩹 Fixes
 
 - Upgrade the Solana signer kit to 1.15.0 to support Solana v1 transactions, with the Device Management Kit 1.11.0 and the context module 2.8.0 it requires ([8a92e7d2](https://github.com/LedgerHQ/ledger-button/commit/8a92e7d2))
+- Advertise v1 transactions in `supportedTransactionVersions` for `solana:signTransaction` and `solana:signAndSendTransaction`, so Wallet Standard dApps send them to the wallet ([984e5fb8](https://github.com/LedgerHQ/ledger-button/commit/984e5fb8))
 
 ### ❤️ Thank You
 
