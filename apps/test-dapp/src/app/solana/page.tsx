@@ -9,8 +9,10 @@ import {
   getBase58Decoder,
   getBase64EncodedWireTransaction,
   pipe,
+  setTransactionMessageComputeUnitLimit,
   setTransactionMessageFeePayerSigner,
   setTransactionMessageLifetimeUsingBlockhash,
+  setTransactionMessageLoadedAccountsDataSizeLimit,
   signAndSendTransactionMessageWithSigners,
   signTransactionMessageWithSigners,
   type TransactionSigner,
@@ -681,6 +683,10 @@ function useJupiterSwapHandlers({
   return { signOnly, signAndExecute };
 }
 
+// A SOL transfer uses 150 compute units and loads 142 bytes of account data.
+const V1_COMPUTE_UNIT_LIMIT = 10_000;
+const V1_LOADED_ACCOUNTS_DATA_SIZE_LIMIT = 64_000;
+
 async function buildTransferMessage(
   rpc: SolanaRpc,
   chain: SolanaChain,
@@ -704,5 +710,17 @@ async function buildTransferMessage(
         }),
         message,
       ),
+    // A v1 message carries its limits in the header config, and the network
+    // reads a missing limit as 0, so the transfer would fail simulation.
+    (message) =>
+      useV1
+        ? setTransactionMessageLoadedAccountsDataSizeLimit(
+            V1_LOADED_ACCOUNTS_DATA_SIZE_LIMIT,
+            setTransactionMessageComputeUnitLimit(
+              V1_COMPUTE_UNIT_LIMIT,
+              message,
+            ),
+          )
+        : message,
   );
 }
