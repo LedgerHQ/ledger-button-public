@@ -14,6 +14,7 @@ import {
 } from "@ledgerhq/device-signer-kit-xrp";
 import {
   IncorrectSeedError,
+  mapOpenAppUserRejection,
   type SignFlowStatus,
   type UserInteractionNeeded,
 } from "@ledgerhq/ledger-wallet-provider-core";
@@ -152,16 +153,28 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addResultToInternalState(
-                    event.output,
-                    context._internalState,
-                    (state) => state,
+                  this.normalizeOpenAppError(
+                    this.addResultToInternalState(
+                      event.output,
+                      context._internalState,
+                      (state) => state,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignXrpTransactionFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -327,6 +340,15 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
         error: e as SignXrpTransactionFlowDAInternalState["error"],
       }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignXrpTransactionFlowDAInternalState,
+  ): SignXrpTransactionFlowDAInternalState {
+    return {
+      ...internalState,
+      error: mapOpenAppUserRejection(internalState.error),
+    } as SignXrpTransactionFlowDAInternalState;
   }
 
   private verifyDeviceAddress({

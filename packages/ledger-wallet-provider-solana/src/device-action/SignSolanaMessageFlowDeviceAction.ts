@@ -1,9 +1,7 @@
 import {
   type DeviceActionStateMachine,
-  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
-  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -18,7 +16,7 @@ import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
 import type { UserInteractionNeeded } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   IncorrectSeedError,
-  UserRejectedTransactionError,
+  mapOpenAppUserRejection,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
@@ -380,17 +378,10 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
   private normalizeOpenAppError(
     internalState: SignSolanaMessageFlowDAInternalState,
   ): SignSolanaMessageFlowDAInternalState {
-    const { error } = internalState;
-    if (
-      error instanceof RefusedByUserDAError ||
-      (error instanceof GlobalCommandError && error.errorCode === "5501")
-    ) {
-      return {
-        ...internalState,
-        error: new UserRejectedTransactionError("User rejected open app"),
-      } as SignSolanaMessageFlowDAInternalState;
-    }
-    return internalState;
+    return {
+      ...internalState,
+      error: mapOpenAppUserRejection(internalState.error),
+    } as SignSolanaMessageFlowDAInternalState;
   }
 
   private addGetAddressResultToInternalState(
