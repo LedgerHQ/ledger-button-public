@@ -94,12 +94,8 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       },
       actors: {
         openApp: openAppDA.makeStateMachine(internalApi),
-        getAddress: getAddressDA.makeStateMachine(
-          internalApi,
-        ),
-        signTransaction: signTransactionDA.makeStateMachine(
-          internalApi,
-        ),
+        getAddress: getAddressDA.makeStateMachine(internalApi),
+        signTransaction: signTransactionDA.makeStateMachine(internalApi),
       },
       guards: {
         hasNoError: ({ context }) => context._internalState.error === null,

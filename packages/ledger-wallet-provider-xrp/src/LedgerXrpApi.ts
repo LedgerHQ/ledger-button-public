@@ -39,12 +39,14 @@ export interface LedgerXrpApi {
   fetchAccount(): Promise<XrpAccountInfo | null>;
   /**
    * Signs on the device and returns the signed blob (hex), its transaction ID
-   * and the `TxnSignature`. The transaction must already carry `Sequence` and
-   * `Fee`: autofill is not implemented yet.
+   * and the `TxnSignature`. A missing `Sequence`, `Fee` or
+   * `LastLedgerSequence` is filled from the network first; rejects with
+   * `AUTOFILL_FAILED` when it cannot be read.
    */
   sign(
     tx: Record<string, unknown>,
   ): Promise<{ tx_blob: string; hash: string; signature: string }>;
+  /** Same autofill as `sign`, then submits; rejects with `SUBMIT_FAILED` unless the node takes it. */
   signAndSubmit(tx: Record<string, unknown>): Promise<{ hash: string }>;
   on(event: XrpApiEvent, listener: XrpApiListener): void;
   off(event: XrpApiEvent, listener: XrpApiListener): void;

@@ -9,8 +9,8 @@ export const XRP_CURRENCY_ID = "ripple";
 export const XRP_NATIVE_DECIMALS = 6; // 1 XRP = 1_000_000 drops
 export const XRP_NETWORK_ID = "mainnet";
 
-// TODO(LBD-913): confirm the chainId the button backend expects for XRPL (see Solana's "900").
-export const XRP_BACKEND_CHAIN_ID = "TODO";
+/** Button backend chain id: the XRPL `network_id` (0 mainnet, 1 testnet). */
+export const XRP_BACKEND_CHAIN_ID = "0";
 
 /** BIP44, coin type 144. Ledger Wallet accounts: 44'/144'/<account>'/0/0 (secp256k1). */
 export function getXrpDerivationPath(account: ProviderAccount): string {

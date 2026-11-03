@@ -1,4 +1,5 @@
-export type XrpApiErrorCode = "NOT_CONNECTED" | "SUBMIT_FAILED";
+export type XrpApiErrorCode =
+  "NOT_CONNECTED" | "AUTOFILL_FAILED" | "SUBMIT_FAILED";
 
 /** Typed error rejected by the dApp-facing XrpAPI methods. */
 export class XrpApiError extends Error {

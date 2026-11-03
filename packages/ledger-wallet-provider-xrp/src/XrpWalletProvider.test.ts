@@ -218,6 +218,7 @@ describe("XrpWalletProvider", () => {
         Amount: "1000000",
         Fee: "10",
         Sequence: 1,
+        LastLedgerSequence: 100,
       };
       vi.mocked(runSignFlow).mockImplementation(async () => {
         callerTx.Amount = "999999999";
@@ -231,6 +232,51 @@ describe("XrpWalletProvider", () => {
 
       expect(decode(tx_blob)).toMatchObject({ Amount: "1000000" });
     });
+
+    it("autofills the missing fields through the button backend before signing", async () => {
+      const { api, core } = createApi();
+      api.setSelectedAccount(XRP_TEST_ACCOUNT);
+      vi.mocked(runSignFlow).mockResolvedValue({
+        xrpSignature: new Uint8Array([0x30, 0x45, 0x02, 0x21]),
+        signingPubKey: PUBLIC_KEY,
+      });
+      const results: Record<string, object> = {
+        account_info: { status: "success", account_data: { Sequence: 7 } },
+        server_info: {
+          status: "success",
+          info: { load_factor: 1, validated_ledger: { base_fee_xrp: 0.00001 } },
+        },
+        ledger: { status: "success", ledger_index: 1000 },
+      };
+      vi.mocked(core.broadcastRPC).mockImplementation(async (rpc) => ({
+        jsonrpc: "2.0",
+        id: 1,
+        result: results[rpc.method],
+      }));
+
+      const { tx_blob } = await api.sign({
+        TransactionType: "Payment",
+        Destination: OTHER_ACCOUNT.freshAddress,
+        Amount: "1000000",
+      });
+
+      expect(decode(tx_blob)).toMatchObject({
+        Sequence: 7,
+        Fee: "10",
+        LastLedgerSequence: 1020,
+      });
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "account_info",
+          params: [
+            { account: XRP_TEST_ACCOUNT.freshAddress, ledger_index: "current" },
+          ],
+        },
+        { name: "xrp", chainId: "0" },
+      );
+    });
   });
 
   describe("signAndSubmit", () => {
@@ -240,6 +286,7 @@ describe("XrpWalletProvider", () => {
       Amount: "1000000",
       Fee: "10",
       Sequence: 1,
+      LastLedgerSequence: 100,
     };
 
     function createSignedApi(submitResponse: unknown) {

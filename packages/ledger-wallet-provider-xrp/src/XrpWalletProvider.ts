@@ -1,4 +1,5 @@
 import type {
+  BroadcastResponse,
   CoreFacade,
   ProviderAccount,
   ProviderLogger,
@@ -8,6 +9,7 @@ import { XrpApiError } from "./model/XrpApiError";
 import { isSignedXrpTransactionResult } from "./model/XrpSignedResult";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
+import { autofillTransaction } from "./utils/xrpAutofill";
 import { assertSubmitAccepted } from "./utils/xrpSubmitResult";
 import {
   assembleSignedTransaction,
@@ -113,33 +115,44 @@ export class XrpWalletProvider implements LedgerXrpApi {
   ): Promise<{ signed: SignedXrpTransaction; unsigned: XrpTransaction }> {
     const account = await this.resolveAccount();
     this.assertSenderIsSelectedAccount(tx, account);
+    const filled = await autofillTransaction(
+      tx,
+      account.freshAddress,
+      (method, params) => this.requestXrpl(method, params),
+    );
 
     const { xrpSignature, signingPubKey } = await runSignFlow({
       core: this.core,
       logger: this.logger,
-      runUseCase: () => this.signXrp.execute(tx, account),
+      runUseCase: () => this.signXrp.execute(filled, account),
       mapResult: (data) =>
         isSignedXrpTransactionResult(data) ? data : undefined,
     });
 
-    const unsigned = withSigningFields(tx, account.freshAddress, signingPubKey);
+    const unsigned = withSigningFields(
+      filled,
+      account.freshAddress,
+      signingPubKey,
+    );
     const signed = await assembleSignedTransaction(unsigned, xrpSignature);
     return { signed, unsigned };
   }
 
   /** Rejects unless the node accepted or queued the transaction. */
   private async submit(txBlob: string): Promise<void> {
-    // XRPL JSON-RPC `submit` fits CoreFacade.broadcastRPC directly.
-    const response = await this.core.broadcastRPC(
-      {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "submit",
-        params: [{ tx_blob: txBlob }],
-      },
+    const response = await this.requestXrpl("submit", { tx_blob: txBlob });
+    assertSubmitAccepted(response);
+  }
+
+  /** XRPL JSON-RPC through the button backend, which proxies it to Ledger's node. */
+  private requestXrpl(
+    method: string,
+    params: Record<string, unknown>,
+  ): Promise<BroadcastResponse> {
+    return this.core.broadcastRPC(
+      { jsonrpc: "2.0", id: 1, method, params: [params] },
       { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
     );
-    assertSubmitAccepted(response);
   }
 
   /**
