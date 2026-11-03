@@ -6,6 +6,7 @@ import { Button, TextInput } from "@ledgerhq/lumen-ui-react";
 export interface SolanaTransferValues {
   recipient: string;
   lamports: number;
+  useV1: boolean;
 }
 
 interface SolanaTransferModalProps {
@@ -27,6 +28,7 @@ export function SolanaTransferModal({
 }: SolanaTransferModalProps) {
   const [recipient, setRecipient] = useState(defaultRecipient);
   const [lamports, setLamports] = useState(String(defaultLamports));
+  const [useV1, setUseV1] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isSelfTransfer =
@@ -51,8 +53,8 @@ export function SolanaTransferModal({
     }
     setError(null);
     onClose();
-    await onSubmit({ recipient: recipient.trim(), lamports: parsed });
-  }, [onSubmit, onClose, recipient, lamports]);
+    await onSubmit({ recipient: recipient.trim(), lamports: parsed, useV1 });
+  }, [onSubmit, onClose, recipient, lamports, useV1]);
 
   return (
     <div className="space-y-16">
@@ -95,6 +97,20 @@ export function SolanaTransferModal({
         <span>solana airdrop 1 &lt;pubkey&gt; --url devnet</span>
         .
       </p>
+      <label className="flex cursor-pointer items-start gap-8">
+        <input
+          type="checkbox"
+          className="mt-2"
+          checked={useV1}
+          onChange={(event) => setUseV1(event.target.checked)}
+        />
+        <span className="body-4 text-base">
+          Build a v1 transaction
+          <span className="text-muted block">
+            Needs Solana app 1.18.0 or later on the device. Unchecked builds v0.
+          </span>
+        </span>
+      </label>
       {error && (
         <div className="bg-error-transparent border-error rounded-lg border p-12">
           <code className="body-4 text-error">{error}</code>

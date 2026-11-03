@@ -135,12 +135,12 @@ type SolanaSignFeatures = {
   };
   "solana:signTransaction": {
     version: "1.0.0";
-    supportedTransactionVersions: readonly ("legacy" | 0)[];
+    supportedTransactionVersions: readonly ("legacy" | 0 | 1)[];
     signTransaction: SolanaSignTransactionMethod;
   };
   "solana:signAndSendTransaction": {
     version: "1.0.0";
-    supportedTransactionVersions: readonly ("legacy" | 0)[];
+    supportedTransactionVersions: readonly ("legacy" | 0 | 1)[];
     signAndSendTransaction: SolanaSignAndSendTransactionMethod;
   };
 };
@@ -229,12 +229,12 @@ export class SolanaWalletProvider implements Wallet {
       },
       "solana:signTransaction": {
         version: "1.0.0",
-        supportedTransactionVersions: ["legacy", 0],
+        supportedTransactionVersions: ["legacy", 0, 1],
         signTransaction: this.signTransaction,
       },
       "solana:signAndSendTransaction": {
         version: "1.0.0",
-        supportedTransactionVersions: ["legacy", 0],
+        supportedTransactionVersions: ["legacy", 0, 1],
         signAndSendTransaction: this.signAndSendTransaction,
       },
     };

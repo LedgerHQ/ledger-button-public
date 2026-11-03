@@ -130,6 +130,16 @@ describe("SolanaWalletProvider (connection)", () => {
         "solana:signAndSendTransaction",
       ]);
     });
+
+    it("advertises legacy, v0 and v1 transactions for signing", () => {
+      const { features } = createWallet();
+      expect(
+        features["solana:signTransaction"].supportedTransactionVersions,
+      ).toEqual(["legacy", 0, 1]);
+      expect(
+        features["solana:signAndSendTransaction"].supportedTransactionVersions,
+      ).toEqual(["legacy", 0, 1]);
+    });
   });
 
   describe("connect", () => {
