@@ -81,6 +81,7 @@ describe("DefaultContextService", () => {
         hasDeveloperMode: false,
         isMobilePlatform: false,
         preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
       });
     });
   });
@@ -114,6 +115,7 @@ describe("DefaultContextService", () => {
             hasDeveloperMode: false,
             isMobilePlatform: false,
             preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
           },
         },
         expectedContext: {
@@ -127,6 +129,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -143,6 +146,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -164,6 +168,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -181,6 +186,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -197,6 +203,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -226,6 +233,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -245,6 +253,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
       {
@@ -265,6 +274,7 @@ describe("DefaultContextService", () => {
               hasDeveloperMode: false,
               isMobilePlatform: false,
               preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
             },
           });
         },
@@ -279,6 +289,7 @@ describe("DefaultContextService", () => {
           hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        isGeoBlocked: false,
         },
       },
     ])("onEvent - $eventType", (event) => {
@@ -482,6 +493,16 @@ describe("DefaultContextService", () => {
         service.onEvent({ type: "developer_mode_enabled" });
 
         expect(service.getContext().hasDeveloperMode).toBe(true);
+      });
+    });
+
+    describe("geo_blocked event", () => {
+      it("should set isGeoBlocked to true", () => {
+        expect(service.getContext().isGeoBlocked).toBe(false);
+
+        service.onEvent({ type: "geo_blocked" });
+
+        expect(service.getContext().isGeoBlocked).toBe(true);
       });
     });
 

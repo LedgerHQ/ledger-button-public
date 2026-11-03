@@ -85,6 +85,8 @@ import {
 } from "../internal/event-tracking/use-case/TrackViewAllTransactions";
 import { TrackViewTransactionDetailsClickUseCase } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClickUseCase";
 import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction";
+import { geoBlockModuleTypes } from "../internal/geo-block/di/geoBlockModuleTypes";
+import type { CheckGeoBlockUseCase } from "../internal/geo-block/use-case/CheckGeoBlockUseCase";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService";
 import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
@@ -177,11 +179,21 @@ export class LedgerButtonCore {
     // Providers are built once and handed to dApps, which keep the object they
     // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
     // orphan their reference, so it must stay out of `restoreContext`.
+    // They are announced even to a geo-blocked user: the block is shown when
+    // the user acts (the UI swaps every screen for the geo-block one), not as
+    // a modal nobody asked for.
     this.container
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
       .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+
+    // Not awaited: the probe only flags the context and must never delay the
+    // announcement (it can take up to its 3s timeout). It is fail-open and
+    // never rejects.
+    void this.container
+      .get<CheckGeoBlockUseCase>(geoBlockModuleTypes.CheckGeoBlockUseCase)
+      .execute();
 
     await this.restoreContext();
 
@@ -261,6 +273,7 @@ export class LedgerButtonCore {
         hasDeveloperMode,
         isMobilePlatform,
         preferredFiatCurrency,
+        isGeoBlocked: this._contextService.getContext().isGeoBlocked,
       },
     });
 

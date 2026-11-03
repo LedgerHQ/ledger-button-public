@@ -29,6 +29,7 @@ export type ButtonCoreContext = {
   hasDeveloperMode: boolean;
   isMobilePlatform: boolean;
   preferredFiatCurrency: string;
+  isGeoBlocked: boolean;
 };
 
 /**

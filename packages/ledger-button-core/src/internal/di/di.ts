@@ -14,6 +14,7 @@ import { dAppConfigModuleFactory } from "../dAppConfig/di/dAppConfigModule";
 import { deviceModuleFactory } from "../device/di/deviceModule";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "../event-tracking/config/ErrorTrackingConfig";
 import { eventTrackingModuleFactory } from "../event-tracking/di/eventTrackingModule";
+import { geoBlockModuleFactory } from "../geo-block/di/geoBlockModule";
 import { ledgerSyncModuleFactory } from "../ledgersync/di/ledgerSyncModule";
 import { loggerModuleFactory } from "../logger/di/loggerModule";
 import { modalModuleFactory } from "../modal/di/modalModule";
@@ -78,6 +79,7 @@ export function createContainer({
     modalModuleFactory(),
     navigationModuleFactory(),
     contextModuleFactory(),
+    geoBlockModuleFactory(),
     pendingTransactionModuleFactory(),
   );
 
