@@ -1,6 +1,9 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
   DeviceActionStatus,
+  GlobalCommandError,
+  OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   UnknownDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -8,7 +11,10 @@ import {
   GetAddressDeviceActionFactory,
   SignTransactionDeviceActionFactory,
 } from "@ledgerhq/device-signer-kit-xrp";
-import { IncorrectSeedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
 import { decode } from "ripple-binary-codec";
 import { lastValueFrom, type Observable } from "rxjs";
@@ -99,6 +105,32 @@ function setupSignTransactionMock(error?: unknown): void {
       ),
     }),
   );
+}
+
+function setupOpenAppActorFailure(error: unknown): void {
+  (OpenAppWithDependenciesDeviceAction as Mock).mockImplementation(function () {
+    return {
+      makeStateMachine: vi.fn(() =>
+        createMachine({
+          context: {
+            intermediateValue: {
+              requiredUserInteraction: UserInteractionRequired.ConfirmOpenApp,
+            },
+          },
+          initial: "pending",
+          states: {
+            pending: { after: { 0: "failed" } },
+            failed: {
+              type: "final" as const,
+              entry: () => {
+                throw error;
+              },
+            },
+          },
+        }),
+      ),
+    };
+  });
 }
 
 function setupHappyPath(): void {
@@ -203,6 +235,53 @@ describe("SignXrpTransactionFlowDeviceAction", () => {
       expect(result).toMatchObject({
         status: DeviceActionStatus.Error,
         error: openAppError,
+      });
+    });
+
+    describe.each([
+      {
+        form: "RefusedByUserDAError",
+        makeError: () => new RefusedByUserDAError("refused"),
+      },
+      {
+        form: "GlobalCommandError 5501",
+        makeError: () =>
+          new GlobalCommandError({
+            errorCode: "5501",
+            message: "Refused by user",
+          }),
+      },
+    ])("when OpenApp is refused with $form", ({ makeError }) => {
+      it("wraps the output error as UserRejectedTransactionError", async () => {
+        setupOpenAppMock(makeError());
+        setupGetAddressMock({
+          address: DEFAULT_ADDRESS,
+          publicKey: PUBLIC_KEY,
+        });
+        setupSignTransactionMock();
+
+        const result = await lastValueFrom(execute());
+
+        expect(result.status).toBe(DeviceActionStatus.Error);
+        if (result.status === DeviceActionStatus.Error) {
+          expect(result.error).toBeInstanceOf(UserRejectedTransactionError);
+        }
+      });
+
+      it("wraps the error thrown by the OpenApp actor as UserRejectedTransactionError", async () => {
+        setupOpenAppActorFailure(makeError());
+        setupGetAddressMock({
+          address: DEFAULT_ADDRESS,
+          publicKey: PUBLIC_KEY,
+        });
+        setupSignTransactionMock();
+
+        const result = await lastValueFrom(execute());
+
+        expect(result.status).toBe(DeviceActionStatus.Error);
+        if (result.status === DeviceActionStatus.Error) {
+          expect(result.error).toBeInstanceOf(UserRejectedTransactionError);
+        }
       });
     });
 
