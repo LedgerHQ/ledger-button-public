@@ -105,7 +105,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
       rpc: args,
     });
     return response.caseOf<BroadcastResponse>({
-      Right: (result) => {
+      Right: (body) => {
+        const result = withJsonRpcEnvelope(body, args);
         if (
           isJsonRpcResponse(result) ||
           isCoinServiceBroadcastResponse(result)
@@ -315,6 +316,24 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
       }),
     });
   }
+}
+
+/**
+ * rippled and Clio (XRP) ignore the JSON-RPC 2.0 envelope and reply with a
+ * bare `{ result }`, failures included. Give such replies the request's
+ * `jsonrpc` and `id` so they read as any other JSON-RPC response.
+ */
+function withJsonRpcEnvelope(body: unknown, request: JSONRPCRequest): unknown {
+  if (
+    typeof body !== "object" ||
+    body === null ||
+    !("result" in body) ||
+    "jsonrpc" in body ||
+    "id" in body
+  ) {
+    return body;
+  }
+  return { jsonrpc: request.jsonrpc, id: request.id, result: body.result };
 }
 
 declare global {

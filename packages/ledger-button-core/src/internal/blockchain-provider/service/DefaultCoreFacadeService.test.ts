@@ -186,3 +186,38 @@ describe("DefaultCoreFacadeService.broadcastRPC (Solana)", () => {
     },
   );
 });
+
+describe("DefaultCoreFacadeService.broadcastRPC (XRP)", () => {
+  const args = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "server_info",
+    params: [{}],
+  };
+  const blockchain = { name: "xrp", chainId: "0" };
+
+  it("gives a bare rippled reply the request's JSON-RPC envelope", async () => {
+    const result = { status: "success", info: { network_id: 0 } };
+    const broadcast = vi.fn().mockResolvedValue(Right({ result }));
+    const { service } = makeService({
+      backendService: { broadcast } as unknown as BackendService,
+    });
+
+    const response = await service.broadcastRPC(args, blockchain);
+
+    expect(broadcast).toHaveBeenCalledWith({ blockchain, rpc: args });
+    expect(response).toEqual({ jsonrpc: "2.0", id: 1, result });
+  });
+
+  it("keeps a rippled failure inside result", async () => {
+    const result = { status: "error", error: "actNotFound" };
+    const broadcast = vi.fn().mockResolvedValue(Right({ result }));
+    const { service } = makeService({
+      backendService: { broadcast } as unknown as BackendService,
+    });
+
+    const response = await service.broadcastRPC(args, blockchain);
+
+    expect(response).toEqual({ jsonrpc: "2.0", id: 1, result });
+  });
+});
