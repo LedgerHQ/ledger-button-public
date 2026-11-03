@@ -15,11 +15,14 @@ export class CheckGeoBlockUseCase {
 
   /**
    * Fail-open: anything but a 451 (other status, network error, timeout)
-   * leaves the user unblocked.
+   * leaves the user unblocked. A 451 flags the context through the shared
+   * use case, so there is nothing to return.
    */
-  async execute(): Promise<boolean> {
+  async execute(): Promise<void> {
     const status = await this.geoBlockDataSource.getProbeStatus();
 
-    return status.map((s) => this.handleGeoBlock.execute(s)).orDefault(false);
+    status.ifJust((s) => {
+      this.handleGeoBlock.execute(s);
+    });
   }
 }

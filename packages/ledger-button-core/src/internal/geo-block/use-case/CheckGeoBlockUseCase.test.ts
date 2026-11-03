@@ -19,27 +19,25 @@ describe("CheckGeoBlockUseCase", () => {
 
   it("should hand the probe status to the shared use case", async () => {
     dataSource.getProbeStatus.mockResolvedValue(Just(451));
-    handleGeoBlock.execute.mockReturnValue(true);
 
-    const result = await useCase.execute();
+    await useCase.execute();
 
     expect(handleGeoBlock.execute).toHaveBeenCalledWith(451);
-    expect(result).toBe(true);
   });
 
-  it("should return false when the shared use case does not block", async () => {
+  it("should hand any other status to the shared use case too", async () => {
     dataSource.getProbeStatus.mockResolvedValue(Just(200));
-    handleGeoBlock.execute.mockReturnValue(false);
 
-    expect(await useCase.execute()).toBe(false);
+    await useCase.execute();
+
+    expect(handleGeoBlock.execute).toHaveBeenCalledWith(200);
   });
 
   it("should fail open when the probe got no answer", async () => {
     dataSource.getProbeStatus.mockResolvedValue(Nothing);
 
-    const result = await useCase.execute();
+    await expect(useCase.execute()).resolves.toBeUndefined();
 
     expect(handleGeoBlock.execute).not.toHaveBeenCalled();
-    expect(result).toBe(false);
   });
 });

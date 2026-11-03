@@ -48,8 +48,8 @@ describe("LedgerButtonCore initializeContext", () => {
     };
     checkGeoBlock = {
       execute: probePending
-        ? vi.fn(() => new Promise<boolean>(() => undefined))
-        : vi.fn().mockResolvedValue(isGeoBlocked),
+        ? vi.fn(() => new Promise<void>(() => undefined))
+        : vi.fn().mockResolvedValue(undefined),
     };
     blockchainProviderManager = {
       init: vi.fn(),
