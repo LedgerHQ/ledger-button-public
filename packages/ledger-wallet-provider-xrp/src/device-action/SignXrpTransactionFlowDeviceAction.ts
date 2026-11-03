@@ -1,7 +1,9 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -14,9 +16,9 @@ import {
 } from "@ledgerhq/device-signer-kit-xrp";
 import {
   IncorrectSeedError,
-  mapOpenAppUserRejection,
   type SignFlowStatus,
   type UserInteractionNeeded,
+  UserRejectedTransactionError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
@@ -345,10 +347,17 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
   private normalizeOpenAppError(
     internalState: SignXrpTransactionFlowDAInternalState,
   ): SignXrpTransactionFlowDAInternalState {
-    return {
-      ...internalState,
-      error: mapOpenAppUserRejection(internalState.error),
-    } as SignXrpTransactionFlowDAInternalState;
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignXrpTransactionFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private verifyDeviceAddress({

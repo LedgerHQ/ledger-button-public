@@ -22,7 +22,6 @@ export type {
 } from "./blockchain-provider/model/types";
 export { createOpenAppConfig } from "./blockchain-provider/utils/createOpenAppConfig";
 export { mapOpenAppDeviceActionError } from "./blockchain-provider/utils/mapOpenAppDeviceActionError";
-export { mapOpenAppUserRejection } from "./blockchain-provider/utils/mapOpenAppUserRejection";
 export {
   normalizeDeviceError,
   normalizeSignFlowStatusError,

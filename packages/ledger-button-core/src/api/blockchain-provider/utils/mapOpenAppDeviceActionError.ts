@@ -8,11 +8,8 @@ import {
   DeviceOutOfMemoryError,
 } from "@api/errors/DeviceErrors";
 
-import { mapOpenAppUserRejection } from "./mapOpenAppUserRejection";
-
 /**
  * Maps DMK open-app / install-plan errors to domain errors the UI can display.
- * A user refusal is mapped to `UserRejectedTransactionError`.
  * Unrecognized errors are returned unchanged.
  */
 export function mapOpenAppDeviceActionError(
@@ -33,5 +30,5 @@ export function mapOpenAppDeviceActionError(
     );
   }
 
-  return mapOpenAppUserRejection(error);
+  return error;
 }
