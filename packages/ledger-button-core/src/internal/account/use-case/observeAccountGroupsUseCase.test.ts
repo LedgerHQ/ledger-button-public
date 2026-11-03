@@ -36,6 +36,7 @@ const usdt = {
   name: "Tether",
   balance: "50000000",
   fiatBalance: { value: "50.00", currency: "USD" },
+  categories: [],
 };
 
 describe("ObserveAccountGroupsUseCase", () => {

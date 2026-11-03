@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultStorageService } from "../DefaultStorageService";
 import { DefaultIndexedDbService } from "../service/DefaultIndexedDbService";
+import { DefaultStorageService } from "../service/DefaultStorageService";
 import { KeyPairMigrationService } from "../use-case/KeypairMigrationService";
 import { MigrateDbUseCase } from "../use-case/MigrateDbUseCase";
 import { storageModuleTypes } from "./storageModuleTypes";

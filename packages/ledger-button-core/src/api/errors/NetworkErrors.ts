@@ -1,4 +1,4 @@
-import { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
 
 import { LedgerButtonError } from "./LedgerButtonError";
 

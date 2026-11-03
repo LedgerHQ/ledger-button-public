@@ -10,11 +10,16 @@ on:
         description: Snapshot version name
         required: false
         default: "develop"
+      projects:
+        description: Comma-separated package names to publish. Empty publishes every nx release group.
+        required: false
+        default: ""
 
 env:
   FORCE_COLOR: "1"
   REF: ${{ inputs.ref || 'develop' }}
   TAG: ${{ inputs.tag || 'develop' }}
+  RELEASE_PROJECTS: ${{ inputs.projects }}
   NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
 
 jobs:
@@ -38,23 +43,31 @@ jobs:
       - name: Update workspace syntax to use fixed version
         run: git ls-files | grep 'package\.json$' | xargs sed -i 's/workspace:\^/workspace:*/g'
 
-      - name: Bump snapshot versions for all packages
+      - name: Resolve release projects
+        id: release-projects
+        run: |
+          names=$(node packages/ldb-tools/print-release-projects.cjs --projects "$RELEASE_PROJECTS")
+          echo "names=$names" >> "$GITHUB_OUTPUT"
+
+      - name: Bump snapshot versions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPSHOT_TAG: ${{ env.TAG }}
-        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag "$SNAPSHOT_TAG"
+        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag "$SNAPSHOT_TAG" --projects "${{ steps.release-projects.outputs.names }}"
 
       - name: Canonicalize package.json
         run: pnpm nx run ldb-tools:canonicalize
 
-      - name: Build libraries
-        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana
+      - name: Build release packages
+        run: pnpm nx run-many -t build --projects=${{ steps.release-projects.outputs.names }}
 
       - name: Check bundle externals
+        env:
+          RELEASE_PROJECTS: ${{ steps.release-projects.outputs.names }}
         run: pnpm check:bundles
 
       - name: Prepare dist directory
-        run: pnpm nx run ldb-tools:pack
+        run: pnpm nx run ldb-tools:run -- pack --projects "${{ steps.release-projects.outputs.names }}"
 
       - name: Attest for npmjs.com
         uses: LedgerHQ/actions-security/actions/attest-for-npmsjs-com@attest-npm-dir-support

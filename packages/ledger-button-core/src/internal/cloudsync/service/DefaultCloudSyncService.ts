@@ -11,7 +11,7 @@ import { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthCont
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
-import { type NetworkService } from "@internal/network/NetworkService";
+import { type NetworkService } from "@internal/network/service/NetworkService";
 
 import { CloudSyncData } from "../model/cloudSyncTypes";
 import { CloudSyncService } from "./CloudSyncService";

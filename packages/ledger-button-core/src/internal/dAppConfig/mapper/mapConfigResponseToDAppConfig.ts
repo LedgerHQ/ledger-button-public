@@ -2,7 +2,7 @@ import type {
   BlockchainAppDependency,
   BlockchainConfig,
 } from "@api/model/dappConfig/BlockchainConfig";
-import type { ConfigResponse } from "@internal/backend/types";
+import type { ConfigResponse } from "@internal/backend/model/types";
 
 import type { DAppConfig } from "../model/dAppConfigTypes";
 

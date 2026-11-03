@@ -11,7 +11,7 @@ export type DeepLinkContext = {
 const BASE_URL = "ledgerwallet://";
 /**
  * Base deep links for wallet actions.
- * Note: "sell" is not supported in Ledger Live Desktop, falls back to "buy".
+ * Note: "sell" is not supported in Ledger Wallet Desktop, falls back to "buy".
  */
 const BASE_DEEPLINKS: Record<WalletTransactionFeature, string> = {
   send: "send",
@@ -25,7 +25,7 @@ const BASE_DEEPLINKS: Record<WalletTransactionFeature, string> = {
 /**
  * Builds a deep link for a wallet action with optional context for pre-filling information.
  *
- * Based on Ledger Live Desktop deep link documentation:
+ * Based on Ledger Wallet Desktop deep link documentation:
  * - send: ?currency={currency} (pre-fills currency selection)
  * - receive: ?currency={currency} (pre-fills currency selection)
  * - swap: ?fromToken={currency} (pre-fills source token)
@@ -74,7 +74,7 @@ const ACCOUNT_ROUTE = "account";
 /**
  * Builds a deep link to open a specific account page in Ledger Wallet.
  *
- * Documented in Ledger Live Desktop as the `account` route:
+ * Documented in Ledger Wallet Desktop as the `account` route:
  * https://github.com/LedgerHQ/ledger-live/wiki/LLD:DeepLinking#account---account-page
  *
  * - `ledgerwallet://account?currency={currencyId}&address={freshAddress}` opens the

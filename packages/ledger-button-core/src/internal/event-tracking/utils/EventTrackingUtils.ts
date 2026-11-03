@@ -1,0 +1,536 @@
+import { bufferToHexaString } from "@ledgerhq/device-management-kit";
+import { EventDataSchema } from "@schemas/event-schemas";
+import { sha256 } from "ethers";
+
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import {
+  type ConsentGivenEventData,
+  type ConsentRemovedEventData,
+  type CurrencyChangedEventData,
+  type EventRequest,
+  EventType,
+  type FloatingButtonClickEventData,
+  type InvoicingTransactionSignedEventData,
+  type LanguageChangedEventData,
+  type LedgerSyncActivatedEventData,
+  type MobileRedirectLedgerWalletEventData,
+  type OnboardingEventData,
+  type OpenLedgerSyncEventData,
+  type OpenSessionEventData,
+  type TransactionFlowCompletionEventData,
+  type TransactionFlowInitializationEventData,
+  type TypedMessageFlowCompletionEventData,
+  type TypedMessageFlowInitializationEventData,
+  type ViewAllTransactionsClickedEventData,
+  type ViewAllTransactionsRedirectCancelledEventData,
+  type ViewAllTransactionsRedirectConfirmedEventData,
+  type ViewTransactionDetailsClickedEventData,
+  type WalletActionClickedEventData,
+  type WalletActionType,
+  type WalletRedirectCancelledEventData,
+  type WalletRedirectConfirmedEventData,
+} from "@internal/backend/model/trackEvent";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
+
+import { generateUUID } from "./utils";
+
+export function normalizeTransactionHash(hash: string): string {
+  return hash.toLowerCase().replace(/^0x/, "");
+}
+
+/** Solana ids are case-sensitive base58, so only EVM hashes are normalized. */
+export function normalizeTransactionHashForFamily(
+  hash: string,
+  family: BlockchainFamily,
+): string {
+  return family === "ethereum" ? normalizeTransactionHash(hash) : hash;
+}
+
+interface BaseEventParams {
+  dAppId: string;
+}
+
+interface SessionEventParams extends BaseEventParams {
+  sessionId: string;
+  trustChainId?: string;
+}
+
+interface TransactionEventParams extends SessionEventParams {
+  family: BlockchainFamily;
+  chainId: string | null;
+}
+
+export function stringToSha256(string: string): string {
+  const bytes = new TextEncoder().encode(string);
+  const hexString = bufferToHexaString(bytes);
+  return sha256(hexString);
+}
+
+export class EventTrackingUtils {
+  static validateEvent(event: EventRequest): {
+    success: boolean;
+    errors?: Array<{ path: string; message: string }>;
+  } {
+    const result = EventDataSchema.safeParse(event.data);
+
+    if (result.success) {
+      return { success: true };
+    }
+
+    return {
+      success: false,
+      errors: result.error.issues.map((issue) => ({
+        path: issue.path.join("."),
+        message: issue.message,
+      })),
+    };
+  }
+
+  static createOpenSessionEvent(params: SessionEventParams): EventRequest {
+    const data: OpenSessionEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.OpenSession,
+      session_id: params.sessionId,
+    };
+
+    return {
+      name: EventType.OpenSession,
+      type: EventType.OpenSession,
+      data,
+    };
+  }
+
+  static createOpenLedgerSyncEvent(params: SessionEventParams): EventRequest {
+    const data: OpenLedgerSyncEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.OpenLedgerSync,
+      session_id: params.sessionId,
+    };
+
+    return {
+      name: EventType.OpenLedgerSync,
+      type: EventType.OpenLedgerSync,
+      data,
+    };
+  }
+
+  static createLedgerSyncActivatedEvent(
+    params: SessionEventParams,
+  ): EventRequest {
+    const data: LedgerSyncActivatedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.LedgerSyncActivated,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+    };
+
+    return {
+      name: EventType.LedgerSyncActivated,
+      type: EventType.LedgerSyncActivated,
+      data,
+    };
+  }
+
+  static createConsentGivenEvent(params: SessionEventParams): EventRequest {
+    const data: ConsentGivenEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ConsentGiven,
+    };
+
+    return {
+      name: EventType.ConsentGiven,
+      type: EventType.ConsentGiven,
+      data,
+    };
+  }
+
+  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
+    const data: ConsentRemovedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ConsentRemoved,
+      ledger_sync_user_id: params.trustChainId,
+    };
+
+    return {
+      name: EventType.ConsentRemoved,
+      type: EventType.ConsentRemoved,
+      data,
+    };
+  }
+
+  static createFloatingButtonClickEvent(
+    params: SessionEventParams,
+  ): EventRequest {
+    const data: FloatingButtonClickEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.FloatingButtonClick,
+      session_id: params.sessionId,
+    };
+
+    return {
+      name: EventType.FloatingButtonClick,
+      type: EventType.FloatingButtonClick,
+      data,
+    };
+  }
+
+  static createOnboardingEvent(params: TransactionEventParams): EventRequest {
+    const data: OnboardingEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.Onboarding,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+    };
+
+    return {
+      name: EventType.Onboarding,
+      type: EventType.Onboarding,
+      data,
+    };
+  }
+
+  static createTransactionFlowInitializationEvent(
+    params: TransactionEventParams,
+  ): EventRequest {
+    const data: TransactionFlowInitializationEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TransactionFlowInitialization,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+    };
+
+    return {
+      name: EventType.TransactionFlowInitialization,
+      type: EventType.TransactionFlowInitialization,
+      data,
+    };
+  }
+
+  static createTransactionFlowCompletionEvent(
+    params: TransactionEventParams,
+  ): EventRequest {
+    const data: TransactionFlowCompletionEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TransactionFlowCompletion,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+    };
+
+    return {
+      name: EventType.TransactionFlowCompletion,
+      type: EventType.TransactionFlowCompletion,
+      data,
+    };
+  }
+
+  static createInvoicingTransactionSignedEvent(
+    params: TransactionEventParams & {
+      transactionHash: string;
+      unsignedTransactionHash: string;
+      recipientAddress: string;
+    },
+  ): EventRequest {
+    const data: InvoicingTransactionSignedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.InvoicingTransactionSigned,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+      transaction_hash: normalizeTransactionHashForFamily(
+        params.transactionHash,
+        params.family,
+      ),
+      recipient_address: normalizeAddressForCurrency(
+        params.recipientAddress,
+        params.family,
+      ),
+      unsigned_transaction_hash: normalizeTransactionHash(
+        params.unsignedTransactionHash,
+      ),
+    };
+
+    return {
+      name: EventType.InvoicingTransactionSigned,
+      type: EventType.InvoicingTransactionSigned,
+      data,
+    };
+  }
+
+  static createViewTransactionDetailsClickedEvent(
+    params: TransactionEventParams & { transactionHash: string },
+  ): EventRequest {
+    const data: ViewTransactionDetailsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewTransactionDetailsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+      transaction_hash: normalizeTransactionHashForFamily(
+        params.transactionHash,
+        params.family,
+      ),
+    };
+
+    return {
+      name: EventType.ViewTransactionDetailsClicked,
+      type: EventType.ViewTransactionDetailsClicked,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsClickedEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsClicked,
+      type: EventType.ViewAllTransactionsClicked,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsRedirectConfirmedEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsRedirectConfirmedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsRedirectConfirmed,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsRedirectConfirmed,
+      type: EventType.ViewAllTransactionsRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsRedirectCancelledEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsRedirectCancelledEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsRedirectCancelled,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsRedirectCancelled,
+      type: EventType.ViewAllTransactionsRedirectCancelled,
+      data,
+    };
+  }
+
+  static createTypedMessageFlowInitializationEvent(
+    params: TransactionEventParams & { typedMessageHash: string },
+  ): EventRequest {
+    const data: TypedMessageFlowInitializationEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TypedMessageFlowInitialization,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+      typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
+    };
+
+    return {
+      name: EventType.TypedMessageFlowInitialization,
+      type: EventType.TypedMessageFlowInitialization,
+      data,
+    };
+  }
+
+  static createTypedMessageFlowCompletionEvent(
+    params: TransactionEventParams & { typedMessageHash: string },
+  ): EventRequest {
+    const data: TypedMessageFlowCompletionEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TypedMessageFlowCompletion,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: params.family,
+      chain_id: params.chainId,
+      typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
+    };
+
+    return {
+      name: EventType.TypedMessageFlowCompletion,
+      type: EventType.TypedMessageFlowCompletion,
+      data,
+    };
+  }
+
+  static createWalletActionClickedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletActionClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletActionClicked,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletActionClicked,
+      type: EventType.WalletActionClicked,
+      data,
+    };
+  }
+
+  static createWalletRedirectConfirmedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectConfirmedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectConfirmed,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectConfirmed,
+      type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createCurrencyChangedEvent(
+    params: SessionEventParams & { currencyCode: string },
+  ): EventRequest {
+    const data: CurrencyChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.CurrencyChanged,
+      session_id: params.sessionId,
+      currency_code: params.currencyCode,
+    };
+
+    return {
+      name: EventType.CurrencyChanged,
+      type: EventType.CurrencyChanged,
+      data,
+    };
+  }
+
+  static createLanguageChangedEvent(
+    params: SessionEventParams & { languageKey: string },
+  ): EventRequest {
+    const data: LanguageChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.LanguageChanged,
+      session_id: params.sessionId,
+      language_key: params.languageKey,
+    };
+
+    return {
+      name: EventType.LanguageChanged,
+      type: EventType.LanguageChanged,
+      data,
+    };
+  }
+
+  static createMobileRedirectLedgerWalletEvent(
+    params: BaseEventParams,
+  ): EventRequest {
+    const data: MobileRedirectLedgerWalletEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.MobileRedirectLedgerWallet,
+    };
+
+    return {
+      name: "Mobile Redirect Ledger Wallet",
+      type: EventType.MobileRedirectLedgerWallet,
+      data,
+    };
+  }
+
+  static createWalletRedirectCancelledEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectCancelledEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectCancelled,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectCancelled,
+      type: EventType.WalletRedirectCancelled,
+      data,
+    };
+  }
+}

@@ -31,7 +31,7 @@ export function SendTransactionModal({
         </label>
         <textarea
           ref={textareaRef}
-          className="w-full px-12 py-8 border border-muted rounded-lg body-4 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active"
+          className="w-full px-12 py-8 border border-muted rounded-lg body-4 bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active"
           rows={5}
           placeholder='{"to": "0x...", "value": "0x0", "data": "0x..."}'
         />

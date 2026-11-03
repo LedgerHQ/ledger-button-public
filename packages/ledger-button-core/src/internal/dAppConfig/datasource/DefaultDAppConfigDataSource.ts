@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
-import { type BackendService } from "@internal/backend/BackendService";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
+import { type BackendService } from "@internal/backend/service/BackendService";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 

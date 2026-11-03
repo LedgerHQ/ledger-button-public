@@ -78,6 +78,7 @@ export class DefaultBalanceService implements BalanceService {
                   BigInt(balance.value),
                   tokenInfo.name,
                   tokenInfo.ticker,
+                  tokenInfo.categories,
                 );
               } else {
                 return undefined;

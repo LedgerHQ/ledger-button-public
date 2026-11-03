@@ -1,5 +1,6 @@
 import { HeaderNav, SettingsDialog, ThemeToggle } from "../components";
 import { LedgerProvider } from "../components/LedgerProvider";
+import { MockServerProvider } from "../components/MockServerProvider";
 import { Providers } from "../components/Providers";
 import { SolanaClusterProvider } from "../components/solana";
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <LedgerProvider>
+            <MockServerProvider>
             <SolanaClusterProvider>
               <div className="flex min-h-screen flex-col">
                 <header className="bg-muted border-muted flex shrink-0 items-center justify-between border-b px-24 py-12">
@@ -41,6 +43,7 @@ export default function RootLayout({
                 <main className="bg-canvas flex-1">{children}</main>
               </div>
             </SolanaClusterProvider>
+            </MockServerProvider>
           </LedgerProvider>
         </Providers>
       </body>

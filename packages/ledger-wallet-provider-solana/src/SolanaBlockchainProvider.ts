@@ -17,8 +17,8 @@ import {
   describeSolanaNetwork,
   SOLANA_FAMILY,
 } from "./utils/clusterUtils";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
 import { SolanaWalletProvider } from "./SolanaWalletProvider";
+import { SolanaWalletProviderInjector } from "./SolanaWalletProviderInjector";
 
 /**
  * Solana {@link BlockchainProvider}: entry point for the Solana family.
@@ -34,8 +34,8 @@ export class SolanaBlockchainProvider implements BlockchainProvider<
   public readonly family = SOLANA_FAMILY;
 
   private readonly container: Container;
-  private wallet?: LedgerSolanaWallet;
   private walletProvider?: SolanaWalletProvider;
+  private injector?: SolanaWalletProviderInjector;
 
   constructor(
     private readonly core: CoreFacade,
@@ -51,8 +51,8 @@ export class SolanaBlockchainProvider implements BlockchainProvider<
     this.container.loadSync(solanaProviderModule());
   }
 
-  injectWalletProviders(): void {
-    this.wallet = new LedgerSolanaWallet(this.core, {
+  injectWalletProvider(): void {
+    this.walletProvider = new SolanaWalletProvider(this.core, {
       signSolanaMessage: this.container.get<SignSolanaMessage>(
         solanaProviderModuleTypes.SignSolanaMessageUseCase,
       ),
@@ -60,20 +60,20 @@ export class SolanaBlockchainProvider implements BlockchainProvider<
         solanaProviderModuleTypes.SignTransactionUseCase,
       ),
     });
-    this.walletProvider = new SolanaWalletProvider(this.wallet);
-    this.walletProvider.init();
+    this.injector = new SolanaWalletProviderInjector(this.walletProvider);
+    this.injector.inject();
   }
 
   async disconnect(): Promise<void> {
-    await this.wallet?.disconnect();
+    await this.walletProvider?.disconnect();
   }
 
   setSelectedAccount(account: ProviderAccount | undefined): void {
-    this.wallet?.setSelectedAccount(account);
+    this.walletProvider?.setSelectedAccount(account);
   }
 
   setNetwork(chainId: number): void {
-    this.wallet?.setNetwork(chainId);
+    this.walletProvider?.setNetwork(chainId);
   }
 
   describeCurrency(currencyId: string): CurrencyDescriptor | undefined {

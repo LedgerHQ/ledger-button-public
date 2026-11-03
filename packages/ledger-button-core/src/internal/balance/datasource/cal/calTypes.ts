@@ -13,6 +13,7 @@ export type CalTokenDto = {
   decimals: number;
   ticker: string;
   name: string;
+  categories?: string[];
   network_external_links?: CalNetworkExternalLinks;
 };
 
@@ -21,6 +22,7 @@ export type TokenInformation = {
   decimals: number;
   ticker: string;
   name: string;
+  categories: string[];
   transactionExplorerUrlTemplate?: string;
 };
 

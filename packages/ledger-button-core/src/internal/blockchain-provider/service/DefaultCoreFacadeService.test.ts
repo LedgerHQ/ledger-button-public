@@ -6,10 +6,10 @@ import { Maybe, Right } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
-import type { BackendService } from "@internal/backend/BackendService";
+import type { BackendService } from "@internal/backend/service/BackendService";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";

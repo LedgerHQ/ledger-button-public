@@ -5,7 +5,7 @@ import type { Account } from "@api/model/Account";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
 import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
 import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
@@ -40,6 +40,7 @@ function createMockContext(
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "USD",
+    isGeoBlocked: false,
     ...overrides,
   };
 }
@@ -83,6 +84,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         name: "USD Coin",
         balance: "43,000.0",
         fiatBalance: undefined,
+        categories: [],
       },
     ],
   };

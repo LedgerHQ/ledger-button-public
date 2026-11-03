@@ -32,8 +32,11 @@ import dynamic from "next/dynamic";
 import {
   type ActivityEntry,
   ActivityLog,
+  DeviceScreen,
   EventSimulatorBlock,
+  MockServerStatusBox,
 } from "../../components";
+import { useMockServerContext } from "../../components/MockServerProvider";
 import {
   SolanaActionsBlock,
   type SolanaCluster,
@@ -54,6 +57,7 @@ import {
   useSolanaChain,
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
+import { useKeypairReset } from "../../hooks/useKeypairReset";
 import { useProviders } from "../../hooks/useProviders";
 
 const SolanaProviders = dynamic(
@@ -91,6 +95,7 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
   // Safe here because this subtree is rendered inside <SolanaProviders>.
   const [selectedAccount] = useSelectedWalletAccount();
   const { config } = useProviders();
+  const mockServer = useMockServerContext();
 
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);
@@ -148,6 +153,8 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
     setActivity([]);
   }, []);
 
+  const { hasKeypair, reset: handleReset } = useKeypairReset(addInfo);
+
   const clearResult = useCallback(() => {
     setResult(null);
     setError(null);
@@ -170,7 +177,12 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
           </header>
 
           <div className="flex flex-col gap-20">
-            <WalletSelectionBlock onLog={addInfo} onError={setError} />
+            <WalletSelectionBlock
+              onLog={addInfo}
+              onError={setError}
+              onReset={handleReset}
+              hasKeypair={hasKeypair}
+            />
 
             {selectedAccount ? (
               <ConnectedSolanaActions
@@ -209,8 +221,14 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
           </div>
         </div>
 
+        {/* Floating Speculos device screen (fixed position, above modals) */}
+        <DeviceScreen />
+
         <aside className="hidden w-[400px] shrink-0 lg:block">
           <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
+            <div className="shrink-0">
+              <MockServerStatusBox mockServer={mockServer} />
+            </div>
             <div className="shrink-0">
               <SolanaConnectionStatus cluster={cluster} />
             </div>

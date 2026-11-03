@@ -8,13 +8,13 @@ import { Left, Right } from "purify-ts";
 
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { StorageIDBGetError } from "@internal/storage/model/errors";
-import { StorageService } from "@internal/storage/StorageService";
+import { StorageService } from "@internal/storage/service/StorageService";
 import { mockConstructable } from "@internal/test-support/mockConstructable";
 
 import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase";
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase";
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKeyUseCase";
 import { GetOrCreateKeyPairUseCase } from "./GetOrCreateKeyPairUseCase";
 
 vi.mock("@ledgerhq/device-management-kit");

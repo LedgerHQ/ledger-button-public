@@ -11,7 +11,7 @@ const connectionItemVariants = cva(
   [
     "flex items-center justify-between rounded-md group",
     "min-w-full",
-    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
+    "bg-muted p-12 transition duration-150 hover:bg-muted-hover",
   ],
   {
     variants: {

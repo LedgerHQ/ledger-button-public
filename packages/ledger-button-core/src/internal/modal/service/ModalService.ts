@@ -1,7 +1,7 @@
 import { type Factory, inject, injectable, preDestroy } from "inversify";
 
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
-import { TrackOpenSession } from "@internal/event-tracking/use-case/TrackOpenSession";
+import { TrackOpenSessionUseCase } from "@internal/event-tracking/use-case/TrackOpenSessionUseCase";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
@@ -15,8 +15,8 @@ export class ModalService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
-    @inject(eventTrackingModuleTypes.TrackOpenSession)
-    private readonly trackOpenSession: TrackOpenSession,
+    @inject(eventTrackingModuleTypes.TrackOpenSessionUseCase)
+    private readonly trackOpenSession: TrackOpenSessionUseCase,
   ) {
     this.logger = loggerFactory("ModalService");
     if (window) {

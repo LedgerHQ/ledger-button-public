@@ -8,7 +8,7 @@ import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type {
   BroadcastResponse,
   JSONRPCRequest,
-} from "@internal/backend/types";
+} from "@internal/backend/model/types";
 
 import type {
   BlockchainFamily,

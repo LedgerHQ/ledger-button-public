@@ -188,6 +188,7 @@ export class WelcomeScreen extends LitElement {
         <ledger-button
           variant="primary"
           size="full"
+          data-testid="welcome-continue"
           .label=${intro.continueButton}
           @click=${this.handleContinue}
         ></ledger-button>

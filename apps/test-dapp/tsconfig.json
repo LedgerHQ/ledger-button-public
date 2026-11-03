@@ -59,6 +59,9 @@
       "path": "../../packages/ledger-wallet-provider-evm"
     },
     {
+      "path": "../../packages/ledger-wallet-provider-xrp"
+    },
+    {
       "path": "../../packages/ledger-button"
     }
   ]

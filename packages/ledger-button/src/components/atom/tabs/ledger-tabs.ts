@@ -27,7 +27,7 @@ const containerVariants = cva([
 
 const tabVariants = cva(
   [
-    "body-2-semi-bold align-self-stretch flex h-40 flex-1 shrink-0 cursor-pointer items-center justify-center gap-8 rounded-sm px-4 py-8 transition-all duration-200 ease-in-out",
+    "body-2-semi-bold flex h-40 flex-1 shrink-0 cursor-pointer items-center justify-center gap-8 rounded-sm px-4 py-8 transition-all duration-200",
   ],
   {
     variants: {

@@ -19,7 +19,7 @@ import {
 
 const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
-  "bg-base-transparent transition duration-150 ease-in-out",
+  "bg-base-transparent transition duration-150",
 ]);
 
 const ALLOWED_EXPLORER_PROTOCOLS = new Set(["http:", "https:"]);
@@ -200,7 +200,7 @@ export class LedgerTransactionItem extends LitElement {
   private get iconSpotClasses() {
     return {
       "flex h-48 w-48 min-w-48 items-center justify-center rounded-full": true,
-      "bg-error": this.isFailed,
+      "bg-error-transparent": this.isFailed,
       "bg-muted-transparent": !this.isFailed,
     };
   }

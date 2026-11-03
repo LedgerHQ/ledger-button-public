@@ -1,4 +1,4 @@
-import { Device } from "@internal/device/model/Device";
+import type { Device } from "@internal/device/model/Device";
 
 import type { BlockchainFamily } from "../blockchain-provider/model/types";
 import type { Account } from "./Account";
@@ -29,6 +29,7 @@ export type ButtonCoreContext = {
   hasDeveloperMode: boolean;
   isMobilePlatform: boolean;
   preferredFiatCurrency: string;
+  isGeoBlocked: boolean;
 };
 
 /**

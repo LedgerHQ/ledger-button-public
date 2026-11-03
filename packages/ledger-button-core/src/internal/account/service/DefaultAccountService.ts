@@ -8,7 +8,7 @@ import type { BlockchainProviderManager } from "@internal/blockchain-provider/se
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import { type StorageService } from "@internal/storage/StorageService";
+import { type StorageService } from "@internal/storage/service/StorageService";
 
 import { accountModuleTypes } from "../di/accountModuleTypes";
 import type { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase";

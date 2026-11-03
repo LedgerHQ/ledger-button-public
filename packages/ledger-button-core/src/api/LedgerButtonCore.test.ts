@@ -25,7 +25,7 @@ const hoisted = vi.hoisted(() => ({
   container: undefined as any,
   createContainer: vi.fn(),
 }));
-vi.mock("../internal/di", () => ({
+vi.mock("../internal/di/di", () => ({
   createContainer: hoisted.createContainer,
 }));
 
@@ -126,8 +126,8 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.DeviceManagementKitService, deviceService],
       [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
-      [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
-      [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
+      [eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase, trackOpened],
+      [eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase, trackActivated],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
         blockchainProviderManager,

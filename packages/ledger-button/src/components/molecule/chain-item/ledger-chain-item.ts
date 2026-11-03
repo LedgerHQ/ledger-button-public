@@ -9,14 +9,14 @@ import { tailwindElement } from "../../../tailwind-element";
 
 const chainItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
-  "bg-base-transparent transition duration-150 ease-in-out",
+  "bg-base-transparent transition duration-150",
 ]);
 
 const clickableVariants = cva([], {
   variants: {
     clickable: {
       true: [
-        "cursor-pointer transition duration-150 ease-in-out hover:bg-base-transparent-hover",
+        "cursor-pointer transition duration-150 hover:bg-base-transparent-hover",
       ],
       false: ["cursor-default"],
     },

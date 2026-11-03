@@ -5,7 +5,7 @@ import type { BroadcastedTransactionMetadata } from "@api/blockchain-provider/mo
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
-import { ContextService } from "@internal/context/ContextService";
+import { ContextService } from "@internal/context/service/ContextService";
 
 import type { PendingTransactionController } from "../controller/PendingTransactionController";
 import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase";

@@ -1,5 +1,5 @@
 export { evmBlockchainProviderFactory } from "./EvmBlockchainProvider";
-export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
+export { EvmWalletProvider } from "./EvmWalletProvider";
 export * from "./model/EIPTypes";
 export type { EvmSignedResult } from "./model/EvmSignedResult";
 export { type GetAddressDAState, isGetAddressResult } from "./model/GetAddress";

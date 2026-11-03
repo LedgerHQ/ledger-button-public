@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { type ContainerOptions } from "@internal/diTypes";
+import { type ContainerOptions } from "@internal/di/diTypes";
 
 import { DefaultAccountService } from "../service/DefaultAccountService";
 import { BuildNetworksUseCase } from "../use-case/buildNetworksUseCase";

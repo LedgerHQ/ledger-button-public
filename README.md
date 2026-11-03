@@ -111,16 +111,22 @@ pnpm nx run-many -t typecheck
 
 ### Release Management
 
-```bash
-# Version management
-pnpm version:patch              # Patch version bump
-pnpm version:minor              # Minor version bump
-pnpm version:major              # Major version bump
-pnpm version:prerelease         # Prerelease version
+Versions are independent. `nx release version` can target the `libraries` group, the `providers` group, or a single package.
 
-# Release
-pnpm release                    # Publish packages
+- Bumping Solana leaves Core unchanged.
+- Bumping Core still patches the UI, because they share the `libraries` group and `updateDependents` is `auto`. EVM and Solana stay unchanged.
+- A new blockchain joins the default build and publish set when it is added to the `providers` group in `nx.json`.
+
+```bash
+# Version one group or one package
+pnpm nx release version patch --groups=libraries
+pnpm nx release version patch --projects=@ledgerhq/ledger-wallet-provider-solana
+
+# Consume version plans, bump versions, and write changelogs
+pnpm release
 ```
+
+The RC and snapshot workflows take an optional `projects` input. Leave it empty to publish every release group. Set it to a package name, its unscoped name, or its directory to build, pack, and publish only that package. Nx still builds the dependencies that package needs.
 
 ## 🏗️ Architecture
 

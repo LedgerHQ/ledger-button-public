@@ -1,7 +1,4 @@
-import type {
-  Wallet,
-  WindowAppReadyEventAPI,
-} from "@wallet-standard/base";
+import type { Wallet, WindowAppReadyEventAPI } from "@wallet-standard/base";
 
 const REGISTER_WALLET_EVENT = "wallet-standard:register-wallet";
 const APP_READY_EVENT = "wallet-standard:app-ready";
@@ -19,6 +16,7 @@ const APP_READY_EVENT = "wallet-standard:app-ready";
  *
  * @see https://github.com/wallet-standard/wallet-standard
  */
+
 export function registerWalletStandard(wallet: Wallet): () => void {
   const unregisterCallbacks = new Set<() => void>();
 

@@ -1,7 +1,7 @@
 import { Nothing, Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
 
-import type { StorageService } from "../StorageService";
+import type { StorageService } from "../service/StorageService";
 import type { KeyPairMigrationService } from "./KeypairMigrationService";
 import { MigrateDbUseCase } from "./MigrateDbUseCase";
 

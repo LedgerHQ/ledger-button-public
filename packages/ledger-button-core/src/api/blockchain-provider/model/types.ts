@@ -11,23 +11,23 @@ import type { SignIntentType } from "@api/model/signing/SignIntentType";
  * Used by the manager to dispatch to the right provider implementation based on
  * the selected account / currency.
  */
-export type BlockchainFamily = "ethereum" | "solana";
+export type BlockchainFamily = "ethereum" | "solana" | "xrp";
 
 /**
  * Public, blackbox surface of a wallet provider.
  *
  * Everything the dApp-facing world needs: the {@link BlockchainFamily} it
- * serves and a single `init()` that performs discovery wiring (EIP-6963
+ * serves and a single `inject()` that performs discovery wiring (EIP-6963
  * announce for EVM, `registerWallet` for Solana) and returns a teardown.
  *
  * The provider talks to core only through {@link CoreFacade}; it never
  * imports `LedgerButtonCore`, which keeps `blockchain-provider` a candidate for
  * extraction into its own package.
  */
-export interface WalletProvider {
+export interface WalletProviderInjector {
   readonly family: BlockchainFamily;
   /** Announce / register the provider and wire listeners; returns teardown. */
-  init(): () => void;
+  inject(): () => void;
 }
 
 export type { SignedResults };
@@ -157,5 +157,4 @@ export type SignNavigationIntent = WalletNavigationIntentBase & {
  * Discriminated on `name` so the UI reads `params` without casting.
  */
 export type WalletNavigationIntent =
-  | SelectAccountNavigationIntent
-  | SignNavigationIntent;
+  SelectAccountNavigationIntent | SignNavigationIntent;

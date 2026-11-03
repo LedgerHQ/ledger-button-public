@@ -1,0 +1,3 @@
+export const UNAVAILABLE_FOR_LEGAL_REASONS_STATUS = 451;
+export const GEO_BLOCK_PROBE_PATH = "/v3/markets";
+export const GEO_BLOCK_PROBE_TIMEOUT_MS = 3000;

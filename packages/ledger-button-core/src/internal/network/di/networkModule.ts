@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultNetworkService } from "../DefaultNetworkService";
+import { DefaultNetworkService } from "../service/DefaultNetworkService";
 import { networkModuleTypes } from "./networkModuleTypes";
 
 type NetworkModuleOptions = {

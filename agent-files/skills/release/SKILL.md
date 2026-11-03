@@ -51,7 +51,7 @@ pnpm release
 
 This triggers:
 1. `prerelease` — builds `@ledgerhq/ledger-wallet-provider` and `@ledgerhq/ledger-wallet-provider-core`
-2. `nx release` — consumes version plans, bumps package versions, updates changelogs, creates git tags
+2. `nx release version` then `nx release changelog` — consumes version plans, bumps package versions, updates changelogs, creates one git commit and the release tags. `--dry-run`, `--projects`, and `--groups` are forwarded to both commands. A version specifier such as `patch` is forwarded to `version` only.
 
 If the command fails, stop and report the error to the user before continuing.
 

@@ -146,12 +146,12 @@ export function EventLogBlock({ events, onClearEvents }: EventLogBlockProps) {
                         size="sm"
                         label={event.type}
                       />
-                      <span className="body-4 text-muted font-mono ml-auto">
+                      <span className="body-4 text-muted ml-auto">
                         {formatTime(event.timestamp)}
                       </span>
                     </div>
                     <div>
-                      <code className="body-4 font-mono text-muted bg-muted-transparent px-6 py-2 rounded">
+                      <code className="body-4 text-muted bg-muted-transparent px-6 py-2">
                         {formatData(event.data)}
                       </code>
                     </div>

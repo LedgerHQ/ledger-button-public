@@ -2,7 +2,7 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "@internal/config/model/config";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
 import type {
   CoinServiceBalanceDto,
@@ -82,6 +82,16 @@ describe("DefaultCoinServiceDataSource", () => {
           reference: mockErc20BalanceDto.asset.assetReference,
         });
       }
+    });
+
+    it("should use the xrp CoinService slug for the ripple currency", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Right([]));
+
+      await dataSource.getBalanceForAddressAndCurrencyId(testAddress, "ripple");
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        `${mockCoinServiceUrl}/v1/xrp/account/${testAddress}/balance`,
+      );
     });
 
     it("should handle empty balance array", async () => {

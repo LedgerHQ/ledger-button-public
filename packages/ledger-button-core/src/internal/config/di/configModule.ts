@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { type ContainerOptions } from "@internal/diTypes";
+import { type ContainerOptions } from "@internal/di/diTypes";
 
 import { Config } from "../model/config";
 import { configModuleTypes } from "./configModuleTypes";

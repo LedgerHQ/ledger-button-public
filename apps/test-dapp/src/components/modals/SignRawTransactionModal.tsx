@@ -169,7 +169,7 @@ export function SignRawTransactionModal({
 
       <div className="space-y-8">
         <textarea
-          className="border-muted body-2 bg-muted placeholder:text-muted focus:border-active w-full resize-y rounded-lg border px-12 py-8 font-mono text-base focus:outline-none"
+          className="border-muted body-2 bg-muted placeholder:text-muted focus:border-active w-full resize-y rounded-lg border px-12 py-8 text-base focus:outline-none"
           rows={5}
           placeholder="0x..."
           value={value}

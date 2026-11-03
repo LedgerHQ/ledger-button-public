@@ -20,6 +20,11 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "name": "@ledgerhq/ledger-wallet-provider-evm",
+  "nx": {
+    "tags": [
+      "scope:provider"
+    ]
+  },
   "peerDependencies": {
     "@ledgerhq/device-management-kit": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
