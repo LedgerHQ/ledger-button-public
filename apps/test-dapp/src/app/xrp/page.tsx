@@ -18,7 +18,6 @@ import {
   buildMessageProofTransaction,
   buildPayment,
   type PaymentValues,
-  submitTransaction,
   XrpActionsBlock,
 } from "../../components/xrp";
 import { useProviders } from "../../hooks/useProviders";
@@ -140,7 +139,7 @@ export default function XrpPage() {
     (values: PaymentValues) => {
       if (!provider || !address) return;
       void run("sign", async () => {
-        const tx = await buildPayment(address, values);
+        const tx = buildPayment(values);
         log("info", "Payment to sign", tx);
         return provider.provider.sign(tx);
       });
@@ -163,17 +162,10 @@ export default function XrpPage() {
   const handleSignAndSubmit = useCallback(
     (values: PaymentValues) => {
       if (!provider || !address) return;
-      // The button backend does not support XRP yet, so the test dApp signs
-      // with the provider and submits to the public node itself.
-      void run("sign + submit (public node)", async () => {
-        const tx = await buildPayment(address, values);
+      void run("signAndSubmit", async () => {
+        const tx = buildPayment(values);
         log("info", "Payment to sign and submit", tx);
-        const signed = await provider.provider.sign(tx);
-        log("info", "Signed, submitting to the public node", signed);
-        const { engine_result, tx_json } = await submitTransaction(
-          signed.tx_blob,
-        );
-        return { hash: tx_json.hash, engine_result };
+        return provider.provider.signAndSubmit(tx);
       });
     },
     [provider, address, run, log],

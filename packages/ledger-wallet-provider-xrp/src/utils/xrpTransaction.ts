@@ -4,14 +4,10 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { encode } from "ripple-binary-codec";
 
-/** An XRPL transaction as plain JSON (rippled's `tx_json`). */
-export type XrpTransaction = Record<string, unknown>;
-
-export type SignedXrpTransaction = {
-  readonly tx_blob: string;
-  readonly hash: string;
-  readonly signature: string;
-};
+import type {
+  SignedXrpTransaction,
+  XrpTransaction,
+} from "../model/XrpTransaction";
 
 /** `TXN\0`: hash prefix of a signed transaction (its transaction ID). */
 const TRANSACTION_ID_PREFIX = "54584E00";

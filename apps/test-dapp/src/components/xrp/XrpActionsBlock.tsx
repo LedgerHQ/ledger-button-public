@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@ledgerhq/lumen-ui-react";
 
-import { type PaymentValues } from "./xrpNode";
+import { type PaymentValues } from "./xrpPayment";
 
 const INPUT_CLASS =
   "border border-muted rounded-lg bg-canvas px-12 py-8 body-2 text-base w-full font-mono";

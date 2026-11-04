@@ -7,7 +7,7 @@ import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type {
   BroadcastResponse,
-  JSONRPCRequest,
+  BroadcastRpcRequest,
 } from "@internal/backend/model/types";
 
 import type {
@@ -27,13 +27,14 @@ import type {
  */
 export interface CoreFacade {
   /**
-   * Backend-backed JSON-RPC transport to the node: reads (`eth_getBalance`,
-   * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. The provider
-   * supplies the target {@link ProviderBlockchain}; core forwards the call to
-   * the backend and never interprets the method.
+   * Broadcast RPC calls and submit signed Tx to the Node.
+   * EVM and Solana pass a JSON-RPC request. XRP passes a rippled envelope
+   * (`method` and `params`). The provider supplies the
+   * target {@link ProviderBlockchain}; core forwards the call and never
+   * interprets the method.
    */
   broadcastRPC(
-    args: JSONRPCRequest,
+    args: BroadcastRpcRequest,
     blockchain: ProviderBlockchain,
   ): Promise<BroadcastResponse>;
   requestAccount(family: BlockchainFamily): Promise<ProviderAccount>;

@@ -1,22 +1,29 @@
 import type {
+  BroadcastResponse,
   CoreFacade,
   ProviderAccount,
   ProviderLogger,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { XrpApiError } from "./model/XrpApiError";
+import {
+  XrpNotConnectedError,
+  XrpSubmitFailedError,
+} from "./model/XrpApiError";
 import { isSignedXrpTransactionResult } from "./model/XrpSignedResult";
+import type {
+  SignedXrpTransaction,
+  XrpTransaction,
+} from "./model/XrpTransaction";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
+import { autofillTransaction } from "./utils/xrpAutofill";
 import { assertSubmitAccepted } from "./utils/xrpSubmitResult";
 import {
   assembleSignedTransaction,
   getXrpDestination,
   getXrpDropsAmount,
   serializeForDevice,
-  type SignedXrpTransaction,
   withSigningFields,
-  type XrpTransaction,
 } from "./utils/xrpTransaction";
 import {
   XRP_BACKEND_CHAIN_ID,
@@ -58,7 +65,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   async connect(options?: XrpConnectOptions): Promise<XrpAccountInfo> {
     return this.reportErrors(async () => {
       if (options?.silent && !this.account) {
-        throw new XrpApiError("NOT_CONNECTED", "No account selected");
+        throw new XrpNotConnectedError();
       }
 
       const info = this.toAccountInfo(await this.resolveAccount());
@@ -113,33 +120,47 @@ export class XrpWalletProvider implements LedgerXrpApi {
   ): Promise<{ signed: SignedXrpTransaction; unsigned: XrpTransaction }> {
     const account = await this.resolveAccount();
     this.assertSenderIsSelectedAccount(tx, account);
+    const filled = await autofillTransaction(
+      tx,
+      account.freshAddress,
+      (method, params) => this.requestXrpl(method, params),
+    );
 
     const { xrpSignature, signingPubKey } = await runSignFlow({
       core: this.core,
       logger: this.logger,
-      runUseCase: () => this.signXrp.execute(tx, account),
+      runUseCase: () => this.signXrp.execute(filled, account),
       mapResult: (data) =>
         isSignedXrpTransactionResult(data) ? data : undefined,
     });
 
-    const unsigned = withSigningFields(tx, account.freshAddress, signingPubKey);
+    const unsigned = withSigningFields(
+      filled,
+      account.freshAddress,
+      signingPubKey,
+    );
     const signed = await assembleSignedTransaction(unsigned, xrpSignature);
     return { signed, unsigned };
   }
 
   /** Rejects unless the node accepted or queued the transaction. */
   private async submit(txBlob: string): Promise<void> {
-    // XRPL JSON-RPC `submit` fits CoreFacade.broadcastRPC directly.
-    const response = await this.core.broadcastRPC(
-      {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "submit",
-        params: [{ tx_blob: txBlob }],
-      },
+    const response = await this.requestXrpl("submit", {
+      tx_blob: txBlob,
+    }).catch((error: unknown) => {
+      throw XrpSubmitFailedError.requestFailed(error);
+    });
+    assertSubmitAccepted(response);
+  }
+
+  private requestXrpl(
+    method: string,
+    params: Record<string, unknown>,
+  ): Promise<BroadcastResponse> {
+    return this.core.broadcastRPC(
+      { method, params: [params] },
       { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
     );
-    assertSubmitAccepted(response);
   }
 
   /**

@@ -16,6 +16,11 @@ import type {
   ConfigRequest,
   ConfigResponse,
 } from "../model/types";
+import {
+  isCoinServiceBroadcastResponse,
+  isJsonRpcResponse,
+  isRippledResponse,
+} from "../utils/utils";
 import type { BackendService } from "./BackendService";
 
 @injectable()
@@ -43,20 +48,33 @@ export class DefaultBackendService implements BackendService {
       headers,
     };
 
-    const result = await this.networkService.post<BroadcastResponse>(
+    const result = await this.networkService.post<unknown>(
       url,
       JSON.stringify(request),
       options,
     );
 
-    return result.mapLeft((error: Error) => {
-      return new BroadcastTransactionError(
-        `Broadcast failed: ${error.message}`,
-        {
-          error,
-        },
-      );
-    });
+    return result
+      .mapLeft((error: Error) => {
+        return new BroadcastTransactionError(
+          `Broadcast failed: ${error.message}`,
+          {
+            error,
+          },
+        );
+      })
+      .chain((body) => {
+        if (
+          isJsonRpcResponse(body) ||
+          isCoinServiceBroadcastResponse(body) ||
+          isRippledResponse(body)
+        ) {
+          return Right(body);
+        }
+        return Left(
+          new Error("Unexpected broadcast response for JSON-RPC request"),
+        );
+      });
   }
 
   async getConfigV2(

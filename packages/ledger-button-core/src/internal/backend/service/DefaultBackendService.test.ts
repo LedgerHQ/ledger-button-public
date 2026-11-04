@@ -232,6 +232,44 @@ describe("DefaultBackendService", () => {
         },
       );
     });
+
+    it("returns a bare rippled reply unchanged", async () => {
+      const body = { result: { status: "success", info: { network_id: 0 } } };
+      mockNetworkService.post.mockResolvedValueOnce(Right(body));
+
+      const response = await backendService.broadcast(
+        mockBroadcastRequest,
+        "test-domain",
+      );
+
+      expect(response.extract()).toEqual(body);
+    });
+
+    it("returns a coin-service response unchanged", async () => {
+      const body = { transactionIdentifier: "abc123" };
+      mockNetworkService.post.mockResolvedValueOnce(Right(body));
+
+      const response = await backendService.broadcast(
+        mockBroadcastRequest,
+        "test-domain",
+      );
+
+      expect(response.extract()).toEqual(body);
+    });
+
+    it("rejects a body that is neither JSON-RPC nor a coin-service response", async () => {
+      mockNetworkService.post.mockResolvedValueOnce(Right({ ok: true }));
+
+      const response = await backendService.broadcast(
+        mockBroadcastRequest,
+        "test-domain",
+      );
+
+      expect(response.isLeft()).toBe(true);
+      expect(response.extract()).toEqual(
+        new Error("Unexpected broadcast response for JSON-RPC request"),
+      );
+    });
   });
 
   describe("getConfigV2", () => {

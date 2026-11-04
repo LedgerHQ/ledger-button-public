@@ -87,10 +87,12 @@ describe("registerXrpProvider", () => {
 
     unregister = registerXrpProvider(api);
 
-    await expect(listener.get()?.provider.signAndSubmit({})).resolves.toEqual({
+    const tx = { TransactionType: "Payment" };
+
+    await expect(listener.get()?.provider.signAndSubmit(tx)).resolves.toEqual({
       hash: "HASH",
     });
-    expect(api.signAndSubmit).toHaveBeenCalledWith({});
+    expect(api.signAndSubmit).toHaveBeenCalledWith(tx);
     listener.stop();
   });
 

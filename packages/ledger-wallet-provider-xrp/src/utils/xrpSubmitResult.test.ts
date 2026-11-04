@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { XrpApiError } from "../model/XrpApiError";
 import { assertSubmitAccepted } from "./xrpSubmitResult";
 
-function submitResponse(result: string | object): BroadcastResponse {
-  return { jsonrpc: "2.0", id: 1, result };
+function submitResponse(result: object): BroadcastResponse {
+  return { result } as BroadcastResponse;
 }
 
 function rejection(response: BroadcastResponse): XrpApiError {
@@ -57,18 +57,6 @@ describe("assertSubmitAccepted", () => {
     expect(error.message).toContain(message);
   });
 
-  it("rejects a JSON-RPC error response", () => {
-    const error = rejection({
-      jsonrpc: "2.0",
-      id: 1,
-      error: { code: -32600, message: "Invalid Request" },
-    });
-
-    expect(error.code).toBe("SUBMIT_FAILED");
-    expect(error.message).toContain("Invalid Request");
-    expect(error.engineResult).toBeUndefined();
-  });
-
   it("rejects a rippled error result", () => {
     const error = rejection(
       submitResponse({
@@ -83,12 +71,27 @@ describe("assertSubmitAccepted", () => {
 
   it.each([
     ["a result without engine_result", submitResponse({ status: "success" })],
-    ["a string result", submitResponse("ok")],
+    ["a result without status", submitResponse({ engine_result: "tesSUCCESS" })],
     [
-      "a null result",
-      { jsonrpc: "2.0", id: 1, result: null } as unknown as BroadcastResponse,
+      "a JSON-RPC success",
+      {
+        jsonrpc: "2.0",
+        id: 1,
+        result: { status: "success", engine_result: "tesSUCCESS" },
+      },
+    ],
+    [
+      "a JSON-RPC error",
+      {
+        jsonrpc: "2.0",
+        id: 1,
+        error: { code: -32600, message: "Invalid Request" },
+      },
     ],
   ])("rejects %s instead of reporting success", (_name, response) => {
-    expect(rejection(response).code).toBe("SUBMIT_FAILED");
+    const error = rejection(response);
+
+    expect(error.code).toBe("SUBMIT_FAILED");
+    expect(error.engineResult).toBeUndefined();
   });
 });

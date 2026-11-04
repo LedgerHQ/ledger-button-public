@@ -1,7 +1,10 @@
-import type {
-  CoinServiceBroadcastResponse,
-  JsonRpcResponse,
-  JsonRpcResponseSuccess,
+import {
+  type CoinServiceBroadcastResponse,
+  type JsonRpcResponse,
+  type JsonRpcResponseSuccess,
+  RIPPLED_STATUSES,
+  type RippledResponse,
+  type RippledStatus,
 } from "../model/types";
 
 export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
@@ -23,6 +26,29 @@ export function isJsonRpcResponseSuccess(
     "result" in value &&
     !("error" in value)
   );
+}
+
+export function isRippledResponse(value: unknown): value is RippledResponse {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("result" in value) ||
+    "jsonrpc" in value
+  ) {
+    return false;
+  }
+  const { result } = value;
+  return (
+    typeof result === "object" &&
+    result !== null &&
+    "status" in result &&
+    typeof result.status === "string" &&
+    isRippledStatus(result.status)
+  );
+}
+
+function isRippledStatus(status: string): status is RippledStatus {
+  return RIPPLED_STATUSES.some((s) => s === status);
 }
 
 export function isCoinServiceBroadcastResponse(

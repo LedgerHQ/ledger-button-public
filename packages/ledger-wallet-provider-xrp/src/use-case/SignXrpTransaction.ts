@@ -24,8 +24,8 @@ import type {
   SignXrpTransactionFlowDAOutput,
 } from "../device-action/SignXrpTransactionFlowDeviceActionTypes";
 import { xrpProviderModuleTypes } from "../di/xrpProviderModuleTypes";
+import type { XrpTransaction } from "../model/XrpTransaction";
 import { normalizeXrpDeviceError } from "../utils/normalizeXrpDeviceError";
-import type { XrpTransaction } from "../utils/xrpTransaction";
 import { getXrpDerivationPath, XRP_FAMILY } from "../utils/xrpUtils";
 
 type SignXrpTransactionFlowDAState = DeviceActionState<
