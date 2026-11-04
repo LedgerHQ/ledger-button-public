@@ -1,5 +1,4 @@
 import type {
-  BlockchainNetwork,
   BroadcastResponse,
   CoreFacade,
   ProviderAccount,
@@ -26,7 +25,11 @@ import {
   serializeForDevice,
   withSigningFields,
 } from "./utils/xrpTransaction";
-import { XRP_FAMILY } from "./utils/xrpUtils";
+import {
+  getNetworkIdFromCurrencyId,
+  isSupportedXrpCurrency,
+  XRP_FAMILY,
+} from "./utils/xrpUtils";
 import type {
   LedgerXrpApi,
   XrpAccountInfo,
@@ -44,7 +47,6 @@ export class XrpWalletProvider implements LedgerXrpApi {
   constructor(
     private readonly core: CoreFacade,
     private readonly signXrp: SignXrpTransaction,
-    private readonly network: BlockchainNetwork,
   ) {
     this.logger = this.core.getLogger("[XrpWalletProvider]");
   }
@@ -52,7 +54,9 @@ export class XrpWalletProvider implements LedgerXrpApi {
   setSelectedAccount(account: ProviderAccount | undefined): void {
     const previousAddress = this.account?.freshAddress;
     this.account =
-      account?.currencyId === this.network.currencyId ? account : undefined;
+      account && isSupportedXrpCurrency(account.currencyId)
+        ? account
+        : undefined;
 
     if (this.account?.freshAddress !== previousAddress) {
       this.emit("accountChanged", this.selectedAccountInfo());
@@ -93,10 +97,10 @@ export class XrpWalletProvider implements LedgerXrpApi {
 
   async signAndSubmit(tx: XrpTransaction): Promise<{ hash: string }> {
     return this.reportErrors(async () => {
-      const { signed, unsigned } = await this.signWithDevice(
+      const { signed, unsigned, account } = await this.signWithDevice(
         structuredClone(tx),
       );
-      await this.submit(signed.tx_blob);
+      await this.submit(account, signed.tx_blob);
       this.trackSubmission(signed, unsigned);
       return { hash: signed.hash };
     });
@@ -112,15 +116,17 @@ export class XrpWalletProvider implements LedgerXrpApi {
     this.listeners.get(event)?.delete(listener);
   }
 
-  private async signWithDevice(
-    tx: XrpTransaction,
-  ): Promise<{ signed: SignedXrpTransaction; unsigned: XrpTransaction }> {
+  private async signWithDevice(tx: XrpTransaction): Promise<{
+    signed: SignedXrpTransaction;
+    unsigned: XrpTransaction;
+    account: ProviderAccount;
+  }> {
     const account = await this.resolveAccount();
     this.assertSenderIsSelectedAccount(tx, account);
     const filled = await autofillTransaction(
       tx,
       account.freshAddress,
-      (method, params) => this.requestXrpl(method, params),
+      (method, params) => this.requestXrpl(account, method, params),
     );
 
     const { xrpSignature, signingPubKey } = await runSignFlow({
@@ -137,12 +143,15 @@ export class XrpWalletProvider implements LedgerXrpApi {
       signingPubKey,
     );
     const signed = await assembleSignedTransaction(unsigned, xrpSignature);
-    return { signed, unsigned };
+    return { signed, unsigned, account };
   }
 
   /** Rejects unless the node accepted or queued the transaction. */
-  private async submit(txBlob: string): Promise<void> {
-    const response = await this.requestXrpl("submit", {
+  private async submit(
+    account: ProviderAccount,
+    txBlob: string,
+  ): Promise<void> {
+    const response = await this.requestXrpl(account, "submit", {
       tx_blob: txBlob,
     }).catch((error: unknown) => {
       throw XrpSubmitFailedError.requestFailed(error);
@@ -151,12 +160,16 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   private requestXrpl(
+    account: ProviderAccount,
     method: string,
     params: Record<string, unknown>,
   ): Promise<BroadcastResponse> {
     return this.core.broadcastRPC(
       { method, params: [params] },
-      { name: XRP_FAMILY, chainId: this.network.id },
+      {
+        name: XRP_FAMILY,
+        chainId: getNetworkIdFromCurrencyId(account.currencyId),
+      },
     );
   }
 
@@ -217,7 +230,10 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   private toAccountInfo(account: ProviderAccount): XrpAccountInfo {
-    return { address: account.freshAddress, network: this.network.id };
+    return {
+      address: account.freshAddress,
+      network: getNetworkIdFromCurrencyId(account.currencyId),
+    };
   }
 
   private async reportErrors<T>(run: () => Promise<T>): Promise<T> {

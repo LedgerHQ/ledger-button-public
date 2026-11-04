@@ -3,14 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   createMockCoreFacade,
   XRP_TEST_BLOCKCHAIN_CONFIG,
-  XRP_TEST_NETWORK,
 } from "./__mocks__/coreFacadeMock";
 import {
   XrpBlockchainProvider,
   xrpBlockchainProviderFactory,
 } from "./XrpBlockchainProvider";
-
-const TESTNET_NETWORK = { ...XRP_TEST_NETWORK, id: "1" };
 
 describe("xrpBlockchainProviderFactory", () => {
   it("creates the provider from the XRP dApp config entry", () => {
@@ -28,33 +25,21 @@ describe("xrpBlockchainProviderFactory", () => {
     expect(result.isLeft()).toBe(true);
     expect(result.extract()).toBe("xrp");
   });
-
-  it("returns the family when the XRP entry has no network", () => {
-    const result = xrpBlockchainProviderFactory(createMockCoreFacade(), [
-      { ...XRP_TEST_BLOCKCHAIN_CONFIG, networks: [] },
-    ]);
-
-    expect(result.isLeft()).toBe(true);
-    expect(result.extract()).toBe("xrp");
-  });
 });
 
 describe("XrpBlockchainProvider", () => {
-  const createProvider = (network = XRP_TEST_NETWORK) =>
+  const createProvider = () =>
     new XrpBlockchainProvider(
       createMockCoreFacade(),
-      { ...XRP_TEST_BLOCKCHAIN_CONFIG, networks: [network] },
-      network,
+      XRP_TEST_BLOCKCHAIN_CONFIG,
     );
 
   describe("describeCurrency", () => {
-    it("describes the currency of the configured network", () => {
-      expect(
-        createProvider(TESTNET_NETWORK).describeCurrency("ripple"),
-      ).toEqual({
+    it("describes a supported XRP currency", () => {
+      expect(createProvider().describeCurrency("ripple")).toEqual({
         currencyId: "ripple",
         family: "xrp",
-        networkId: "1",
+        networkId: "0",
         nativeDecimals: 6,
       });
     });
@@ -65,7 +50,7 @@ describe("XrpBlockchainProvider", () => {
   });
 
   describe("describeNetwork", () => {
-    it("describes the configured network by its XRPL network_id", () => {
+    it("describes a supported network by its XRPL network_id", () => {
       expect(createProvider().describeNetwork("0")).toEqual({
         currencyId: "ripple",
         family: "xrp",
@@ -74,7 +59,7 @@ describe("XrpBlockchainProvider", () => {
       });
     });
 
-    it("returns undefined for another network", () => {
+    it("returns undefined for an unmapped network", () => {
       expect(createProvider().describeNetwork("1")).toBeUndefined();
       expect(createProvider().describeNetwork("mainnet")).toBeUndefined();
     });

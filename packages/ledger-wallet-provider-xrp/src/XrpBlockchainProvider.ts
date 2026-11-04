@@ -1,6 +1,5 @@
 import type {
   BlockchainConfig,
-  BlockchainNetwork,
   BlockchainProvider,
   BlockchainProviderFactory,
   CoreFacade,
@@ -17,7 +16,6 @@ import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import {
   describeXrpCurrency,
   describeXrpNetwork,
-  getXrpNetwork,
   XRP_FAMILY,
 } from "./utils/xrpUtils";
 import { XrpWalletProvider } from "./XrpWalletProvider";
@@ -43,7 +41,6 @@ export class XrpBlockchainProvider implements BlockchainProvider<
   constructor(
     private readonly core: CoreFacade,
     public readonly dappConfig: BlockchainConfig,
-    private readonly network: BlockchainNetwork,
   ) {
     this.container = new Container();
     this.container
@@ -61,7 +58,6 @@ export class XrpBlockchainProvider implements BlockchainProvider<
       this.container.get<SignXrpTransaction>(
         xrpProviderModuleTypes.SignTransactionUseCase,
       ),
-      this.network,
     );
     this.injector = new XrpWalletProviderInjector(this.walletProvider);
     this.injector.inject();
@@ -76,15 +72,15 @@ export class XrpBlockchainProvider implements BlockchainProvider<
   }
 
   setNetwork(_chainId: number): void {
-    // A single XRPL network is served for now: the first one in the dApp config.
+    // XRP network is derived from the account currency, not a chain id.
   }
 
   describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
-    return describeXrpCurrency(this.network, currencyId);
+    return describeXrpCurrency(currencyId);
   }
 
   describeNetwork(networkId: string): CurrencyDescriptor | undefined {
-    return describeXrpNetwork(this.network, networkId);
+    return describeXrpNetwork(networkId);
   }
 }
 
@@ -92,7 +88,6 @@ export const xrpBlockchainProviderFactory: BlockchainProviderFactory<
   typeof XRP_FAMILY
 > = (core: CoreFacade, blockchains: BlockchainConfig[]) => {
   const config = findBlockchainConfig(blockchains, XRP_FAMILY);
-  const network = config && getXrpNetwork(config);
-  if (!config || !network) return Left(XRP_FAMILY);
-  return Right(new XrpBlockchainProvider(core, config, network));
+  if (!config) return Left(XRP_FAMILY);
+  return Right(new XrpBlockchainProvider(core, config));
 };

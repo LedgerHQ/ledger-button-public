@@ -8,7 +8,7 @@ export type XrpAccountInfo = {
   readonly address: string;
   /** Only known once read from the device, so absent until a transaction is signed. */
   readonly publicKey?: string;
-  /** XRPL `network_id` from the dApp config (`"0"` mainnet, `"1"` testnet). */
+  /** XRPL `network_id` of the account (`"0"` mainnet, `"1"` testnet). */
   readonly network: string;
 };
 

@@ -8,7 +8,6 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createMockCoreFacade,
   XRP_TEST_ACCOUNT,
-  XRP_TEST_NETWORK,
 } from "./__mocks__/coreFacadeMock";
 import { XrpApiError } from "./model/XrpApiError";
 import type { XrpTransaction } from "./model/XrpTransaction";
@@ -33,11 +32,7 @@ function createApi(requestedAccount: ProviderAccount = XRP_TEST_ACCOUNT) {
   const core = createMockCoreFacade({
     requestAccount: vi.fn().mockResolvedValue(requestedAccount),
   });
-  const api = new XrpWalletProvider(
-    core,
-    {} as SignXrpTransaction,
-    XRP_TEST_NETWORK,
-  );
+  const api = new XrpWalletProvider(core, {} as SignXrpTransaction);
   return { api, core };
 }
 
