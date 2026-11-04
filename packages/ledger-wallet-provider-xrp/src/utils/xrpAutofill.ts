@@ -4,7 +4,11 @@ import { isJsonRpcResponseSuccess } from "@ledgerhq/ledger-wallet-provider-core"
 import { XrpApiError } from "../model/XrpApiError";
 import type { XrpTransaction } from "./xrpTransaction";
 
-/** Ledgers the transaction stays valid for (about a minute), as in xrpl.js. */
+/**
+ * In XRPL, a "ledger" is similar to a BTC "block". As in xrpl.js, the
+ * transaction expires 20 ledgers (60 to 100 s) after the last validated one,
+ * which leaves time to confirm it on the device.
+ */
 const LAST_LEDGER_SEQUENCE_OFFSET = 20;
 const DROPS_PER_XRP = 1_000_000;
 /** Fee ceiling: xrpl.js's default `maxFeeXRP` (2 XRP). */
@@ -19,14 +23,13 @@ export type XrplRequest = (
 type XrplResult = Record<string, unknown>;
 
 /**
- * Fills the fields the network decides, when the dApp left them out:
- * `Sequence` (`account_info`), `Fee` (`server_info`) and `LastLedgerSequence`
- * (`ledger`). Fields the dApp set are kept as is.
+ * Autofills the fields the dApp left out (if any).
  *
- * Same rules as xrpl.js `autofill`, limited to the methods the button backend
- * allows. The fee is the open ledger cost of a standard transaction: the
- * special fees of `AccountDelete`, `EscrowFinish` with a fulfillment or
- * multi-signing are not computed, so the dApp sets `Fee` for those.
+ * - `Sequence`: from `account_info`, or `0` when the transaction uses a `TicketSequence`.
+ * - `Fee`: `server_info` base fee × `load_factor`, capped at 2 XRP (as xrpl.js does).
+ *   Only right for a standard transaction: the dApp must set `Fee` for
+ *   `AccountDelete`, `EscrowFinish` with a fulfillment, or multi-signing.
+ * - `LastLedgerSequence`: latest validated ledger + 20.
  */
 export async function autofillTransaction(
   tx: XrpTransaction,
@@ -78,7 +81,6 @@ async function fetchLastLedgerSequence(request: XrplRequest): Promise<number> {
   return ledgerIndex + LAST_LEDGER_SEQUENCE_OFFSET;
 }
 
-/** The `result` of a successful reply; rippled reports failures inside it. */
 async function call(
   request: XrplRequest,
   method: string,
