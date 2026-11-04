@@ -1,7 +1,7 @@
 import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
 import { isRippledResponse } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { XrpApiError } from "../model/XrpApiError";
+import { XrpAutofillFailedError } from "../model/XrpApiError";
 import type { XrpTransaction } from "../model/XrpTransaction";
 
 /**
@@ -62,7 +62,7 @@ async function fetchFee(request: XrplRequest): Promise<string> {
   const info = asObject(result.info);
   const baseFeeXrp = asObject(info?.validated_ledger)?.base_fee_xrp;
   if (typeof baseFeeXrp !== "number") {
-    throw autofillFailed("server_info", "no validated_ledger.base_fee_xrp");
+    throw new XrpAutofillFailedError("server_info", "no validated_ledger.base_fee_xrp");
   }
   const loadFactor =
     typeof info?.load_factor === "number" ? info.load_factor : 1;
@@ -86,13 +86,15 @@ async function call(
   method: string,
   params: Record<string, unknown>,
 ): Promise<XrplResult> {
-  const response = await request(method, params);
+  const response = await request(method, params).catch((error: unknown) => {
+    throw XrpAutofillFailedError.requestFailed(method, error);
+  });
   if (!isRippledResponse(response)) {
-    throw autofillFailed(method, "unexpected response");
+    throw new XrpAutofillFailedError(method, "unexpected response");
   }
   const { result } = response;
   if (result.status === "error") {
-    throw autofillFailed(
+    throw new XrpAutofillFailedError(
       method,
       String(result.error_message ?? result.error ?? "unknown error"),
     );
@@ -102,7 +104,7 @@ async function call(
 
 function readInteger(method: string, value: unknown, field: string): number {
   if (typeof value !== "number" || !Number.isInteger(value)) {
-    throw autofillFailed(method, `unexpected ${field} ${String(value)}`);
+    throw new XrpAutofillFailedError(method, `unexpected ${field} ${String(value)}`);
   }
   return value;
 }
@@ -111,11 +113,4 @@ function asObject(value: unknown): XrplResult | undefined {
   return typeof value === "object" && value !== null
     ? (value as XrplResult)
     : undefined;
-}
-
-function autofillFailed(method: string, reason: string): XrpApiError {
-  return new XrpApiError(
-    "AUTOFILL_FAILED",
-    `XRPL autofill failed (${method}): ${reason}`,
-  );
 }

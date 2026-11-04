@@ -1,4 +1,7 @@
-import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  ProviderAccount,
+  RippledResponse,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { decode } from "ripple-binary-codec";
 import { describe, expect, it, vi } from "vitest";
 
@@ -238,7 +241,7 @@ describe("XrpWalletProvider", () => {
         xrpSignature: new Uint8Array([0x30, 0x45, 0x02, 0x21]),
         signingPubKey: PUBLIC_KEY,
       });
-      const results: Record<string, object> = {
+      const results: Record<string, RippledResponse["result"]> = {
         account_info: { status: "success", account_data: { Sequence: 7 } },
         server_info: {
           status: "success",
@@ -247,8 +250,6 @@ describe("XrpWalletProvider", () => {
         ledger: { status: "success", ledger_index: 1000 },
       };
       vi.mocked(core.broadcastRPC).mockImplementation(async (rpc) => ({
-        jsonrpc: "2.0",
-        id: 1,
         result: results[rpc.method],
       }));
 
@@ -298,8 +299,6 @@ describe("XrpWalletProvider", () => {
 
     it("returns the hash when the node accepts the transaction", async () => {
       const { api } = createSignedApi({
-        jsonrpc: "2.0",
-        id: 1,
         result: { status: "success", engine_result: "tesSUCCESS" },
       });
 
@@ -310,8 +309,6 @@ describe("XrpWalletProvider", () => {
 
     it("registers the pending transaction and reports completion with the signed payload", async () => {
       const { api, core } = createSignedApi({
-        jsonrpc: "2.0",
-        id: 1,
         result: { status: "success", engine_result: "tesSUCCESS" },
       });
       const signedPayload = serializeForDevice({
@@ -343,8 +340,6 @@ describe("XrpWalletProvider", () => {
 
     it("still returns the hash when tracking throws", async () => {
       const { api, core } = createSignedApi({
-        jsonrpc: "2.0",
-        id: 1,
         result: { status: "success", engine_result: "tesSUCCESS" },
       });
       vi.mocked(core.trackTransactionCompleted).mockImplementation(() => {
@@ -356,8 +351,6 @@ describe("XrpWalletProvider", () => {
 
     it("returns the hash when the node queues the transaction", async () => {
       const { api } = createSignedApi({
-        jsonrpc: "2.0",
-        id: 1,
         result: { status: "success", engine_result: "terQUEUED" },
       });
 
@@ -366,8 +359,6 @@ describe("XrpWalletProvider", () => {
 
     it("rejects with SUBMIT_FAILED when the node rejects the transaction", async () => {
       const { api, core } = createSignedApi({
-        jsonrpc: "2.0",
-        id: 1,
         result: {
           status: "success",
           engine_result: "tefPAST_SEQ",
@@ -384,6 +375,19 @@ describe("XrpWalletProvider", () => {
       expect(onError).toHaveBeenCalledOnce();
       expect(onError).toHaveBeenCalledWith(expect.any(XrpApiError));
       expect(core.trackTransactionCompleted).not.toHaveBeenCalled();
+      expect(core.trackBroadcastedTransaction).not.toHaveBeenCalled();
+    });
+
+    it("rejects with SUBMIT_FAILED when the backend request rejects", async () => {
+      const { api, core } = createSignedApi(undefined);
+      const networkError = new Error("Failed to fetch");
+      vi.mocked(core.broadcastRPC).mockRejectedValue(networkError);
+
+      await expect(api.signAndSubmit(TX)).rejects.toMatchObject({
+        code: "SUBMIT_FAILED",
+        message: "XRPL submit failed: backend request failed: Failed to fetch",
+        cause: networkError,
+      });
       expect(core.trackBroadcastedTransaction).not.toHaveBeenCalled();
     });
 

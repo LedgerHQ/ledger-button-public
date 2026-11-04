@@ -4,7 +4,7 @@ import {
   isRippledResponse,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { XrpApiError } from "../model/XrpApiError";
+import { XrpSubmitFailedError } from "../model/XrpApiError";
 
 /**
  * Preliminary results of XRPL `submit` that mean the transaction was taken:
@@ -19,7 +19,7 @@ const ACCEPTED_ENGINE_RESULTS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Throws a `SUBMIT_FAILED` {@link XrpApiError} unless the node accepted or
+ * Throws an {@link XrpSubmitFailedError} unless the node accepted or
  * queued the transaction. Unexpected response shapes are failures too: a
  * success must not be reported on a response that cannot be read.
  */
@@ -28,31 +28,23 @@ export function assertSubmitAccepted(response: BroadcastResponse): void {
     return;
   }
   if (!isRippledResponse(response)) {
-    throw submitFailed("unexpected response");
+    throw new XrpSubmitFailedError("unexpected response");
   }
 
   const { status, error, error_message, engine_result, engine_result_message } =
     response.result;
 
   if (status === "error") {
-    throw submitFailed(String(error_message ?? error ?? "unknown error"));
+    throw new XrpSubmitFailedError(String(error_message ?? error ?? "unknown error"));
   }
   if (typeof engine_result !== "string") {
-    throw submitFailed("response has no engine_result");
+    throw new XrpSubmitFailedError("response has no engine_result");
   }
   if (!ACCEPTED_ENGINE_RESULTS.has(engine_result)) {
     const detail =
       typeof engine_result_message === "string"
         ? `${engine_result}: ${engine_result_message}`
         : engine_result;
-    throw submitFailed(detail, engine_result);
+    throw new XrpSubmitFailedError(detail, engine_result);
   }
-}
-
-function submitFailed(reason: string, engineResult?: string): XrpApiError {
-  return new XrpApiError(
-    "SUBMIT_FAILED",
-    `XRPL submit failed: ${reason}`,
-    engineResult,
-  );
 }

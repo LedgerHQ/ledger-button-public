@@ -120,6 +120,26 @@ describe("autofillTransaction", () => {
     });
   });
 
+  it("rejects with AUTOFILL_FAILED when the backend request rejects", async () => {
+    const networkError = new Error("Failed to fetch");
+    const request: XrplRequest = vi.fn(async () => {
+      throw networkError;
+    });
+
+    await expect(
+      autofillTransaction(
+        { ...PAYMENT, Sequence: 1, Fee: "10" },
+        ACCOUNT,
+        request,
+      ),
+    ).rejects.toMatchObject({
+      code: "AUTOFILL_FAILED",
+      message:
+        "XRPL autofill failed (ledger): backend request failed: Failed to fetch",
+      cause: networkError,
+    });
+  });
+
   it("rejects with AUTOFILL_FAILED on a non-rippled response", async () => {
     const request: XrplRequest = vi.fn(async () => ({
       jsonrpc: "2.0",

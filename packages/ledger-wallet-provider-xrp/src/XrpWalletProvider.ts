@@ -5,7 +5,10 @@ import type {
   ProviderLogger,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { XrpApiError } from "./model/XrpApiError";
+import {
+  XrpNotConnectedError,
+  XrpSubmitFailedError,
+} from "./model/XrpApiError";
 import { isSignedXrpTransactionResult } from "./model/XrpSignedResult";
 import type {
   SignedXrpTransaction,
@@ -62,7 +65,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   async connect(options?: XrpConnectOptions): Promise<XrpAccountInfo> {
     return this.reportErrors(async () => {
       if (options?.silent && !this.account) {
-        throw new XrpApiError("NOT_CONNECTED", "No account selected");
+        throw new XrpNotConnectedError();
       }
 
       const info = this.toAccountInfo(await this.resolveAccount());
@@ -142,7 +145,11 @@ export class XrpWalletProvider implements LedgerXrpApi {
 
   /** Rejects unless the node accepted or queued the transaction. */
   private async submit(txBlob: string): Promise<void> {
-    const response = await this.requestXrpl("submit", { tx_blob: txBlob });
+    const response = await this.requestXrpl("submit", {
+      tx_blob: txBlob,
+    }).catch((error: unknown) => {
+      throw XrpSubmitFailedError.requestFailed(error);
+    });
     assertSubmitAccepted(response);
   }
 
