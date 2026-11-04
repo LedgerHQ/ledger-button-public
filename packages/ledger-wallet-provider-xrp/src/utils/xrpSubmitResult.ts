@@ -1,7 +1,7 @@
 import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   isCoinServiceBroadcastResponse,
-  isJsonRpcResponseSuccess,
+  isRippledResponse,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { XrpApiError } from "../model/XrpApiError";
@@ -18,14 +18,6 @@ const ACCEPTED_ENGINE_RESULTS: ReadonlySet<string> = new Set([
   "terQUEUED",
 ]);
 
-type XrplSubmitResult = {
-  readonly status?: unknown;
-  readonly error?: unknown;
-  readonly error_message?: unknown;
-  readonly engine_result?: unknown;
-  readonly engine_result_message?: unknown;
-};
-
 /**
  * Throws a `SUBMIT_FAILED` {@link XrpApiError} unless the node accepted or
  * queued the transaction. Unexpected response shapes are failures too: a
@@ -35,19 +27,12 @@ export function assertSubmitAccepted(response: BroadcastResponse): void {
   if (isCoinServiceBroadcastResponse(response)) {
     return;
   }
-  if (!isJsonRpcResponseSuccess(response)) {
-    throw submitFailed(
-      "error" in response ? response.error.message : "no result in response",
-    );
-  }
-
-  const result = response.result;
-  if (typeof result !== "object" || result === null) {
+  if (!isRippledResponse(response)) {
     throw submitFailed("unexpected response");
   }
 
   const { status, error, error_message, engine_result, engine_result_message } =
-    result as XrplSubmitResult;
+    response.result;
 
   if (status === "error") {
     throw submitFailed(String(error_message ?? error ?? "unknown error"));

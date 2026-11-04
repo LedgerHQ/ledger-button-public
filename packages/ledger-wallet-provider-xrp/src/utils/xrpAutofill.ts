@@ -1,5 +1,5 @@
 import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
-import { isJsonRpcResponseSuccess } from "@ledgerhq/ledger-wallet-provider-core";
+import { isRippledResponse } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { XrpApiError } from "../model/XrpApiError";
 import type { XrpTransaction } from "../model/XrpTransaction";
@@ -87,15 +87,10 @@ async function call(
   params: Record<string, unknown>,
 ): Promise<XrplResult> {
   const response = await request(method, params);
-  const result = isJsonRpcResponseSuccess(response)
-    ? asObject(response.result)
-    : undefined;
-  if (!result) {
-    throw autofillFailed(
-      method,
-      "error" in response ? response.error.message : "unexpected response",
-    );
+  if (!isRippledResponse(response)) {
+    throw autofillFailed(method, "unexpected response");
   }
+  const { result } = response;
   if (result.status === "error") {
     throw autofillFailed(
       method,

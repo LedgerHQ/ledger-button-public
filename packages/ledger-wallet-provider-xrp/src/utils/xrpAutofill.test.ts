@@ -120,7 +120,7 @@ describe("autofillTransaction", () => {
     });
   });
 
-  it("rejects with AUTOFILL_FAILED on a JSON-RPC error response", async () => {
+  it("rejects with AUTOFILL_FAILED on a non-rippled response", async () => {
     const request: XrplRequest = vi.fn(async () => ({
       jsonrpc: "2.0",
       id: 1,
@@ -135,7 +135,7 @@ describe("autofillTransaction", () => {
       ),
     ).rejects.toMatchObject({
       code: "AUTOFILL_FAILED",
-      message: "XRPL autofill failed (ledger): Unsupported RPC method",
+      message: "XRPL autofill failed (ledger): unexpected response",
     });
   });
 });
