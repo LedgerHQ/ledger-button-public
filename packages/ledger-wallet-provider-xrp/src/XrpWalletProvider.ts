@@ -144,13 +144,12 @@ export class XrpWalletProvider implements LedgerXrpApi {
     assertSubmitAccepted(response);
   }
 
-  /** XRPL JSON-RPC through the button backend, which proxies it to Ledger's node. */
   private requestXrpl(
     method: string,
     params: Record<string, unknown>,
   ): Promise<BroadcastResponse> {
     return this.core.broadcastRPC(
-      { jsonrpc: "2.0", id: 1, method, params: [params] },
+      { method, params: [params] },
       { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
     );
   }

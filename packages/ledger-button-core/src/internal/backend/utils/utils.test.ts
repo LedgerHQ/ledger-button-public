@@ -2,6 +2,7 @@ import {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
+  isRippledResponse,
 } from "./utils";
 
 describe("isJsonRpcResponse", () => {
@@ -75,6 +76,35 @@ describe("isJsonRpcResponseSuccess", () => {
 
   it("should return false for a non-object primitive", () => {
     expect(isJsonRpcResponseSuccess("string")).toBe(false);
+  });
+});
+
+describe("isRippledResponse", () => {
+  it("returns true for a rippled success", () => {
+    const value = { result: { status: "success", info: { network_id: 0 } } };
+    expect(isRippledResponse(value)).toBe(true);
+  });
+
+  it("returns true for a rippled failure kept inside result", () => {
+    const value = {
+      result: { status: "error", error: "actNotFound" },
+    };
+    expect(isRippledResponse(value)).toBe(true);
+  });
+
+  it("returns false for a JSON-RPC response", () => {
+    const value = { jsonrpc: "2.0", id: 1, result: { status: "success" } };
+    expect(isRippledResponse(value)).toBe(false);
+  });
+
+  it("returns false when result has no rippled status", () => {
+    expect(isRippledResponse({ result: "0x123" })).toBe(false);
+    expect(isRippledResponse({ result: { info: {} } })).toBe(false);
+  });
+
+  it("returns false for null and primitives", () => {
+    expect(isRippledResponse(null)).toBe(false);
+    expect(isRippledResponse("0x123")).toBe(false);
   });
 });
 

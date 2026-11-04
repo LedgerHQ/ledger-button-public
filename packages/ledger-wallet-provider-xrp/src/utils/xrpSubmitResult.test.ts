@@ -29,6 +29,14 @@ describe("assertSubmitAccepted", () => {
     },
   );
 
+  it("accepts a bare rippled submit result", () => {
+    expect(() =>
+      assertSubmitAccepted({
+        result: { status: "success", engine_result: "tesSUCCESS" },
+      }),
+    ).not.toThrow();
+  });
+
   it("accepts a coin-service broadcast response", () => {
     expect(() =>
       assertSubmitAccepted({ transactionIdentifier: "ABC123" }),

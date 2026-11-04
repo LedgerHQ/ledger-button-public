@@ -9,6 +9,13 @@ export type JSONRPCRequest = {
   readonly params: readonly unknown[] | object;
 };
 
+export type RippledRequest = {
+  readonly method: string;
+  readonly params: readonly Record<string, unknown>[];
+};
+
+export type BroadcastRpcRequest = JSONRPCRequest | RippledRequest;
+
 export type JsonRpcResponseSuccess = {
   id: number;
   jsonrpc: string;
@@ -33,19 +40,35 @@ export type Blockchain = {
 
 export type BroadcastRequest = {
   blockchain: Blockchain;
-  rpc: JSONRPCRequest;
+  rpc: BroadcastRpcRequest;
 };
 
 export type CoinServiceBroadcastResponse = {
   transactionIdentifier: string;
 };
 
-export type BroadcastResponse = JsonRpcResponse | CoinServiceBroadcastResponse;
+export const RIPPLED_STATUSES = ["success", "error"] as const;
+
+export type RippledStatus = (typeof RIPPLED_STATUSES)[number];
+
+export type RippledResponse = {
+  result: {
+    status: RippledStatus;
+    error?: string;
+    error_code?: number;
+    error_message?: string;
+    [field: string]: unknown;
+  };
+};
+
+export type BroadcastResponse =
+  JsonRpcResponse | CoinServiceBroadcastResponse | RippledResponse;
 
 export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
+  isRippledResponse,
 } from "../utils/utils";
 
 export type ConfigRequest = {

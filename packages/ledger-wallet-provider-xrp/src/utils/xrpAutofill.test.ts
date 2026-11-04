@@ -1,4 +1,7 @@
-import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  BroadcastResponse,
+  RippledResponse,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { describe, expect, it, vi } from "vitest";
 
 import { autofillTransaction, type XrplRequest } from "./xrpAutofill";
@@ -23,9 +26,10 @@ function serverInfo(loadFactor: number | undefined): object {
 
 function nodeReplying(results: Record<string, object>): XrplRequest {
   return vi.fn(async (method: string): Promise<BroadcastResponse> => ({
-    jsonrpc: "2.0",
-    id: 1,
-    result: results[method] ?? { status: "error", error: "unexpected" },
+    result: (results[method] ?? {
+      status: "error",
+      error: "unexpected",
+    }) as RippledResponse["result"],
   }));
 }
 

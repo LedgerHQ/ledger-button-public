@@ -27,16 +27,20 @@ export type {
 export * from "./UserInteractionNeeded";
 export type {
   BroadcastResponse,
+  BroadcastRpcRequest,
   CoinServiceBroadcastResponse,
   JSONRPCRequest,
   JsonRpcResponse,
   JsonRpcResponseError,
   JsonRpcResponseSuccess,
+  RippledRequest,
+  RippledResponse,
 } from "@internal/backend/model/types";
 export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
+  isRippledResponse,
 } from "@internal/backend/model/types";
 export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes";
 export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking";

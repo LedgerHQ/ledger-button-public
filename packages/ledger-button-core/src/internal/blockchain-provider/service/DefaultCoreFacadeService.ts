@@ -20,11 +20,9 @@ import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
 import { getSelectedAccount } from "@api/model/ButtonCoreContext";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
-import {
-  type BroadcastResponse,
-  isCoinServiceBroadcastResponse,
-  isJsonRpcResponse,
-  type JSONRPCRequest,
+import type {
+  BroadcastResponse,
+  BroadcastRpcRequest,
 } from "@internal/backend/model/types";
 import type { BackendService } from "@internal/backend/service/BackendService";
 import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants";
@@ -95,7 +93,7 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   async broadcastRPC(
-    args: JSONRPCRequest,
+    args: BroadcastRpcRequest,
     blockchain: ProviderBlockchain,
   ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
@@ -105,16 +103,7 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
       rpc: args,
     });
     return response.caseOf<BroadcastResponse>({
-      Right: (body) => {
-        const result = withJsonRpcEnvelope(body, args);
-        if (
-          isJsonRpcResponse(result) ||
-          isCoinServiceBroadcastResponse(result)
-        ) {
-          return result;
-        }
-        throw new Error("Unexpected broadcast response for JSON-RPC request");
-      },
+      Right: (result) => result,
       Left: (error) => {
         this._logger.error("JSON-RPC request failed", { error });
         throw error;
@@ -316,24 +305,6 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
       }),
     });
   }
-}
-
-/**
- * rippled and Clio (XRP) ignore the JSON-RPC 2.0 envelope and reply with a
- * bare `{ result }`, failures included. Give such replies the request's
- * `jsonrpc` and `id` so they read as any other JSON-RPC response.
- */
-function withJsonRpcEnvelope(body: unknown, request: JSONRPCRequest): unknown {
-  if (
-    typeof body !== "object" ||
-    body === null ||
-    !("result" in body) ||
-    "jsonrpc" in body ||
-    "id" in body
-  ) {
-    return body;
-  }
-  return { jsonrpc: request.jsonrpc, id: request.id, result: body.result };
 }
 
 declare global {

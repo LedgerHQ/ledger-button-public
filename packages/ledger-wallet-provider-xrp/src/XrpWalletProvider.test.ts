@@ -267,8 +267,6 @@ describe("XrpWalletProvider", () => {
       });
       expect(core.broadcastRPC).toHaveBeenCalledWith(
         {
-          jsonrpc: "2.0",
-          id: 1,
           method: "account_info",
           params: [
             { account: XRP_TEST_ACCOUNT.freshAddress, ledger_index: "current" },
