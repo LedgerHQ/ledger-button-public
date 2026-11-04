@@ -64,10 +64,23 @@ export const XRP_TEST_NETWORK: BlockchainNetwork = {
   currencyTicker: "XRP",
 };
 
+export const XRP_TESTNET_TEST_NETWORK: BlockchainNetwork = {
+  id: "1",
+  currencyId: "ripple_testnet",
+  currencyName: "XRP Testnet",
+  currencyTicker: "XRP",
+};
+
+/** XRP networks as served by the dApp config. */
+export const XRP_TEST_NETWORKS: BlockchainNetwork[] = [
+  XRP_TEST_NETWORK,
+  XRP_TESTNET_TEST_NETWORK,
+];
+
 export const XRP_TEST_BLOCKCHAIN_CONFIG: BlockchainConfig = {
   blockchain: "xrp",
   appName: "XRP",
-  networks: [XRP_TEST_NETWORK],
+  networks: XRP_TEST_NETWORKS,
   rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "XRP", dependencies: [{ name: "XRP" }] },
 };

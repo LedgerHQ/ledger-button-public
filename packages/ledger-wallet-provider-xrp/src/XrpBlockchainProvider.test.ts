@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createMockCoreFacade,
   XRP_TEST_BLOCKCHAIN_CONFIG,
+  XRP_TEST_NETWORK,
 } from "./__mocks__/coreFacadeMock";
 import {
   XrpBlockchainProvider,
@@ -28,11 +29,11 @@ describe("xrpBlockchainProviderFactory", () => {
 });
 
 describe("XrpBlockchainProvider", () => {
-  const createProvider = () =>
-    new XrpBlockchainProvider(
-      createMockCoreFacade(),
-      XRP_TEST_BLOCKCHAIN_CONFIG,
-    );
+  const createProvider = (networks = XRP_TEST_BLOCKCHAIN_CONFIG.networks) =>
+    new XrpBlockchainProvider(createMockCoreFacade(), {
+      ...XRP_TEST_BLOCKCHAIN_CONFIG,
+      networks,
+    });
 
   describe("describeCurrency", () => {
     it("describes a supported XRP currency", () => {
@@ -74,9 +75,28 @@ describe("XrpBlockchainProvider", () => {
       );
     });
 
-    it("returns undefined for an unmapped network", () => {
+    it("returns undefined for a network not in the dApp config", () => {
       expect(createProvider().describeNetwork("2")).toBeUndefined();
       expect(createProvider().describeNetwork("mainnet")).toBeUndefined();
+      expect(
+        createProvider([XRP_TEST_NETWORK]).describeNetwork("1"),
+      ).toBeUndefined();
+    });
+
+    it("describes any network the dApp config adds", () => {
+      const devnet = {
+        id: "2",
+        currencyId: "ripple_devnet",
+        currencyName: "XRP Devnet",
+        currencyTicker: "XRP",
+      };
+
+      expect(createProvider([devnet]).describeNetwork("2")).toEqual({
+        currencyId: "ripple_devnet",
+        family: "xrp",
+        networkId: "2",
+        nativeDecimals: 6,
+      });
     });
   });
 });

@@ -1,5 +1,6 @@
 import type {
   BlockchainFamily,
+  BlockchainNetwork,
   CurrencyDescriptor,
   ProviderAccount,
 } from "@ledgerhq/ledger-wallet-provider-core";
@@ -7,62 +8,54 @@ import type {
 export const XRP_FAMILY = "xrp" satisfies BlockchainFamily;
 export const XRP_NATIVE_DECIMALS = 6; // 1 XRP = 1_000_000 drops
 
-/**
- * Ledger Wallet currency id → XRPL `network_id` (`"0"` mainnet, `"1"` testnet).
- * The `network_id` is also the Button backend chain id and the network the XRP
- * API reports to the dApp.
- *
- * `ripple_devnet` is not supported by coin-service, so
- * balance and transaction history cannot be fetched.
- */
-export const XRP_MAPPING_TABLE: Record<string, string> = {
-  ripple: "0",
-  ripple_testnet: "1",
-};
-
-export const DEFAULT_XRP_NETWORK_ID = "0";
-
 /** BIP44, coin type 144. Ledger Wallet accounts: 44'/144'/<account>'/0/0 (secp256k1). */
 export function getXrpDerivationPath(account: ProviderAccount): string {
   return `44'/144'/${account.index}'/0/0`;
 }
 
-export function getNetworkIdFromCurrencyId(currencyId: string): string {
-  return XRP_MAPPING_TABLE[currencyId] ?? DEFAULT_XRP_NETWORK_ID;
-}
+/*
+ * XRP networks come from the dApp config (`networks` of the `xrp` entry), the
+ * single source of truth: a network `id` is the XRPL `network_id` (`"0"`
+ * mainnet, `"1"` testnet), which is also the Button backend chain id and the
+ * network the XRP API reports to the dApp. A currency or network missing from
+ * the config is unsupported, with no fallback to mainnet.
+ */
 
-export function getCurrencyIdFromNetworkId(
-  networkId: string,
-): string | undefined {
-  return Object.keys(XRP_MAPPING_TABLE).find(
-    (currencyId) => XRP_MAPPING_TABLE[currencyId] === networkId,
-  );
-}
-
-export function isSupportedXrpCurrency(currencyId: string): boolean {
-  return Object.hasOwn(XRP_MAPPING_TABLE, currencyId);
-}
-
-export function describeXrpCurrency(
+export function findXrpNetworkByCurrencyId(
+  networks: readonly BlockchainNetwork[],
   currencyId: string,
-): CurrencyDescriptor | undefined {
-  if (!isSupportedXrpCurrency(currencyId)) {
-    return undefined;
-  }
+): BlockchainNetwork | undefined {
+  return networks.find((network) => network.currencyId === currencyId);
+}
+
+export function findXrpNetworkById(
+  networks: readonly BlockchainNetwork[],
+  networkId: string,
+): BlockchainNetwork | undefined {
+  return networks.find((network) => network.id === networkId);
+}
+
+function toCurrencyDescriptor(network: BlockchainNetwork): CurrencyDescriptor {
   return {
-    currencyId,
+    currencyId: network.currencyId,
     family: XRP_FAMILY,
-    networkId: getNetworkIdFromCurrencyId(currencyId),
+    networkId: network.id,
     nativeDecimals: XRP_NATIVE_DECIMALS,
   };
 }
 
+export function describeXrpCurrency(
+  networks: readonly BlockchainNetwork[],
+  currencyId: string,
+): CurrencyDescriptor | undefined {
+  const network = findXrpNetworkByCurrencyId(networks, currencyId);
+  return network && toCurrencyDescriptor(network);
+}
+
 export function describeXrpNetwork(
+  networks: readonly BlockchainNetwork[],
   networkId: string,
 ): CurrencyDescriptor | undefined {
-  const currencyId = getCurrencyIdFromNetworkId(networkId);
-  if (!currencyId) {
-    return undefined;
-  }
-  return describeXrpCurrency(currencyId);
+  const network = findXrpNetworkById(networks, networkId);
+  return network && toCurrencyDescriptor(network);
 }

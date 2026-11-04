@@ -1,4 +1,5 @@
 import type {
+  BlockchainNetwork,
   BroadcastResponse,
   CoreFacade,
   ProviderAccount,
@@ -25,11 +26,7 @@ import {
   serializeForDevice,
   withSigningFields,
 } from "./utils/xrpTransaction";
-import {
-  getNetworkIdFromCurrencyId,
-  isSupportedXrpCurrency,
-  XRP_FAMILY,
-} from "./utils/xrpUtils";
+import { findXrpNetworkByCurrencyId, XRP_FAMILY } from "./utils/xrpUtils";
 import type {
   LedgerXrpApi,
   XrpAccountInfo,
@@ -47,6 +44,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   constructor(
     private readonly core: CoreFacade,
     private readonly signXrp: SignXrpTransaction,
+    private readonly networks: readonly BlockchainNetwork[],
   ) {
     this.logger = this.core.getLogger("[XrpWalletProvider]");
   }
@@ -54,7 +52,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   setSelectedAccount(account: ProviderAccount | undefined): void {
     const previousAddress = this.account?.freshAddress;
     this.account =
-      account && isSupportedXrpCurrency(account.currencyId)
+      account && findXrpNetworkByCurrencyId(this.networks, account.currencyId)
         ? account
         : undefined;
 
@@ -168,7 +166,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
       { method, params: [params] },
       {
         name: XRP_FAMILY,
-        chainId: getNetworkIdFromCurrencyId(account.currencyId),
+        chainId: this.getNetworkId(account),
       },
     );
   }
@@ -232,8 +230,22 @@ export class XrpWalletProvider implements LedgerXrpApi {
   private toAccountInfo(account: ProviderAccount): XrpAccountInfo {
     return {
       address: account.freshAddress,
-      network: getNetworkIdFromCurrencyId(account.currencyId),
+      network: this.getNetworkId(account),
     };
+  }
+
+  /** XRPL `network_id` of the account, from the dApp config networks. */
+  private getNetworkId(account: ProviderAccount): string {
+    const network = findXrpNetworkByCurrencyId(
+      this.networks,
+      account.currencyId,
+    );
+    if (!network) {
+      throw new Error(
+        `XRP currency ${account.currencyId} is not in the dApp config`,
+      );
+    }
+    return network.id;
   }
 
   private async reportErrors<T>(run: () => Promise<T>): Promise<T> {

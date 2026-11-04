@@ -58,6 +58,7 @@ export class XrpBlockchainProvider implements BlockchainProvider<
       this.container.get<SignXrpTransaction>(
         xrpProviderModuleTypes.SignTransactionUseCase,
       ),
+      this.dappConfig.networks,
     );
     this.injector = new XrpWalletProviderInjector(this.walletProvider);
     this.injector.inject();
@@ -76,11 +77,11 @@ export class XrpBlockchainProvider implements BlockchainProvider<
   }
 
   describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
-    return describeXrpCurrency(currencyId);
+    return describeXrpCurrency(this.dappConfig.networks, currencyId);
   }
 
   describeNetwork(networkId: string): CurrencyDescriptor | undefined {
-    return describeXrpNetwork(networkId);
+    return describeXrpNetwork(this.dappConfig.networks, networkId);
   }
 }
 
