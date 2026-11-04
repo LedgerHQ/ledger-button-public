@@ -11,9 +11,13 @@ export const XRP_NATIVE_DECIMALS = 6; // 1 XRP = 1_000_000 drops
  * Ledger Wallet currency id → XRPL `network_id` (`"0"` mainnet, `"1"` testnet).
  * The `network_id` is also the Button backend chain id and the network the XRP
  * API reports to the dApp.
+ *
+ * `ripple_devnet` is not supported by coin-service, so
+ * balance and transaction history cannot be fetched.
  */
 export const XRP_MAPPING_TABLE: Record<string, string> = {
   ripple: "0",
+  ripple_testnet: "1",
 };
 
 export const DEFAULT_XRP_NETWORK_ID = "0";

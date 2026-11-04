@@ -58,6 +58,19 @@ describe("XrpWalletProvider", () => {
       expect(core.requestAccount).not.toHaveBeenCalled();
     });
 
+    it("reports the XRPL testnet network_id for a testnet account", async () => {
+      const { api } = createApi();
+      api.setSelectedAccount({
+        ...XRP_TEST_ACCOUNT,
+        currencyId: "ripple_testnet",
+      });
+
+      expect(await api.getAccount()).toEqual({
+        address: XRP_TEST_ACCOUNT.freshAddress,
+        network: "1",
+      });
+    });
+
     it("ignores accounts of another currency", async () => {
       const { api } = createApi();
       api.setSelectedAccount({ ...XRP_TEST_ACCOUNT, currencyId: "ethereum" });

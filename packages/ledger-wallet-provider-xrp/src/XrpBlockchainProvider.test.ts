@@ -44,6 +44,15 @@ describe("XrpBlockchainProvider", () => {
       });
     });
 
+    it("describes the XRP testnet currency", () => {
+      expect(createProvider().describeCurrency("ripple_testnet")).toEqual({
+        currencyId: "ripple_testnet",
+        family: "xrp",
+        networkId: "1",
+        nativeDecimals: 6,
+      });
+    });
+
     it("returns undefined for another currency", () => {
       expect(createProvider().describeCurrency("ethereum")).toBeUndefined();
     });
@@ -59,8 +68,14 @@ describe("XrpBlockchainProvider", () => {
       });
     });
 
+    it("describes the testnet by its XRPL network_id", () => {
+      expect(createProvider().describeNetwork("1")?.currencyId).toBe(
+        "ripple_testnet",
+      );
+    });
+
     it("returns undefined for an unmapped network", () => {
-      expect(createProvider().describeNetwork("1")).toBeUndefined();
+      expect(createProvider().describeNetwork("2")).toBeUndefined();
       expect(createProvider().describeNetwork("mainnet")).toBeUndefined();
     });
   });
