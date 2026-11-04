@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createMockCoreFacade,
   XRP_TEST_ACCOUNT,
+  XRP_TEST_NETWORK,
 } from "./__mocks__/coreFacadeMock";
 import { XrpApiError } from "./model/XrpApiError";
 import type { XrpTransaction } from "./model/XrpTransaction";
@@ -32,7 +33,11 @@ function createApi(requestedAccount: ProviderAccount = XRP_TEST_ACCOUNT) {
   const core = createMockCoreFacade({
     requestAccount: vi.fn().mockResolvedValue(requestedAccount),
   });
-  const api = new XrpWalletProvider(core, {} as SignXrpTransaction);
+  const api = new XrpWalletProvider(
+    core,
+    {} as SignXrpTransaction,
+    XRP_TEST_NETWORK,
+  );
   return { api, core };
 }
 
@@ -51,7 +56,7 @@ describe("XrpWalletProvider", () => {
 
       const expected = {
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       };
       expect(await api.getAccount()).toEqual(expected);
       expect(await api.fetchAccount()).toEqual(expected);
@@ -75,7 +80,7 @@ describe("XrpWalletProvider", () => {
       expect(core.requestAccount).toHaveBeenCalledWith("xrp");
       expect(info).toEqual({
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 
@@ -119,7 +124,7 @@ describe("XrpWalletProvider", () => {
 
       expect(onConnect).toHaveBeenCalledWith({
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 
@@ -146,7 +151,7 @@ describe("XrpWalletProvider", () => {
 
       expect(onChanged).toHaveBeenCalledWith({
         address: OTHER_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 

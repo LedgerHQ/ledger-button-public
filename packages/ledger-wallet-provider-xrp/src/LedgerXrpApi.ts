@@ -2,13 +2,14 @@ import type {
   SignedXrpTransaction,
   XrpTransaction,
 } from "./model/XrpTransaction";
-import type { XRP_FAMILY, XRP_NETWORK_ID } from "./utils/xrpUtils";
+import type { XRP_FAMILY } from "./utils/xrpUtils";
 
 export type XrpAccountInfo = {
   readonly address: string;
   /** Only known once read from the device, so absent until a transaction is signed. */
   readonly publicKey?: string;
-  readonly network: typeof XRP_NETWORK_ID;
+  /** XRPL `network_id` from the dApp config (`"0"` mainnet, `"1"` testnet). */
+  readonly network: string;
 };
 
 export type XrpConnectOptions = {

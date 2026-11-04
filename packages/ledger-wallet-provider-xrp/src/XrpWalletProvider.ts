@@ -1,4 +1,5 @@
 import type {
+  BlockchainNetwork,
   BroadcastResponse,
   CoreFacade,
   ProviderAccount,
@@ -25,12 +26,7 @@ import {
   serializeForDevice,
   withSigningFields,
 } from "./utils/xrpTransaction";
-import {
-  XRP_BACKEND_CHAIN_ID,
-  XRP_CURRENCY_ID,
-  XRP_FAMILY,
-  XRP_NETWORK_ID,
-} from "./utils/xrpUtils";
+import { XRP_FAMILY } from "./utils/xrpUtils";
 import type {
   LedgerXrpApi,
   XrpAccountInfo,
@@ -48,6 +44,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   constructor(
     private readonly core: CoreFacade,
     private readonly signXrp: SignXrpTransaction,
+    private readonly network: BlockchainNetwork,
   ) {
     this.logger = this.core.getLogger("[XrpWalletProvider]");
   }
@@ -55,7 +52,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   setSelectedAccount(account: ProviderAccount | undefined): void {
     const previousAddress = this.account?.freshAddress;
     this.account =
-      account?.currencyId === XRP_CURRENCY_ID ? account : undefined;
+      account?.currencyId === this.network.currencyId ? account : undefined;
 
     if (this.account?.freshAddress !== previousAddress) {
       this.emit("accountChanged", this.selectedAccountInfo());
@@ -159,7 +156,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   ): Promise<BroadcastResponse> {
     return this.core.broadcastRPC(
       { method, params: [params] },
-      { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
+      { name: XRP_FAMILY, chainId: this.network.id },
     );
   }
 
@@ -220,7 +217,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   private toAccountInfo(account: ProviderAccount): XrpAccountInfo {
-    return { address: account.freshAddress, network: XRP_NETWORK_ID };
+    return { address: account.freshAddress, network: this.network.id };
   }
 
   private async reportErrors<T>(run: () => Promise<T>): Promise<T> {
