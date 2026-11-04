@@ -7,6 +7,10 @@ import type {
 
 import { XrpApiError } from "./model/XrpApiError";
 import { isSignedXrpTransactionResult } from "./model/XrpSignedResult";
+import type {
+  SignedXrpTransaction,
+  XrpTransaction,
+} from "./model/XrpTransaction";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
 import { autofillTransaction } from "./utils/xrpAutofill";
@@ -16,9 +20,7 @@ import {
   getXrpDestination,
   getXrpDropsAmount,
   serializeForDevice,
-  type SignedXrpTransaction,
   withSigningFields,
-  type XrpTransaction,
 } from "./utils/xrpTransaction";
 import {
   XRP_BACKEND_CHAIN_ID,

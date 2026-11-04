@@ -1,3 +1,7 @@
+import type {
+  SignedXrpTransaction,
+  XrpTransaction,
+} from "./model/XrpTransaction";
 import type { XRP_FAMILY, XRP_NETWORK_ID } from "./utils/xrpUtils";
 
 export type XrpAccountInfo = {
@@ -43,11 +47,9 @@ export interface LedgerXrpApi {
    * `LastLedgerSequence` is filled from the network first; rejects with
    * `AUTOFILL_FAILED` when it cannot be read.
    */
-  sign(
-    tx: Record<string, unknown>,
-  ): Promise<{ tx_blob: string; hash: string; signature: string }>;
+  sign(tx: XrpTransaction): Promise<SignedXrpTransaction>;
   /** Same autofill as `sign`, then submits; rejects with `SUBMIT_FAILED` unless the node takes it. */
-  signAndSubmit(tx: Record<string, unknown>): Promise<{ hash: string }>;
+  signAndSubmit(tx: XrpTransaction): Promise<{ hash: string }>;
   on(event: XrpApiEvent, listener: XrpApiListener): void;
   off(event: XrpApiEvent, listener: XrpApiListener): void;
 }

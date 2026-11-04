@@ -14,7 +14,7 @@ import type {
   SignFlowStatus,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import type { XrpTransaction } from "../utils/xrpTransaction";
+import type { XrpTransaction } from "../model/XrpTransaction";
 
 export enum SignXrpTransactionFlowDAStep {
   OPEN_APP = "open-app",

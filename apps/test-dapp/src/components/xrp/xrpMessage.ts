@@ -1,3 +1,5 @@
+import type { XrpTransaction } from "@ledgerhq/ledger-wallet-provider-xrp";
+
 const MEMO_TYPE = "message";
 const MEMO_FORMAT = "text/plain";
 
@@ -18,9 +20,7 @@ function utf8ToHex(value: string): string {
  *
  * It lives in the test dApp only: the provider does not support `signMessage`.
  */
-export function buildMessageProofTransaction(
-  message: string,
-): Record<string, unknown> {
+export function buildMessageProofTransaction(message: string): XrpTransaction {
   return {
     TransactionType: "AccountSet",
     Sequence: 0,

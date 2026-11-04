@@ -1,3 +1,5 @@
+import type { XrpTransaction } from "@ledgerhq/ledger-wallet-provider-xrp";
+
 export type PaymentValues = {
   destination: string;
   amountDrops: string;
@@ -10,7 +12,7 @@ export type PaymentValues = {
 export function buildPayment({
   destination,
   amountDrops,
-}: PaymentValues): Record<string, unknown> {
+}: PaymentValues): XrpTransaction {
   return {
     TransactionType: "Payment",
     Destination: destination,

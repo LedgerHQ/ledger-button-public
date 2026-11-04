@@ -2,7 +2,7 @@ import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
 import { isJsonRpcResponseSuccess } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { XrpApiError } from "../model/XrpApiError";
-import type { XrpTransaction } from "./xrpTransaction";
+import type { XrpTransaction } from "../model/XrpTransaction";
 
 /**
  * In XRPL, a "ledger" is similar to a BTC "block". As in xrpl.js, the

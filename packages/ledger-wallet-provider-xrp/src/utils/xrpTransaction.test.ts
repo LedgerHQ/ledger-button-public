@@ -85,7 +85,7 @@ describe("xrpTransaction", () => {
       ["null", null],
     ])("names the field when LastLedgerSequence is %s", (_, value) => {
       const tx = withSigningFields(
-        { ...UNSIGNED_PAYMENT, LastLedgerSequence: value },
+        { ...UNSIGNED_PAYMENT, LastLedgerSequence: value as number },
         MAINNET_PAYMENT.Account,
         MAINNET_PAYMENT.SigningPubKey,
       );

@@ -7,12 +7,10 @@ import {
   XRP_TEST_ACCOUNT,
 } from "./__mocks__/coreFacadeMock";
 import { XrpApiError } from "./model/XrpApiError";
+import type { XrpTransaction } from "./model/XrpTransaction";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
-import {
-  serializeForDevice,
-  type XrpTransaction,
-} from "./utils/xrpTransaction";
+import { serializeForDevice } from "./utils/xrpTransaction";
 import { XrpWalletProvider } from "./XrpWalletProvider";
 
 vi.mock("./utils/runSignFlow", () => ({ runSignFlow: vi.fn() }));

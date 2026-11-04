@@ -4,6 +4,7 @@ import type {
   XrpApiListener,
   XrpConnectOptions,
 } from "../LedgerXrpApi";
+import type { XrpTransaction } from "../model/XrpTransaction";
 
 const REQUEST_PROVIDER_EVENT = "ledger-xrpl:requestProvider";
 const ANNOUNCE_PROVIDER_EVENT = "ledger-xrpl:announceProvider";
@@ -20,8 +21,8 @@ export function createXrpApiFacade(api: LedgerXrpApi): LedgerXrpApi {
     disconnect: () => api.disconnect(),
     getAccount: () => api.getAccount(),
     fetchAccount: () => api.fetchAccount(),
-    sign: (tx: Record<string, unknown>) => api.sign(tx),
-    signAndSubmit: (tx: Record<string, unknown>) => api.signAndSubmit(tx),
+    sign: (tx: XrpTransaction) => api.sign(tx),
+    signAndSubmit: (tx: XrpTransaction) => api.signAndSubmit(tx),
     on: (event: XrpApiEvent, listener: XrpApiListener) =>
       api.on(event, listener),
     off: (event: XrpApiEvent, listener: XrpApiListener) =>
