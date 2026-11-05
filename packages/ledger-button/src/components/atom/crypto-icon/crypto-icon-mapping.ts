@@ -14,6 +14,9 @@ let coinGeckoPromise: Promise<CoinGeckoMapping> | null = null;
 
 const resolvedCache = new Map<string, string | null>();
 
+/** Suffix of a test network currency id, e.g. `ripple_testnet`, `ethereum_sepolia`. */
+const TEST_NETWORK_SUFFIX = /_(testnet|devnet|sepolia|holesky)$/;
+
 /**
  * Fetches the live Ledger crypto-icons index once and shares the result across
  * every `<ledger-crypto-icon>` instance. On any failure it resolves to an empty
@@ -58,7 +61,9 @@ function getCoinGeckoMapping(): Promise<CoinGeckoMapping> {
 /**
  * Resolves the icon URL for a `ledgerId`, mirroring Ledger Wallet's resolution
  * chain: the Ledger CDN index first, then the CoinGecko mapping as a fallback.
- * Returns `null` when neither source has a match, letting the component render
+ * A test network currency with no icon of its own (e.g. `ripple_testnet`) then
+ * falls back to its mainnet currency's icon (`ripple`).
+ * Returns `null` when no source has a match, letting the component render
  * the letter placeholder. The CoinGecko mapping is only fetched lazily, when a
  * `ledgerId` misses the index. Results are cached per `ledgerId`.
  */
@@ -80,9 +85,18 @@ export async function resolveIconUrl(ledgerId: string): Promise<string | null> {
   }
 
   const coinGecko = await getCoinGeckoMapping();
-  const coinGeckoUrl = coinGecko[ledgerId] ?? null;
-  resolvedCache.set(ledgerId, coinGeckoUrl);
-  return coinGeckoUrl;
+  const url = coinGecko[ledgerId] ?? (await resolveMainnetIconUrl(ledgerId));
+  resolvedCache.set(ledgerId, url);
+  return url;
+}
+
+/** Icon of the mainnet currency for a test network currency id, if any. */
+function resolveMainnetIconUrl(ledgerId: string): Promise<string | null> {
+  const isTestNetworkCurrency =
+    !ledgerId.includes("/") && TEST_NETWORK_SUFFIX.test(ledgerId);
+  return isTestNetworkCurrency
+    ? resolveIconUrl(ledgerId.replace(TEST_NETWORK_SUFFIX, ""))
+    : Promise.resolve(null);
 }
 
 /**

@@ -46,7 +46,9 @@ function stubFetch(handlers: {
 
 const INDEX_FIXTURE = {
   ethereum: { icon: "ETH.png" },
+  ethereum_sepolia: { icon: "ETH_Testnet.png" },
   "ethereum/erc20/usd_coin": { icon: "USDC.png" },
+  ripple: { icon: "XRP.png" },
 };
 
 const COINGECKO_FIXTURE = [
@@ -96,9 +98,9 @@ describe("resolveIconUrl", () => {
       coinGecko: { body: COINGECKO_FIXTURE },
     });
 
-    await expect(
-      resolveIconUrl("solana/spl/zenrock_btc_9hx"),
-    ).resolves.toBe("https://proxycgassets.api.live.ledger.com/zenbtc.png");
+    await expect(resolveIconUrl("solana/spl/zenrock_btc_9hx")).resolves.toBe(
+      "https://proxycgassets.api.live.ledger.com/zenbtc.png",
+    );
   });
 
   it("returns null when the ledgerId is in neither source", async () => {
@@ -153,9 +155,9 @@ describe("resolveIconUrl", () => {
       coinGecko: { body: COINGECKO_FIXTURE },
     });
 
-    await expect(
-      resolveIconUrl("solana/spl/zenrock_btc_9hx"),
-    ).resolves.toBe("https://proxycgassets.api.live.ledger.com/zenbtc.png");
+    await expect(resolveIconUrl("solana/spl/zenrock_btc_9hx")).resolves.toBe(
+      "https://proxycgassets.api.live.ledger.com/zenbtc.png",
+    );
   });
 
   it("falls through to CoinGecko when the index fetch rejects", async () => {
@@ -164,9 +166,42 @@ describe("resolveIconUrl", () => {
       coinGecko: { body: COINGECKO_FIXTURE },
     });
 
+    await expect(resolveIconUrl("solana/spl/zenrock_btc_9hx")).resolves.toBe(
+      "https://proxycgassets.api.live.ledger.com/zenbtc.png",
+    );
+  });
+
+  it("falls back to the mainnet icon for a test network without its own", async () => {
+    stubFetch({
+      index: { body: INDEX_FIXTURE },
+      coinGecko: { body: COINGECKO_FIXTURE },
+    });
+
+    await expect(resolveIconUrl("ripple_testnet")).resolves.toBe(
+      `${CRYPTO_ICONS_BASE_URL}XRP.png`,
+    );
+    await expect(resolveIconUrl("ripple_devnet")).resolves.toBe(
+      `${CRYPTO_ICONS_BASE_URL}XRP.png`,
+    );
+  });
+
+  it("keeps a test network's own icon over the mainnet one", async () => {
+    stubFetch({ index: { body: INDEX_FIXTURE } });
+
+    await expect(resolveIconUrl("ethereum_sepolia")).resolves.toBe(
+      `${CRYPTO_ICONS_BASE_URL}ETH_Testnet.png`,
+    );
+  });
+
+  it("does not apply the mainnet fallback to token ids", async () => {
+    stubFetch({
+      index: { body: INDEX_FIXTURE },
+      coinGecko: { body: COINGECKO_FIXTURE },
+    });
+
     await expect(
-      resolveIconUrl("solana/spl/zenrock_btc_9hx"),
-    ).resolves.toBe("https://proxycgassets.api.live.ledger.com/zenbtc.png");
+      resolveIconUrl("ripple_testnet/token/unknown"),
+    ).resolves.toBeNull();
   });
 
   it("returns null when the CoinGecko fetch rejects", async () => {
