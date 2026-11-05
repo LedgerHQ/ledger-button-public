@@ -1,7 +1,9 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -16,6 +18,7 @@ import {
   IncorrectSeedError,
   type SignFlowStatus,
   type UserInteractionNeeded,
+  UserRejectedTransactionError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
@@ -148,16 +151,28 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addResultToInternalState(
-                    event.output,
-                    context._internalState,
-                    (state) => state,
+                  this.normalizeOpenAppError(
+                    this.addResultToInternalState(
+                      event.output,
+                      context._internalState,
+                      (state) => state,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignXrpTransactionFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -323,6 +338,22 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
         error: e as SignXrpTransactionFlowDAInternalState["error"],
       }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignXrpTransactionFlowDAInternalState,
+  ): SignXrpTransactionFlowDAInternalState {
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignXrpTransactionFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private verifyDeviceAddress({
