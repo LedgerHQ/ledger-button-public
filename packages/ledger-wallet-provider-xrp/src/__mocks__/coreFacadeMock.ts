@@ -1,5 +1,6 @@
 import type {
   BlockchainConfig,
+  BlockchainNetwork,
   CoreFacade,
   ProviderAccount,
   ProviderLogger,
@@ -56,10 +57,29 @@ export const XRP_TEST_ACCOUNT: ProviderAccount = {
   index: 0,
 };
 
+export const XRP_TEST_NETWORK: BlockchainNetwork = {
+  id: "0",
+  currencyId: "ripple",
+  currencyName: "XRP",
+  currencyTicker: "XRP",
+};
+
+export const XRP_TESTNET_TEST_NETWORK: BlockchainNetwork = {
+  id: "1",
+  currencyId: "ripple_testnet",
+  currencyName: "XRP Testnet",
+  currencyTicker: "XRP",
+};
+
+export const XRP_TEST_NETWORKS: BlockchainNetwork[] = [
+  XRP_TEST_NETWORK,
+  XRP_TESTNET_TEST_NETWORK,
+];
+
 export const XRP_TEST_BLOCKCHAIN_CONFIG: BlockchainConfig = {
   blockchain: "xrp",
   appName: "XRP",
-  networks: [],
+  networks: XRP_TEST_NETWORKS,
   rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "XRP", dependencies: [{ name: "XRP" }] },
 };

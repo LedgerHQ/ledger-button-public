@@ -17,6 +17,7 @@ import { useMockServerContext } from "../../components/MockServerProvider";
 import {
   buildMessageProofTransaction,
   buildPayment,
+  formatXrpNetwork,
   type PaymentValues,
   XrpActionsBlock,
 } from "../../components/xrp";
@@ -45,7 +46,8 @@ export default function XrpPage() {
   const mockServer = useMockServerContext();
 
   const [provider, setProvider] = useState<XrpProviderDetail | null>(null);
-  const [address, setAddress] = useState<string | null>(null);
+  const [account, setAccount] = useState<XrpAccountInfo | null>(null);
+  const address = account?.address ?? null;
   const [isBusy, setIsBusy] = useState(false);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
 
@@ -81,20 +83,20 @@ export default function XrpPage() {
     // Events only report later changes: read the current account too, unless
     // an event or the cleanup got there first.
     let isStale = false;
-    setAddress(null);
+    setAccount(null);
 
     const onAccountChanged = (data: unknown) => {
       isStale = true;
-      const account = data as XrpAccountInfo | null;
-      setAddress(account?.address ?? null);
-      log("info", "accountChanged", account);
+      const changed = data as XrpAccountInfo | null;
+      setAccount(changed);
+      log("info", "accountChanged", changed);
     };
     provider.provider.on("accountChanged", onAccountChanged);
 
     void provider.provider
       .getAccount()
-      .then((account) => {
-        if (!isStale) setAddress(account?.address ?? null);
+      .then((current) => {
+        if (!isStale) setAccount(current);
       })
       .catch((error: unknown) => {
         log("error", "getAccount", errorMessage(error));
@@ -126,13 +128,13 @@ export default function XrpPage() {
   const handleConnect = useCallback(async () => {
     if (!provider) return;
     const connected = await run("connect", () => provider.provider.connect());
-    if (connected) setAddress(connected.address);
+    if (connected) setAccount(connected);
   }, [provider, run]);
 
   const handleDisconnect = useCallback(async () => {
     if (!provider) return;
     await run("disconnect", () => provider.provider.disconnect());
-    setAddress(null);
+    setAccount(null);
   }, [provider, run]);
 
   const handleSign = useCallback(
@@ -197,12 +199,26 @@ export default function XrpPage() {
                   label={provider ? provider.info.name : "Not found"}
                 />
               </div>
-              {address ? (
+              {account ? (
                 <>
-                  <span className="body-2 text-muted mb-4 block">Address</span>
-                  <span className="body-2-semi-bold mb-14 block text-base break-all">
-                    {address}
-                  </span>
+                  <div className="mb-14 flex gap-24">
+                    <div className="min-w-0 flex-1">
+                      <span className="body-2 text-muted mb-4 block">
+                        Address
+                      </span>
+                      <span className="body-2-semi-bold block text-base break-all">
+                        {account.address}
+                      </span>
+                    </div>
+                    <div className="shrink-0">
+                      <span className="body-2 text-muted mb-4 block">
+                        Network
+                      </span>
+                      <span className="body-2-semi-bold block text-base">
+                        {formatXrpNetwork(account.network)}
+                      </span>
+                    </div>
+                  </div>
                   <Button
                     appearance="gray"
                     size="sm"

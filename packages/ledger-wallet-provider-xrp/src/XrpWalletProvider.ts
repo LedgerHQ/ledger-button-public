@@ -1,4 +1,5 @@
 import type {
+  BlockchainNetwork,
   BroadcastResponse,
   CoreFacade,
   ProviderAccount,
@@ -25,12 +26,7 @@ import {
   serializeForDevice,
   withSigningFields,
 } from "./utils/xrpTransaction";
-import {
-  XRP_BACKEND_CHAIN_ID,
-  XRP_CURRENCY_ID,
-  XRP_FAMILY,
-  XRP_NETWORK_ID,
-} from "./utils/xrpUtils";
+import { findXrpNetworkByCurrencyId, XRP_FAMILY } from "./utils/xrpUtils";
 import type {
   LedgerXrpApi,
   XrpAccountInfo,
@@ -48,17 +44,24 @@ export class XrpWalletProvider implements LedgerXrpApi {
   constructor(
     private readonly core: CoreFacade,
     private readonly signXrp: SignXrpTransaction,
+    private readonly networks: readonly BlockchainNetwork[],
   ) {
     this.logger = this.core.getLogger("[XrpWalletProvider]");
   }
 
   setSelectedAccount(account: ProviderAccount | undefined): void {
-    const previousAddress = this.account?.freshAddress;
+    const previous = this.selectedAccountInfo();
     this.account =
-      account?.currencyId === XRP_CURRENCY_ID ? account : undefined;
+      account && findXrpNetworkByCurrencyId(this.networks, account.currencyId)
+        ? account
+        : undefined;
 
-    if (this.account?.freshAddress !== previousAddress) {
-      this.emit("accountChanged", this.selectedAccountInfo());
+    const next = this.selectedAccountInfo();
+    if (
+      next?.address !== previous?.address ||
+      next?.network !== previous?.network
+    ) {
+      this.emit("accountChanged", next);
     }
   }
 
@@ -96,10 +99,10 @@ export class XrpWalletProvider implements LedgerXrpApi {
 
   async signAndSubmit(tx: XrpTransaction): Promise<{ hash: string }> {
     return this.reportErrors(async () => {
-      const { signed, unsigned } = await this.signWithDevice(
+      const { signed, unsigned, account } = await this.signWithDevice(
         structuredClone(tx),
       );
-      await this.submit(signed.tx_blob);
+      await this.submit(account, signed.tx_blob);
       this.trackSubmission(signed, unsigned);
       return { hash: signed.hash };
     });
@@ -115,15 +118,17 @@ export class XrpWalletProvider implements LedgerXrpApi {
     this.listeners.get(event)?.delete(listener);
   }
 
-  private async signWithDevice(
-    tx: XrpTransaction,
-  ): Promise<{ signed: SignedXrpTransaction; unsigned: XrpTransaction }> {
+  private async signWithDevice(tx: XrpTransaction): Promise<{
+    signed: SignedXrpTransaction;
+    unsigned: XrpTransaction;
+    account: ProviderAccount;
+  }> {
     const account = await this.resolveAccount();
     this.assertSenderIsSelectedAccount(tx, account);
     const filled = await autofillTransaction(
       tx,
       account.freshAddress,
-      (method, params) => this.requestXrpl(method, params),
+      (method, params) => this.requestXrpl(account, method, params),
     );
 
     const { xrpSignature, signingPubKey } = await runSignFlow({
@@ -140,12 +145,15 @@ export class XrpWalletProvider implements LedgerXrpApi {
       signingPubKey,
     );
     const signed = await assembleSignedTransaction(unsigned, xrpSignature);
-    return { signed, unsigned };
+    return { signed, unsigned, account };
   }
 
   /** Rejects unless the node accepted or queued the transaction. */
-  private async submit(txBlob: string): Promise<void> {
-    const response = await this.requestXrpl("submit", {
+  private async submit(
+    account: ProviderAccount,
+    txBlob: string,
+  ): Promise<void> {
+    const response = await this.requestXrpl(account, "submit", {
       tx_blob: txBlob,
     }).catch((error: unknown) => {
       throw XrpSubmitFailedError.requestFailed(error);
@@ -154,12 +162,16 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   private requestXrpl(
+    account: ProviderAccount,
     method: string,
     params: Record<string, unknown>,
   ): Promise<BroadcastResponse> {
     return this.core.broadcastRPC(
       { method, params: [params] },
-      { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
+      {
+        name: XRP_FAMILY,
+        chainId: this.getNetworkId(account),
+      },
     );
   }
 
@@ -220,7 +232,24 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   private toAccountInfo(account: ProviderAccount): XrpAccountInfo {
-    return { address: account.freshAddress, network: XRP_NETWORK_ID };
+    return {
+      address: account.freshAddress,
+      network: this.getNetworkId(account),
+    };
+  }
+
+  /** XRPL `network_id` of the account, from the dApp config networks. */
+  private getNetworkId(account: ProviderAccount): string {
+    const network = findXrpNetworkByCurrencyId(
+      this.networks,
+      account.currencyId,
+    );
+    if (!network) {
+      throw new Error(
+        `XRP currency ${account.currencyId} is not in the dApp config`,
+      );
+    }
+    return network.id;
   }
 
   private async reportErrors<T>(run: () => Promise<T>): Promise<T> {

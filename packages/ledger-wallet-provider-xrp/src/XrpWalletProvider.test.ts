@@ -8,6 +8,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createMockCoreFacade,
   XRP_TEST_ACCOUNT,
+  XRP_TEST_NETWORK,
+  XRP_TEST_NETWORKS,
 } from "./__mocks__/coreFacadeMock";
 import { XrpApiError } from "./model/XrpApiError";
 import type { XrpTransaction } from "./model/XrpTransaction";
@@ -28,11 +30,14 @@ const OTHER_ACCOUNT: ProviderAccount = {
   index: 1,
 };
 
-function createApi(requestedAccount: ProviderAccount = XRP_TEST_ACCOUNT) {
+function createApi(
+  requestedAccount: ProviderAccount = XRP_TEST_ACCOUNT,
+  networks = XRP_TEST_NETWORKS,
+) {
   const core = createMockCoreFacade({
     requestAccount: vi.fn().mockResolvedValue(requestedAccount),
   });
-  const api = new XrpWalletProvider(core, {} as SignXrpTransaction);
+  const api = new XrpWalletProvider(core, {} as SignXrpTransaction, networks);
   return { api, core };
 }
 
@@ -51,16 +56,39 @@ describe("XrpWalletProvider", () => {
 
       const expected = {
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       };
       expect(await api.getAccount()).toEqual(expected);
       expect(await api.fetchAccount()).toEqual(expected);
       expect(core.requestAccount).not.toHaveBeenCalled();
     });
 
+    it("reports the XRPL testnet network_id for a testnet account", async () => {
+      const { api } = createApi();
+      api.setSelectedAccount({
+        ...XRP_TEST_ACCOUNT,
+        currencyId: "ripple_testnet",
+      });
+
+      expect(await api.getAccount()).toEqual({
+        address: XRP_TEST_ACCOUNT.freshAddress,
+        network: "1",
+      });
+    });
+
     it("ignores accounts of another currency", async () => {
       const { api } = createApi();
       api.setSelectedAccount({ ...XRP_TEST_ACCOUNT, currencyId: "ethereum" });
+
+      expect(await api.getAccount()).toBeNull();
+    });
+
+    it("ignores XRP accounts whose network is not in the dApp config", async () => {
+      const { api } = createApi(XRP_TEST_ACCOUNT, [XRP_TEST_NETWORK]);
+      api.setSelectedAccount({
+        ...XRP_TEST_ACCOUNT,
+        currencyId: "ripple_testnet",
+      });
 
       expect(await api.getAccount()).toBeNull();
     });
@@ -75,7 +103,7 @@ describe("XrpWalletProvider", () => {
       expect(core.requestAccount).toHaveBeenCalledWith("xrp");
       expect(info).toEqual({
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 
@@ -119,7 +147,7 @@ describe("XrpWalletProvider", () => {
 
       expect(onConnect).toHaveBeenCalledWith({
         address: XRP_TEST_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 
@@ -146,7 +174,7 @@ describe("XrpWalletProvider", () => {
 
       expect(onChanged).toHaveBeenCalledWith({
         address: OTHER_ACCOUNT.freshAddress,
-        network: "mainnet",
+        network: "0",
       });
     });
 
@@ -161,7 +189,24 @@ describe("XrpWalletProvider", () => {
       expect(onChanged).toHaveBeenCalledWith(null);
     });
 
-    it("does not emit accountChanged when the address is unchanged", () => {
+    it("emits accountChanged when the network changes on the same address", () => {
+      const { api } = createApi();
+      const onChanged = vi.fn();
+      api.setSelectedAccount(XRP_TEST_ACCOUNT);
+      api.on("accountChanged", onChanged);
+
+      api.setSelectedAccount({
+        ...XRP_TEST_ACCOUNT,
+        currencyId: "ripple_testnet",
+      });
+
+      expect(onChanged).toHaveBeenCalledWith({
+        address: XRP_TEST_ACCOUNT.freshAddress,
+        network: "1",
+      });
+    });
+
+    it("does not emit accountChanged when the address and network are unchanged", () => {
       const { api } = createApi();
       const onChanged = vi.fn();
       api.setSelectedAccount(XRP_TEST_ACCOUNT);
