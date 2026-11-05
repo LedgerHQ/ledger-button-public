@@ -1,8 +1,8 @@
 {
   "geoBlock": {
-    "title": "Location unavailable",
-    "description": "Ledger Wallet is not available in this location.",
-    "learnMore": "Learn more"
+    "title": "利用不可のロケーション",
+    "description": "この地域では、Ledger Walletをご利用いただけません。",
+    "learnMore": "詳細はこちら"
   },
   "common": {
     "connect": "接続",
