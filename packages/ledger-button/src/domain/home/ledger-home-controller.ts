@@ -58,6 +58,11 @@ export class LedgerHomeController implements ReactiveController {
     return this.core.getActiveFamily();
   }
 
+  get showNetworkPicker(): boolean {
+    // Only EVM switches network on the same account.
+    return this.activeFamily === "ethereum";
+  }
+
   setActiveFamily(family: BlockchainFamily): void {
     this.core.setActiveFamily(family);
   }

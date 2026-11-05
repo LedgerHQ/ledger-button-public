@@ -50,14 +50,18 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   setSelectedAccount(account: ProviderAccount | undefined): void {
-    const previousAddress = this.account?.freshAddress;
+    const previous = this.selectedAccountInfo();
     this.account =
       account && findXrpNetworkByCurrencyId(this.networks, account.currencyId)
         ? account
         : undefined;
 
-    if (this.account?.freshAddress !== previousAddress) {
-      this.emit("accountChanged", this.selectedAccountInfo());
+    const next = this.selectedAccountInfo();
+    if (
+      next?.address !== previous?.address ||
+      next?.network !== previous?.network
+    ) {
+      this.emit("accountChanged", next);
     }
   }
 

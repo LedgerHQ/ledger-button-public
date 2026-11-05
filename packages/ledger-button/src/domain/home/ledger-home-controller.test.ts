@@ -167,6 +167,24 @@ describe("LedgerHomeController", () => {
     });
   });
 
+  describe("showNetworkPicker", () => {
+    it.each<[BlockchainFamily, boolean]>([
+      ["ethereum", true],
+      ["solana", false],
+      ["xrp", false],
+    ])("for %s is %s", (family, expected) => {
+      core.getActiveFamily = vi.fn().mockReturnValue(family);
+
+      expect(controller.showNetworkPicker).toBe(expected);
+    });
+
+    it("is hidden when no family is active", () => {
+      core.getActiveFamily = vi.fn().mockReturnValue(undefined);
+
+      expect(controller.showNetworkPicker).toBe(false);
+    });
+  });
+
   describe("account updates", () => {
     it("sets selectedAccount from the context's selected account", async () => {
       controller.hostConnected();

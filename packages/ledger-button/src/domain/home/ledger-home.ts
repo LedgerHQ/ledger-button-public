@@ -302,10 +302,14 @@ export class LedgerHomeScreen extends LitElement {
             @account-switch=${this.handleAccountItemClick}
           ></ledger-account-switch>
 
-          <ledger-networks
-            .networks=${account.networks}
-            @networks-click=${this.handleNetworksClick}
-          ></ledger-networks>
+          ${
+            this.controller.showNetworkPicker
+              ? html`<ledger-networks
+                  .networks=${account.networks}
+                  @networks-click=${this.handleNetworksClick}
+                ></ledger-networks>`
+              : ""
+          }
         </div>
 
         <ledger-fiat-total

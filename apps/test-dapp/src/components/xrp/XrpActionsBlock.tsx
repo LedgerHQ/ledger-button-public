@@ -42,10 +42,6 @@ export function XrpActionsBlock({
         <span className="body-2-semi-bold text-muted mb-12 block uppercase">
           Payment
         </span>
-        <p className="body-2 text-error mb-14">
-          This talks to XRPL mainnet. Sign only is safe; Sign &amp; submit
-          broadcasts a real transaction.
-        </p>
 
         <label className="body-2 text-muted mb-4 block">Destination</label>
         <input

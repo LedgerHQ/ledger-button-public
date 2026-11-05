@@ -189,7 +189,24 @@ describe("XrpWalletProvider", () => {
       expect(onChanged).toHaveBeenCalledWith(null);
     });
 
-    it("does not emit accountChanged when the address is unchanged", () => {
+    it("emits accountChanged when the network changes on the same address", () => {
+      const { api } = createApi();
+      const onChanged = vi.fn();
+      api.setSelectedAccount(XRP_TEST_ACCOUNT);
+      api.on("accountChanged", onChanged);
+
+      api.setSelectedAccount({
+        ...XRP_TEST_ACCOUNT,
+        currencyId: "ripple_testnet",
+      });
+
+      expect(onChanged).toHaveBeenCalledWith({
+        address: XRP_TEST_ACCOUNT.freshAddress,
+        network: "1",
+      });
+    });
+
+    it("does not emit accountChanged when the address and network are unchanged", () => {
       const { api } = createApi();
       const onChanged = vi.fn();
       api.setSelectedAccount(XRP_TEST_ACCOUNT);
