@@ -71,7 +71,6 @@ export const XRP_TESTNET_TEST_NETWORK: BlockchainNetwork = {
   currencyTicker: "XRP",
 };
 
-/** XRP networks as served by the dApp config. */
 export const XRP_TEST_NETWORKS: BlockchainNetwork[] = [
   XRP_TEST_NETWORK,
   XRP_TESTNET_TEST_NETWORK,

@@ -13,14 +13,6 @@ export function getXrpDerivationPath(account: ProviderAccount): string {
   return `44'/144'/${account.index}'/0/0`;
 }
 
-/*
- * XRP networks come from the dApp config (`networks` of the `xrp` entry), the
- * single source of truth: a network `id` is the XRPL `network_id` (`"0"`
- * mainnet, `"1"` testnet), which is also the Button backend chain id and the
- * network the XRP API reports to the dApp. A currency or network missing from
- * the config is unsupported, with no fallback to mainnet.
- */
-
 export function findXrpNetworkByCurrencyId(
   networks: readonly BlockchainNetwork[],
   currencyId: string,

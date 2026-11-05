@@ -14,7 +14,6 @@ let coinGeckoPromise: Promise<CoinGeckoMapping> | null = null;
 
 const resolvedCache = new Map<string, string | null>();
 
-/** Suffix of a test network currency id, e.g. `ripple_testnet`, `ethereum_sepolia`. */
 const TEST_NETWORK_SUFFIX = /_(testnet|devnet|sepolia|holesky)$/;
 
 /**
@@ -85,18 +84,18 @@ export async function resolveIconUrl(ledgerId: string): Promise<string | null> {
   }
 
   const coinGecko = await getCoinGeckoMapping();
-  const url = coinGecko[ledgerId] ?? (await resolveMainnetIconUrl(ledgerId));
+  const mainnetId = getMainnetLedgerId(ledgerId);
+  const url =
+    coinGecko[ledgerId] ?? (mainnetId ? await resolveIconUrl(mainnetId) : null);
   resolvedCache.set(ledgerId, url);
   return url;
 }
 
-/** Icon of the mainnet currency for a test network currency id, if any. */
-function resolveMainnetIconUrl(ledgerId: string): Promise<string | null> {
-  const isTestNetworkCurrency =
-    !ledgerId.includes("/") && TEST_NETWORK_SUFFIX.test(ledgerId);
-  return isTestNetworkCurrency
-    ? resolveIconUrl(ledgerId.replace(TEST_NETWORK_SUFFIX, ""))
-    : Promise.resolve(null);
+function getMainnetLedgerId(ledgerId: string): string | undefined {
+  if (ledgerId.includes("/") || !TEST_NETWORK_SUFFIX.test(ledgerId)) {
+    return undefined;
+  }
+  return ledgerId.replace(TEST_NETWORK_SUFFIX, "");
 }
 
 /**
