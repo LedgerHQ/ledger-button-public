@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getCoinServiceCurrencySlug,
-  getCoinServiceNetworkName,
-} from "./networkConstants.js";
+import { getCoinServiceNetworkName } from "./networkConstants.js";
 
 describe("getCoinServiceNetworkName", () => {
   it.each([
@@ -20,17 +17,4 @@ describe("getCoinServiceNetworkName", () => {
   it("should return undefined for an unmapped chain ID", () => {
     expect(getCoinServiceNetworkName("999999999")).toBeUndefined();
   });
-});
-
-describe("getCoinServiceCurrencySlug", () => {
-  it("should map ripple to the xrp slug", () => {
-    expect(getCoinServiceCurrencySlug("ripple")).toBe("xrp");
-  });
-
-  it.each(["ethereum", "solana", "polygon"])(
-    "should use the currency id %s as the slug",
-    (currencyId) => {
-      expect(getCoinServiceCurrencySlug(currencyId)).toBe(currencyId);
-    },
-  );
 });

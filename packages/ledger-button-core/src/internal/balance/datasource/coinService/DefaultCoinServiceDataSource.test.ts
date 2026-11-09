@@ -84,13 +84,13 @@ describe("DefaultCoinServiceDataSource", () => {
       }
     });
 
-    it("should use the xrp CoinService slug for the ripple currency", async () => {
+    it("should use the ripple currency id as the CoinService slug", async () => {
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right([]));
 
       await dataSource.getBalanceForAddressAndCurrencyId(testAddress, "ripple");
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCoinServiceUrl}/v1/xrp/account/${testAddress}/balance`,
+        `${mockCoinServiceUrl}/v1/ripple/account/${testAddress}/balance`,
       );
     });
 
