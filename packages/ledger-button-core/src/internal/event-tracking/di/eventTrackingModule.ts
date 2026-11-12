@@ -6,7 +6,7 @@ import { StubEventTrackingService } from "../service/StubEventTrackingService";
 import { TrackConsentGiven } from "../use-case/TrackConsentGiven";
 import { TrackConsentRemoved } from "../use-case/TrackConsentRemoved";
 import { TrackCurrencyChanged } from "../use-case/TrackCurrencyChanged";
-import { TrackDeviceConnectionSelected } from "../use-case/TrackDeviceConnectionSelected";
+import { TrackDeviceConnection } from "../use-case/TrackDeviceConnection";
 import { TrackFloatingButtonClick } from "../use-case/TrackFloatingButtonClick";
 import { TrackLanguageChanged } from "../use-case/TrackLanguageChanged";
 import { TrackLedgerSyncActivated } from "../use-case/TrackLedgerSyncActivated";
@@ -77,9 +77,9 @@ export const eventTrackingModuleFactory = ({
       eventTrackingModuleTypes.TrackTransactionCompleted,
     ).to(TrackTransactionCompleted);
 
-    bind<TrackDeviceConnectionSelected>(
-      eventTrackingModuleTypes.TrackDeviceConnectionSelected,
-    ).to(TrackDeviceConnectionSelected);
+    bind<TrackDeviceConnection>(
+      eventTrackingModuleTypes.TrackDeviceConnection,
+    ).to(TrackDeviceConnection);
 
     bind<TrackLedgerSyncOpened>(
       eventTrackingModuleTypes.TrackLedgerSyncOpened,

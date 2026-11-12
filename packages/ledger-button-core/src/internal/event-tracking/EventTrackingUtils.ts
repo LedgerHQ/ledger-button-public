@@ -9,7 +9,10 @@ import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
   type CurrencyChangedEventData,
+  type DeviceConnectionErrorCategory,
+  type DeviceConnectionFailedEventData,
   type DeviceConnectionSelectedEventData,
+  type DeviceConnectionSucceededEventData,
   type DeviceConnectionType,
   type EventRequest,
   EventType,
@@ -56,6 +59,24 @@ interface SessionEventParams extends BaseEventParams {
   sessionId: string;
   trustChainId?: string;
 }
+
+export type DeviceConnectionTracking =
+  | {
+      status: "selected" | "succeeded";
+      connectionType: DeviceConnectionType;
+    }
+  | {
+      status: "failed";
+      connectionType: DeviceConnectionType;
+      errorType: string;
+      errorCategory: DeviceConnectionErrorCategory;
+    };
+
+const DEVICE_CONNECTION_EVENT_TYPES = {
+  selected: EventType.DeviceConnectionSelected,
+  succeeded: EventType.DeviceConnectionSucceeded,
+  failed: EventType.DeviceConnectionFailed,
+} as const satisfies Record<DeviceConnectionTracking["status"], EventType>;
 
 interface TransactionEventParams extends SessionEventParams {
   family: BlockchainFamily;
@@ -120,23 +141,40 @@ export class EventTrackingUtils {
     };
   }
 
-  static createDeviceConnectionSelectedEvent(
-    params: SessionEventParams & { connectionType: DeviceConnectionType },
+  static createDeviceConnectionEvent(
+    params: SessionEventParams & DeviceConnectionTracking,
   ): EventRequest {
-    const data: DeviceConnectionSelectedEventData = {
+    const base = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: EventType.DeviceConnectionSelected,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       connection_type: params.connectionType,
     };
 
-    return {
-      name: EventType.DeviceConnectionSelected,
-      type: EventType.DeviceConnectionSelected,
-      data,
-    };
+    const data:
+      | DeviceConnectionSelectedEventData
+      | DeviceConnectionSucceededEventData
+      | DeviceConnectionFailedEventData =
+      params.status === "failed"
+        ? {
+            ...base,
+            event_type: EventType.DeviceConnectionFailed,
+            error_type: params.errorType,
+            error_category: params.errorCategory,
+          }
+        : {
+            ...base,
+            event_type:
+              params.status === "selected"
+                ? EventType.DeviceConnectionSelected
+                : EventType.DeviceConnectionSucceeded,
+          };
+
+    const type = DEVICE_CONNECTION_EVENT_TYPES[params.status];
+
+    return { name: type, type, data };
   }
 
   static createLedgerSyncActivatedEvent(
@@ -173,7 +211,9 @@ export class EventTrackingUtils {
     };
   }
 
-  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
+  static createConsentRemovedEvent(
+    params: BaseEventParams & { trustChainId?: string },
+  ): EventRequest {
     const data: ConsentRemovedEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,

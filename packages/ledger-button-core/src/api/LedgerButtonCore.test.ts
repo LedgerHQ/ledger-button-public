@@ -31,7 +31,7 @@ vi.mock("../internal/di", () => ({
 
 describe("LedgerButtonCore", () => {
   let trackOpened: { execute: ReturnType<typeof vi.fn> };
-  let trackConnectionSelected: { execute: ReturnType<typeof vi.fn> };
+  let trackConnection: { execute: ReturnType<typeof vi.fn> };
   let trackActivated: { execute: ReturnType<typeof vi.fn> };
   let selectedAccounts: Map<BlockchainFamily, Account>;
   let authResponse: unknown;
@@ -67,7 +67,7 @@ describe("LedgerButtonCore", () => {
 
   const createCore = () => {
     trackOpened = { execute: vi.fn() };
-    trackConnectionSelected = {
+    trackConnection = {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     trackActivated = { execute: vi.fn().mockResolvedValue(undefined) };
@@ -131,10 +131,7 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
       [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
-      [
-        eventTrackingModuleTypes.TrackDeviceConnectionSelected,
-        trackConnectionSelected,
-      ],
+      [eventTrackingModuleTypes.TrackDeviceConnection, trackConnection],
       [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
@@ -287,7 +284,9 @@ describe("LedgerButtonCore", () => {
           "initialize_context",
       );
       expect(resetOrder).toBeLessThan(
-        contextService.onEvent.mock.invocationCallOrder[initializeIndex] as number,
+        contextService.onEvent.mock.invocationCallOrder[
+          initializeIndex
+        ] as number,
       );
     });
 
@@ -353,13 +352,20 @@ describe("LedgerButtonCore", () => {
 
   describe("device connection tracking", () => {
     it.each(["bluetooth", "usb"] as const)(
-      "tracks the %s connection selection",
+      "tracks the %s connection selection and success",
       async (type) => {
         const core = createCore();
 
         await core.connectToDevice(type);
 
-        expect(trackConnectionSelected.execute).toHaveBeenCalledWith(type);
+        expect(trackConnection.execute).toHaveBeenNthCalledWith(1, {
+          status: "selected",
+          connectionType: type,
+        });
+        expect(trackConnection.execute).toHaveBeenNthCalledWith(2, {
+          status: "succeeded",
+          connectionType: type,
+        });
       },
     );
 
@@ -368,22 +374,28 @@ describe("LedgerButtonCore", () => {
 
       await core.connectToDevice("usb");
 
-      expect(
-        trackConnectionSelected.execute.mock.invocationCallOrder[0],
-      ).toBeLessThan(connectDevice.execute.mock.invocationCallOrder[0]);
+      expect(trackConnection.execute.mock.invocationCallOrder[0]).toBeLessThan(
+        connectDevice.execute.mock.invocationCallOrder[0],
+      );
     });
 
-    it("tracks the selection even when the connection fails", async () => {
+    it("tracks the failure and rethrows when the connection fails", async () => {
       const core = createCore();
-      connectDevice.execute.mockRejectedValue(new Error("connection failed"));
+      const error = new Error("connection failed");
+      connectDevice.execute.mockRejectedValue(error);
 
-      await expect(core.connectToDevice("bluetooth")).rejects.toThrow(
-        "connection failed",
-      );
+      await expect(core.connectToDevice("bluetooth")).rejects.toThrow(error);
 
-      expect(trackConnectionSelected.execute).toHaveBeenCalledWith(
-        "bluetooth",
-      );
+      expect(trackConnection.execute).toHaveBeenCalledTimes(2);
+      expect(trackConnection.execute).toHaveBeenNthCalledWith(1, {
+        status: "selected",
+        connectionType: "bluetooth",
+      });
+      expect(trackConnection.execute).toHaveBeenNthCalledWith(2, {
+        status: "failed",
+        connectionType: "bluetooth",
+        error,
+      });
     });
 
     it("does not track the mock transport", async () => {
@@ -391,7 +403,7 @@ describe("LedgerButtonCore", () => {
 
       await core.connectToDevice("mock");
 
-      expect(trackConnectionSelected.execute).not.toHaveBeenCalled();
+      expect(trackConnection.execute).not.toHaveBeenCalled();
     });
   });
 

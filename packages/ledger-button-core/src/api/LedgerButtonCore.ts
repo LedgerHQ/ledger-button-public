@@ -73,7 +73,7 @@ import { createContainer } from "../internal/di";
 import { type ContainerOptions } from "../internal/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
-import { TrackDeviceConnectionSelected } from "../internal/event-tracking/use-case/TrackDeviceConnectionSelected";
+import { TrackDeviceConnection } from "../internal/event-tracking/use-case/TrackDeviceConnection";
 import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
 import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
@@ -182,7 +182,11 @@ export class LedgerButtonCore {
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+      .init(
+        coreFacade,
+        dappConfig,
+        this.opts.blockchainProviderFactories ?? [],
+      );
 
     await this.restoreContext();
 
@@ -229,7 +233,8 @@ export class LedgerButtonCore {
           .orDefault(1)
       : 1;
 
-    const welcomeScreenCompleted = await storageService.isWelcomeScreenCompleted();
+    const welcomeScreenCompleted =
+      await storageService.isWelcomeScreenCompleted();
 
     const userConsent = await storageService.getUserConsent();
 
@@ -394,21 +399,38 @@ export class LedgerButtonCore {
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
 
-    // Tracked before connecting so failed / abandoned connections still count.
-    if (type === "bluetooth" || type === "usb") {
+    const trackConnection = (
+      outcome:
+        | { status: "selected" | "succeeded" }
+        | { status: "failed"; error: unknown },
+    ) => {
+      // The mock transport is a dev tool, not a user connection.
+      if (type !== "bluetooth" && type !== "usb") return;
+
       this.container
-        .get<TrackDeviceConnectionSelected>(
-          eventTrackingModuleTypes.TrackDeviceConnectionSelected,
+        .get<TrackDeviceConnection>(
+          eventTrackingModuleTypes.TrackDeviceConnection,
         )
-        .execute(type);
+        .execute({ ...outcome, connectionType: type });
+    };
+
+    // Tracked before connecting so failed / abandoned connections still count.
+    trackConnection({ status: "selected" });
+
+    let device: Awaited<ReturnType<ConnectDevice["execute"]>>;
+    try {
+      await this.waitForPendingDeviceCleanup();
+      await this.releaseCurrentDeviceIfNeeded();
+
+      device = await this.container
+        .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
+        .execute({ type });
+    } catch (error) {
+      trackConnection({ status: "failed", error });
+      throw error;
     }
 
-    await this.waitForPendingDeviceCleanup();
-    await this.releaseCurrentDeviceIfNeeded();
-
-    const device = await this.container
-      .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
-      .execute({ type });
+    trackConnection({ status: "succeeded" });
 
     this._contextService.onEvent({
       type: "device_connected",
@@ -507,7 +529,9 @@ export class LedgerButtonCore {
   }
 
   selectAccount(account: Account) {
-    const { family, chainId } = this.resolveFamilyAndChainId(account.currencyId);
+    const { family, chainId } = this.resolveFamilyAndChainId(
+      account.currencyId,
+    );
 
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -560,7 +584,9 @@ export class LedgerButtonCore {
       )
       .describeCurrency(currencyId);
     return {
-      family: descriptor.map((c) => c.family).orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
+      family: descriptor
+        .map((c) => c.family)
+        .orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
       chainId: descriptor
         .chain((c) => {
           const parsed = Number(c.networkId);
@@ -863,7 +889,11 @@ export class LedgerButtonCore {
       .describeNetwork(String(chainId))
       .map((c) => c.currencyId)
       .extract();
-    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
+    this._contextService.onEvent({
+      type: "chain_changed",
+      chainId,
+      currencyId,
+    });
   }
 
   getChainId(): number {

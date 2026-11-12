@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DeviceConnectionFailedEventSchema,
   DeviceConnectionSelectedEventSchema,
+  DeviceConnectionSucceededEventSchema,
   InvoicingTransactionSignedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   TransactionFlowCompletionEventSchema,
@@ -294,6 +296,82 @@ describe("Event Schema Validation", () => {
         DeviceConnectionSelectedEventSchema.safeParse(invalidEvent);
       expect(result.success).toBe(false);
     });
+
+    it("should accept an optional ledger_sync_user_id", () => {
+      const result = DeviceConnectionSelectedEventSchema.safeParse({
+        ...validEvent,
+        ledger_sync_user_id: "trust-chain-id",
+      });
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe("DeviceConnectionSucceededEventSchema", () => {
+    const validEvent = {
+      event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+      transaction_dapp_id: "1Inch",
+      timestamp_ms: 1770980790515,
+      event_type: "device_connection_succeeded",
+      session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+      connection_type: "usb",
+    };
+
+    it("should validate a succeeded event", () => {
+      expect(
+        DeviceConnectionSucceededEventSchema.safeParse(validEvent).success,
+      ).toBe(true);
+    });
+
+    it("should reject failure fields", () => {
+      const result = DeviceConnectionSucceededEventSchema.safeParse({
+        ...validEvent,
+        error_type: "DeviceConnectionError",
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("DeviceConnectionFailedEventSchema", () => {
+    const validEvent = {
+      event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+      transaction_dapp_id: "1Inch",
+      timestamp_ms: 1770980790515,
+      event_type: "device_connection_failed",
+      session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+      connection_type: "bluetooth",
+      error_type: "DeviceDisconnectedError",
+      error_category: "device",
+    };
+
+    it.each(["device", "ledgersync"])(
+      "should validate a %s failure",
+      (errorCategory) => {
+        const result = DeviceConnectionFailedEventSchema.safeParse({
+          ...validEvent,
+          error_category: errorCategory,
+        });
+        expect(result.success).toBe(true);
+      },
+    );
+
+    it("should reject an unknown error_category", () => {
+      const result = DeviceConnectionFailedEventSchema.safeParse({
+        ...validEvent,
+        error_category: "transaction",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it.each(["error_type", "error_category"])(
+      "should reject a missing %s",
+      (field) => {
+        const invalidEvent: Record<string, unknown> = { ...validEvent };
+        delete invalidEvent[field];
+        expect(
+          DeviceConnectionFailedEventSchema.safeParse(invalidEvent).success,
+        ).toBe(false);
+      },
+    );
   });
 
   describe("MobileRedirectLedgerWalletEventSchema", () => {

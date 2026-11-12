@@ -86,11 +86,28 @@ export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
 }).strict();
 
-export const DeviceConnectionSelectedEventSchema = BaseEventDataSchema.extend({
-  event_type: z.literal("device_connection_selected"),
+const DeviceConnectionBaseEventDataSchema = BaseEventDataSchema.extend({
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   connection_type: z.enum(["bluetooth", "usb"]),
-}).strict();
+});
+
+export const DeviceConnectionSelectedEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_selected"),
+  }).strict();
+
+export const DeviceConnectionSucceededEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_succeeded"),
+  }).strict();
+
+export const DeviceConnectionFailedEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_failed"),
+    error_type: z.string().min(1),
+    error_category: z.enum(["device", "ledgersync"]),
+  }).strict();
 
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
@@ -193,13 +210,15 @@ export const ViewTransactionDetailsClickedEventSchema =
     .strict()
     .superRefine(checkTransactionHashFormat);
 
-export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend({
-  event_type: z.literal("view_all_transactions_clicked"),
-  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string().optional(),
-  currency_id: z.string().min(1),
-  account_address: z.string().min(1),
-}).strict();
+export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend(
+  {
+    event_type: z.literal("view_all_transactions_clicked"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    currency_id: z.string().min(1),
+    account_address: z.string().min(1),
+  },
+).strict();
 
 export const ViewAllTransactionsRedirectConfirmedEventSchema =
   BaseEventDataSchema.extend({
@@ -239,6 +258,8 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
   DeviceConnectionSelectedEventSchema,
+  DeviceConnectionSucceededEventSchema,
+  DeviceConnectionFailedEventSchema,
   LedgerSyncActivatedEventSchema,
   OnboardingEventSchema,
   TransactionFlowInitializationEventSchema,
@@ -266,6 +287,12 @@ export type OpenSessionEvent = z.infer<typeof OpenSessionEventSchema>;
 export type OpenLedgerSyncEvent = z.infer<typeof OpenLedgerSyncEventSchema>;
 export type DeviceConnectionSelectedEvent = z.infer<
   typeof DeviceConnectionSelectedEventSchema
+>;
+export type DeviceConnectionSucceededEvent = z.infer<
+  typeof DeviceConnectionSucceededEventSchema
+>;
+export type DeviceConnectionFailedEvent = z.infer<
+  typeof DeviceConnectionFailedEventSchema
 >;
 export type LedgerSyncActivatedEvent = z.infer<
   typeof LedgerSyncActivatedEventSchema

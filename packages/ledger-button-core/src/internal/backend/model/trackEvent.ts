@@ -4,6 +4,8 @@ export enum EventType {
   ConsentGiven = "consent_given",
   ConsentRemoved = "consent_removed",
   DeviceConnectionSelected = "device_connection_selected",
+  DeviceConnectionSucceeded = "device_connection_succeeded",
+  DeviceConnectionFailed = "device_connection_failed",
   ErrorOccurred = "error_occurred",
   FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
@@ -63,10 +65,28 @@ export type OpenLedgerSyncEventData = BaseEventData & {
 
 export type DeviceConnectionType = "bluetooth" | "usb";
 
-export type DeviceConnectionSelectedEventData = BaseEventData & {
-  event_type: "device_connection_selected";
+export type DeviceConnectionErrorCategory = "device" | "ledgersync";
+
+type DeviceConnectionBaseEventData = BaseEventData & {
   session_id: string;
+  ledger_sync_user_id?: string;
   connection_type: DeviceConnectionType;
+};
+
+export type DeviceConnectionSelectedEventData =
+  DeviceConnectionBaseEventData & {
+    event_type: "device_connection_selected";
+  };
+
+export type DeviceConnectionSucceededEventData =
+  DeviceConnectionBaseEventData & {
+    event_type: "device_connection_succeeded";
+  };
+
+export type DeviceConnectionFailedEventData = DeviceConnectionBaseEventData & {
+  event_type: "device_connection_failed";
+  error_type: string;
+  error_category: DeviceConnectionErrorCategory;
 };
 
 export type LedgerSyncActivatedEventData = BaseEventData & {
@@ -133,12 +153,7 @@ export type FloatingButtonClickEventData = BaseEventData & {
 };
 
 export type WalletActionType =
-  | "send"
-  | "receive"
-  | "swap"
-  | "buy"
-  | "earn"
-  | "sell";
+  "send" | "receive" | "swap" | "buy" | "earn" | "sell";
 
 export type WalletActionClickedEventData = BaseEventData & {
   event_type: "wallet_action_clicked";
@@ -211,6 +226,8 @@ export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
   | DeviceConnectionSelectedEventData
+  | DeviceConnectionSucceededEventData
+  | DeviceConnectionFailedEventData
   | ErrorOccurredEventData
   | InvoicingTransactionSignedEventData
   | FloatingButtonClickEventData
