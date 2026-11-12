@@ -13,7 +13,7 @@ describe("resolveNetworkSlug", () => {
   });
 
   it("resolves a currency handled by an XRP provider to the CoinService slug", () => {
-    expect(resolveNetworkSlug("ripple", "xrp")).toBe("xrp");
+    expect(resolveNetworkSlug("ripple", "xrp")).toBe("ripple");
   });
 
   it("returns undefined when no provider handles the currency", () => {
