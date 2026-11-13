@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@ledgerhq/context-module": "catalog:",
-    "@ledgerhq/device-signer-kit-solana": "catalog:",
+    "@ledgerhq/context-module": "0.0.0-delayed-signing-20261113142655",
+    "@ledgerhq/device-signer-kit-solana": "0.0.0-delayed-signing-20261113142655",
     "@solana/kit": "catalog:",
     "@wallet-standard/base": "catalog:",
     "@wallet-standard/errors": "catalog:",

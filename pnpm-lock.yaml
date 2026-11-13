@@ -42,9 +42,6 @@ catalogs:
     '@ledgerhq/device-signer-kit-ethereum':
       specifier: 1.18.1
       version: 1.18.1
-    '@ledgerhq/device-signer-kit-solana':
-      specifier: 1.15.0
-      version: 1.15.0
     '@ledgerhq/device-signer-kit-xrp':
       specifier: 0.3.0
       version: 0.3.0
@@ -916,7 +913,7 @@ importers:
         version: 30.0.1(@noble/hashes@2.4.0)
       shadow-dom-testing-library:
         specifier: 'catalog:'
-        version: 1.12.0(@testing-library/dom@10.4.0)
+        version: 1.12.0(@testing-library/dom@10.4.2)
       storybook:
         specifier: 'catalog:'
         version: 10.6.0(@types/react@19.2.18)(bufferutil@4.1.0)(prettier@3.9.6)(react@19.2.8)(utf-8-validate@6.0.6)
@@ -1028,14 +1025,14 @@ importers:
   packages/ledger-wallet-provider-solana:
     dependencies:
       '@ledgerhq/context-module':
-        specifier: 'catalog:'
-        version: 2.8.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        specifier: 0.0.0-delayed-signing-20261113142655
+        version: 0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@ledgerhq/device-management-kit':
         specifier: 'catalog:'
         version: 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       '@ledgerhq/device-signer-kit-solana':
-        specifier: 'catalog:'
-        version: 1.15.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
+        specifier: 0.0.0-delayed-signing-20261113142655
+        version: 0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
       '@solana/kit':
         specifier: 'catalog:'
         version: 6.9.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
@@ -2649,6 +2646,11 @@ packages:
     resolution: {integrity: sha512-uoePRPad38BBCrF2/9kGMPEjQxhxVBJtpbm/D6ov9gRBtOqte/FtQx1TMEpjBumxKRBqCLgFbOUL03enAe7hWQ==}
     deprecated: This package is no longer maintained. Use @ledgerhq/coin-module-framework instead.
 
+  '@ledgerhq/context-module@0.0.0-delayed-signing-20261113142655':
+    resolution: {integrity: sha512-uEY0AaYEan7m2Vr2OZVgWC44jlcZD6On7IOz/LJBhYjdbo+5eon9zBPh3Iv+X/GMk0BLmbm/eG9KHTFsmmWT8A==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-delayed-signing-20261113142655
+
   '@ledgerhq/context-module@2.8.0':
     resolution: {integrity: sha512-bndTxEdV15CirIq47kCx5Q0ilKSX9V2gDSy9n6X37GKUffFrr6r9TLOx3AISZDWKX5UorCUzxRWKtT0Q2OozJA==}
     peerDependencies:
@@ -2678,10 +2680,10 @@ packages:
       '@ledgerhq/context-module': ^2.6.0
       '@ledgerhq/device-management-kit': ^1.9.1
 
-  '@ledgerhq/device-signer-kit-solana@1.15.0':
-    resolution: {integrity: sha512-O8t4OgjnHS+pHu4Lcw+Xy4f73qbr4OHhLm2hmRikJsaIE7G/3MoZ1Anyjl3y3LOdzf18yFJWGlNb79Zy1RCBdQ==}
+  '@ledgerhq/device-signer-kit-solana@0.0.0-delayed-signing-20261113142655':
+    resolution: {integrity: sha512-A1v3peOsUChnFkEwyzaOB1yQU9V9SpnngkU6UeKV4Qj1qZ0RD8bZuj69TLabDegwxvg+5B+GoMEp3OP5FCS0qQ==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': ^1.11.0
+      '@ledgerhq/device-management-kit': 0.0.0-delayed-signing-20261113142655
 
   '@ledgerhq/device-signer-kit-xrp@0.3.0':
     resolution: {integrity: sha512-JI5x9Eq7lr5vWxq/G8spqwfJLxZsQNdP4xEYgeVBKrLKloooLQDrQrTY+KJ7nFkvm1TFUpPFpewNYtHWQWewkA==}
@@ -2768,6 +2770,11 @@ packages:
     resolution: {integrity: sha512-xnCRl24ifpfgxjHHLSXLVTbiKS2nXe18WjD87YdZc1uealyVAcoOYNSkgtAlnLzkF2DTPiuZc2oPawcDDcVq9A==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
+
+  '@ledgerhq/signer-utils@0.0.0-delayed-signing-20261113142655':
+    resolution: {integrity: sha512-JQ9y9XgZvF+dI+GSXjMJ78lFpigk/EPaRIAmHVwuca6nrDkr0z+rB+zdHDyWVYBAsWV3geIufiodARn7Yw92fw==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-delayed-signing-20261113142655
 
   '@ledgerhq/signer-utils@1.3.0':
     resolution: {integrity: sha512-qe+HQMgZxq6SPv8ghvlq4c33RchUwlf1qE/qp7MtUGPbKGAqD/0PKNyzx05sKLpmA8m6YZdtndHH4CEkikzqSQ==}
@@ -9035,6 +9042,7 @@ packages:
   image-size@0.5.5:
     resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please migrate to image-size@2.x
     hasBin: true
 
   immer@11.1.3:
@@ -15277,6 +15285,19 @@ snapshots:
       - react
       - react-redux
 
+  '@ledgerhq/context-module@0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+    dependencies:
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      bs58: 6.0.0
+      crypto-js: 4.2.0
+      ethers: 6.14.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      inversify: 7.5.1(reflect-metadata@0.2.2)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@ledgerhq/context-module@2.8.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
     dependencies:
       '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
@@ -15351,11 +15372,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-signer-kit-solana@1.15.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
+  '@ledgerhq/device-signer-kit-solana@0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@ledgerhq/context-module': 2.8.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      '@ledgerhq/context-module': 0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
-      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/signer-utils': 0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       '@solana/transaction-messages': 8.3.0(typescript@6.0.3)
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
       bs58: 6.0.0
@@ -15492,6 +15513,11 @@ snapshots:
   '@ledgerhq/lumen-utils-shared@0.1.17(react@19.2.8)':
     dependencies:
       react: 19.2.8
+
+  '@ledgerhq/signer-utils@0.0.0-delayed-signing-20261113142655(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
+    dependencies:
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      semver: 7.7.2
 
   '@ledgerhq/signer-utils@1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
@@ -26220,6 +26246,10 @@ snapshots:
   shadow-dom-testing-library@1.12.0(@testing-library/dom@10.4.0):
     dependencies:
       '@testing-library/dom': 10.4.0
+
+  shadow-dom-testing-library@1.12.0(@testing-library/dom@10.4.2):
+    dependencies:
+      '@testing-library/dom': 10.4.2
 
   shallow-clone@3.0.1:
     dependencies:
