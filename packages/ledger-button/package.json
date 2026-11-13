@@ -43,7 +43,7 @@
   },
   "type": "module",
   "types": "./dist/index.d.ts",
-  "version": "2.0.3",
+  "version": "2.0.3-test-solana-multi-signer",
   "repository": {
     "type": "git",
     "url": "https://github.com/LedgerHQ/ledger-button-public.git"
