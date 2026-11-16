@@ -4,14 +4,18 @@ import type {
   DetailedAccount,
   Token,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { langContext, LanguageContext } from "../../context/language-context";
 import { tailwindElement } from "../../tailwind-element";
+import { formatFiatBalance, formatTokenBalance } from "../../utils/format-fiat";
 import {
-  formatFiatBalance,
-  formatTokenBalance,
-} from "../../utils/format-fiat";
+  formatCategoryLabel,
+  groupTokensByCategory,
+  type TokenCategoryGroup,
+} from "./group-tokens-by-category";
 
 @customElement("token-list-screen")
 @tailwindElement()
@@ -21,6 +25,10 @@ export class TokenListScreen extends LitElement {
 
   @property({ type: String })
   locale!: string;
+
+  @consume({ context: langContext, subscribe: true })
+  @property({ attribute: false })
+  public languages?: LanguageContext;
 
   private renderNativeCoin() {
     if (!this.account) return "";
@@ -39,10 +47,6 @@ export class TokenListScreen extends LitElement {
     `;
   }
 
-  private renderDivider() {
-    return html`<div class="border-muted-subtle h-1 w-full border-t"></div>`;
-  }
-
   private renderTokenItem = (token: Token) => {
     return html`
       <ledger-chain-item
@@ -59,14 +63,38 @@ export class TokenListScreen extends LitElement {
     `;
   };
 
-  private renderTokenList() {
-    if (!this.account || this.account.tokens.length === 0) {
-      return "";
-    }
+  private renderCategoryHeader(category: string) {
+    const labels = this.languages?.currentTranslation?.tokenList?.categories;
 
     return html`
-      <div class="flex flex-col">
-        ${this.account.tokens.map(this.renderTokenItem)}
+      <div
+        class="bg-muted-transparent flex items-center justify-start gap-8 rounded-sm px-8 py-4"
+      >
+        <span class="body-4 text-white"
+          >${formatCategoryLabel(category, labels)}</span
+        >
+      </div>
+    `;
+  }
+
+  private renderCategoryGroup = (group: TokenCategoryGroup) => {
+    return html`
+      <div class="mt-16 flex flex-col gap-4">
+        ${this.renderCategoryHeader(group.category)}
+        <div class="flex flex-col">
+          ${group.tokens.map(this.renderTokenItem)}
+        </div>
+      </div>
+    `;
+  };
+
+  private renderCryptoGroup(uncategorized: Token[]) {
+    return html`
+      <div class="flex flex-col gap-4">
+        ${this.renderCategoryHeader("crypto")}
+        <div class="flex flex-col">
+          ${this.renderNativeCoin()} ${uncategorized.map(this.renderTokenItem)}
+        </div>
       </div>
     `;
   }
@@ -80,10 +108,14 @@ export class TokenListScreen extends LitElement {
       `;
     }
 
+    const { uncategorized, categories } = groupTokensByCategory(
+      this.account.tokens,
+    );
+
     return html`
-      <div class="flex flex-col gap-12">
-        ${this.renderNativeCoin()} ${this.renderDivider()}
-        ${this.renderTokenList()}
+      <div class="flex flex-col">
+        ${this.renderCryptoGroup(uncategorized)}
+        ${categories.map(this.renderCategoryGroup)}
       </div>
     `;
   }

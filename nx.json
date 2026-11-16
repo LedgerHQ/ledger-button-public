@@ -130,7 +130,7 @@
     }
   ],
   "release": {
-    "projectsRelationship": "fixed",
+    "projectsRelationship": "independent",
     "versionPlans": {
       "ignorePatternsForPlanCheck": [
         "**/*.spec.ts",
@@ -146,31 +146,43 @@
           "@ledgerhq/ledger-wallet-provider",
           "@ledgerhq/ledger-wallet-provider-core"
         ],
-        "projectsRelationship": "fixed"
+        "projectsRelationship": "independent",
+        "releaseTag": {
+          "pattern": "{projectName}@{version}"
+        }
       },
       "providers": {
         "projects": [
           "@ledgerhq/ledger-wallet-provider-evm",
-          "@ledgerhq/ledger-wallet-provider-solana"
+          "@ledgerhq/ledger-wallet-provider-solana",
+          "@ledgerhq/ledger-wallet-provider-xrp"
         ],
         "projectsRelationship": "independent",
+        "version": {
+          "adjustSemverBumpsForZeroMajorVersion": false
+        },
         "releaseTag": {
           "pattern": "{projectName}@{version}"
         }
       }
     },
-    "git": {
-      "commit": true,
-      "commitMessage": "🔖 (release): Changelog for v{version}",
-      "tag": true
-    },
     "version": {
       "fallbackCurrentVersionResolver": "disk",
-      "updateDependents": "always"
+      "updateDependents": "auto",
+      "git": {
+        "commit": false,
+        "stageChanges": true,
+        "tag": false
+      }
     },
     "changelog": {
       "workspaceChangelog": false,
-      "projectChangelogs": true
+      "projectChangelogs": true,
+      "git": {
+        "commit": true,
+        "commitMessage": "🔖 (release): Changelog for v{version}",
+        "tag": true
+      }
     },
     "conventionalCommits": {
       "types": {
@@ -189,7 +201,7 @@
       }
     },
     "releaseTag": {
-      "pattern": "v{version}",
+      "pattern": "{projectName}@{version}",
       "strictPreid": true
     }
   },

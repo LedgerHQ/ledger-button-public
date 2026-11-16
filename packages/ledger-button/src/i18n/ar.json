@@ -1,4 +1,9 @@
 {
+  "geoBlock": {
+    "title": "Location unavailable",
+    "description": "Ledger Wallet is not available in this location.",
+    "learnMore": "Learn more"
+  },
   "common": {
     "connect": "اتصال",
     "loading": "جاري التحميل...",
@@ -200,6 +205,13 @@
     "notFound": "لم يتم العثور على الحساب",
     "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب",
     "unknownToken": "Unknown Token"
+  },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
   },
   "availableNetworks": {
     "title": "الشبكات المتاحة"

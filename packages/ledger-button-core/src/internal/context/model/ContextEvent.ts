@@ -64,4 +64,7 @@ export type ContextEvent =
     }
   | {
       type: "developer_mode_enabled";
+    }
+  | {
+      type: "geo_blocked";
     };

@@ -31,7 +31,7 @@ export function SignTypedDataModal({
         </label>
         <textarea
           ref={textareaRef}
-          className="w-full px-12 py-8 border border-muted rounded-lg body-2 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active transition-colors"
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active transition-colors"
           rows={5}
           placeholder='{"types": {...}, "primaryType": "...", "domain": {...}, "message": {...}}'
         />

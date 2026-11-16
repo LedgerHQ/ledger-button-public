@@ -3,22 +3,22 @@ import { ContainerModule } from "inversify";
 import { DefaultEventTrackingService } from "../service/DefaultEventTrackingService";
 import { EventTrackingService } from "../service/EventTrackingService";
 import { StubEventTrackingService } from "../service/StubEventTrackingService";
-import { TrackConsentGiven } from "../use-case/TrackConsentGiven";
-import { TrackConsentRemoved } from "../use-case/TrackConsentRemoved";
-import { TrackCurrencyChanged } from "../use-case/TrackCurrencyChanged";
-import { TrackFloatingButtonClick } from "../use-case/TrackFloatingButtonClick";
-import { TrackLanguageChanged } from "../use-case/TrackLanguageChanged";
-import { TrackLedgerSyncActivated } from "../use-case/TrackLedgerSyncActivated";
-import { TrackLedgerSyncOpened } from "../use-case/TrackLedgerSyncOpened";
-import { TrackMobileRedirectLedgerWallet } from "../use-case/TrackMobileRedirectLedgerWallet";
-import { TrackOnboarding } from "../use-case/TrackOnboarding";
-import { TrackOpenSession } from "../use-case/TrackOpenSession";
-import { TrackTransactionCompleted } from "../use-case/TrackTransactionCompleted";
-import { TrackTransactionStarted } from "../use-case/TrackTransactionStarted";
-import { TrackTypedMessageCompleted } from "../use-case/TrackTypedMessageCompleted";
-import { TrackTypedMessageStarted } from "../use-case/TrackTypedMessageStarted";
+import { TrackConsentGivenUseCase } from "../use-case/TrackConsentGivenUseCase";
+import { TrackConsentRemovedUseCase } from "../use-case/TrackConsentRemovedUseCase";
+import { TrackCurrencyChangedUseCase } from "../use-case/TrackCurrencyChangedUseCase";
+import { TrackFloatingButtonClickUseCase } from "../use-case/TrackFloatingButtonClickUseCase";
+import { TrackLanguageChangedUseCase } from "../use-case/TrackLanguageChangedUseCase";
+import { TrackLedgerSyncActivatedUseCase } from "../use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncOpenedUseCase } from "../use-case/TrackLedgerSyncOpenedUseCase";
+import { TrackMobileRedirectLedgerWalletUseCase } from "../use-case/TrackMobileRedirectLedgerWalletUseCase";
+import { TrackOnboardingUseCase } from "../use-case/TrackOnboardingUseCase";
+import { TrackOpenSessionUseCase } from "../use-case/TrackOpenSessionUseCase";
+import { TrackTransactionCompletedUseCase } from "../use-case/TrackTransactionCompletedUseCase";
+import { TrackTransactionStartedUseCase } from "../use-case/TrackTransactionStartedUseCase";
+import { TrackTypedMessageCompletedUseCase } from "../use-case/TrackTypedMessageCompletedUseCase";
+import { TrackTypedMessageStartedUseCase } from "../use-case/TrackTypedMessageStartedUseCase";
 import { TrackViewAllTransactions } from "../use-case/TrackViewAllTransactions";
-import { TrackViewTransactionDetailsClick } from "../use-case/TrackViewTransactionDetailsClick";
+import { TrackViewTransactionDetailsClickUseCase } from "../use-case/TrackViewTransactionDetailsClickUseCase";
 import { TrackWalletAction } from "../use-case/TrackWalletAction";
 import { eventTrackingModuleTypes } from "./eventTrackingModuleTypes";
 
@@ -44,69 +44,69 @@ export const eventTrackingModuleFactory = ({
         .inSingletonScope();
     }
 
-    bind<TrackConsentGiven>(eventTrackingModuleTypes.TrackConsentGiven).to(
-      TrackConsentGiven,
+    bind<TrackConsentGivenUseCase>(eventTrackingModuleTypes.TrackConsentGivenUseCase).to(
+      TrackConsentGivenUseCase,
     );
 
-    bind<TrackConsentRemoved>(eventTrackingModuleTypes.TrackConsentRemoved).to(
-      TrackConsentRemoved,
+    bind<TrackConsentRemovedUseCase>(eventTrackingModuleTypes.TrackConsentRemovedUseCase).to(
+      TrackConsentRemovedUseCase,
     );
 
-    bind<TrackLanguageChanged>(
-      eventTrackingModuleTypes.TrackLanguageChanged,
-    ).to(TrackLanguageChanged);
+    bind<TrackLanguageChangedUseCase>(
+      eventTrackingModuleTypes.TrackLanguageChangedUseCase,
+    ).to(TrackLanguageChangedUseCase);
 
-    bind<TrackCurrencyChanged>(
-      eventTrackingModuleTypes.TrackCurrencyChanged,
-    ).to(TrackCurrencyChanged);
+    bind<TrackCurrencyChangedUseCase>(
+      eventTrackingModuleTypes.TrackCurrencyChangedUseCase,
+    ).to(TrackCurrencyChangedUseCase);
 
-    bind<TrackFloatingButtonClick>(
-      eventTrackingModuleTypes.TrackFloatingButtonClick,
-    ).to(TrackFloatingButtonClick);
+    bind<TrackFloatingButtonClickUseCase>(
+      eventTrackingModuleTypes.TrackFloatingButtonClickUseCase,
+    ).to(TrackFloatingButtonClickUseCase);
 
-    bind<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding).to(
-      TrackOnboarding,
+    bind<TrackOnboardingUseCase>(eventTrackingModuleTypes.TrackOnboardingUseCase).to(
+      TrackOnboardingUseCase,
     );
 
-    bind<TrackTransactionStarted>(
-      eventTrackingModuleTypes.TrackTransactionStarted,
-    ).to(TrackTransactionStarted);
+    bind<TrackTransactionStartedUseCase>(
+      eventTrackingModuleTypes.TrackTransactionStartedUseCase,
+    ).to(TrackTransactionStartedUseCase);
 
-    bind<TrackTransactionCompleted>(
-      eventTrackingModuleTypes.TrackTransactionCompleted,
-    ).to(TrackTransactionCompleted);
+    bind<TrackTransactionCompletedUseCase>(
+      eventTrackingModuleTypes.TrackTransactionCompletedUseCase,
+    ).to(TrackTransactionCompletedUseCase);
 
-    bind<TrackLedgerSyncOpened>(
-      eventTrackingModuleTypes.TrackLedgerSyncOpened,
-    ).to(TrackLedgerSyncOpened);
+    bind<TrackLedgerSyncOpenedUseCase>(
+      eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase,
+    ).to(TrackLedgerSyncOpenedUseCase);
 
-    bind<TrackOpenSession>(eventTrackingModuleTypes.TrackOpenSession).to(
-      TrackOpenSession,
+    bind<TrackOpenSessionUseCase>(eventTrackingModuleTypes.TrackOpenSessionUseCase).to(
+      TrackOpenSessionUseCase,
     );
 
-    bind<TrackLedgerSyncActivated>(
-      eventTrackingModuleTypes.TrackLedgerSyncActivated,
-    ).to(TrackLedgerSyncActivated);
+    bind<TrackLedgerSyncActivatedUseCase>(
+      eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase,
+    ).to(TrackLedgerSyncActivatedUseCase);
 
-    bind<TrackTypedMessageStarted>(
-      eventTrackingModuleTypes.TrackTypedMessageStarted,
-    ).to(TrackTypedMessageStarted);
+    bind<TrackTypedMessageStartedUseCase>(
+      eventTrackingModuleTypes.TrackTypedMessageStartedUseCase,
+    ).to(TrackTypedMessageStartedUseCase);
 
-    bind<TrackTypedMessageCompleted>(
-      eventTrackingModuleTypes.TrackTypedMessageCompleted,
-    ).to(TrackTypedMessageCompleted);
+    bind<TrackTypedMessageCompletedUseCase>(
+      eventTrackingModuleTypes.TrackTypedMessageCompletedUseCase,
+    ).to(TrackTypedMessageCompletedUseCase);
 
     bind<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction).to(
       TrackWalletAction,
     );
 
-    bind<TrackMobileRedirectLedgerWallet>(
-      eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
-    ).to(TrackMobileRedirectLedgerWallet);
+    bind<TrackMobileRedirectLedgerWalletUseCase>(
+      eventTrackingModuleTypes.TrackMobileRedirectLedgerWalletUseCase,
+    ).to(TrackMobileRedirectLedgerWalletUseCase);
 
-    bind<TrackViewTransactionDetailsClick>(
-      eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
-    ).to(TrackViewTransactionDetailsClick);
+    bind<TrackViewTransactionDetailsClickUseCase>(
+      eventTrackingModuleTypes.TrackViewTransactionDetailsClickUseCase,
+    ).to(TrackViewTransactionDetailsClickUseCase);
 
     bind<TrackViewAllTransactions>(
       eventTrackingModuleTypes.TrackViewAllTransactions,

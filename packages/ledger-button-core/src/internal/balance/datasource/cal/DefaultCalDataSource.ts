@@ -5,7 +5,7 @@ import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
 import { type NetworkServiceOpts } from "@internal/network/model/types";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
 import { type CalDataSource } from "./CalDataSource";
 import {
@@ -59,6 +59,7 @@ export class DefaultCalDataSource implements CalDataSource {
       decimals: token.decimals,
       ticker: token.ticker,
       name: token.name,
+      categories: token.categories ?? [],
       transactionExplorerUrlTemplate: extractTransactionExplorerUrlTemplate(
         token.network_external_links,
       ),
@@ -87,7 +88,7 @@ export class DefaultCalDataSource implements CalDataSource {
     tokenAddress: string,
     currencyId: string,
   ): string {
-    return `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&network=${currencyId}&output=id,name,decimals,ticker,network_external_links`;
+    return `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&network=${currencyId}&output=id,name,decimals,ticker,categories,network_external_links`;
   }
 
   private async fetchCurrencyInformation(

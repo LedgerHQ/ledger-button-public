@@ -22,7 +22,7 @@ export interface BlockchainProvider<
    * Called once by {@link DefaultBlockchainProviderManager} after the dApp
    * config has been fetched.
    */
-  injectWalletProviders(): void;
+  injectWalletProvider(): void;
   /**
    * dApp-initiated disconnect for this family: clear local wallet state,
    * notify the dApp, and ask core to drop the family's selected account.

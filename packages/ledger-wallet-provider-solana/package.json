@@ -24,6 +24,11 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "name": "@ledgerhq/ledger-wallet-provider-solana",
+  "nx": {
+    "tags": [
+      "scope:provider"
+    ]
+  },
   "peerDependencies": {
     "@ledgerhq/device-management-kit": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",

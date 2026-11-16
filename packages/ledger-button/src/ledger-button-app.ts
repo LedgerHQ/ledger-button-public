@@ -169,8 +169,9 @@ export class LedgerButtonApp extends LitElement {
 
     return html`<ledger-floating-button
       .position=${this.floatingButtonPosition}
-      .transactionConfirmationNotification=${this
-        .transactionConfirmationNotification}
+      .transactionConfirmationNotification=${
+        this.transactionConfirmationNotification
+      }
     ></ledger-floating-button>`;
   }
 
@@ -194,7 +195,7 @@ export class LedgerButtonApp extends LitElement {
   }
 }
 
-// NOTE: Declare here all the custom events so that LedgerEIP1193Provider can have type safey
+// NOTE: Declare here all the custom events so that EvmWalletProvider can have type safey
 // Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
 declare global {
   interface HTMLElementTagNameMap {

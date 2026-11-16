@@ -4,7 +4,8 @@ const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const hexPattern = /^[0-9a-f]+$/;
 const base58Pattern = /^[1-9A-HJ-NP-Za-km-z]+$/;
-const blockchainFamilySchema = z.enum(["ethereum", "solana"]);
+const upperHexPattern = /^[0-9A-F]+$/;
+const blockchainFamilySchema = z.enum(["ethereum", "solana", "xrp"]);
 
 const transactionHashFormats: Record<
   z.infer<typeof blockchainFamilySchema>,
@@ -17,6 +18,10 @@ const transactionHashFormats: Record<
   solana: {
     pattern: base58Pattern,
     message: "Transaction hash must be a base58 signature",
+  },
+  xrp: {
+    pattern: upperHexPattern,
+    message: "Transaction hash must be uppercase hex",
   },
 };
 
@@ -187,13 +192,15 @@ export const ViewTransactionDetailsClickedEventSchema =
     .strict()
     .superRefine(checkTransactionHashFormat);
 
-export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend({
-  event_type: z.literal("view_all_transactions_clicked"),
-  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string().optional(),
-  currency_id: z.string().min(1),
-  account_address: z.string().min(1),
-}).strict();
+export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend(
+  {
+    event_type: z.literal("view_all_transactions_clicked"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    currency_id: z.string().min(1),
+    account_address: z.string().min(1),
+  },
+).strict();
 
 export const ViewAllTransactionsRedirectConfirmedEventSchema =
   BaseEventDataSchema.extend({

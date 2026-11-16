@@ -53,6 +53,7 @@ export class RootNavigationController implements ReactiveController {
 
   private hasTrackingConsent?: boolean;
   private welcomeScreenCompleted = false;
+  private isGeoBlocked = false;
   private contextSubscription?: Subscription;
   private readonly onLanguageChange = () => {
     this.host.requestUpdate();
@@ -79,9 +80,14 @@ export class RootNavigationController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
+        const becameGeoBlocked = context.isGeoBlocked && !this.isGeoBlocked;
+        this.isGeoBlocked = context.isGeoBlocked;
         this.hasTrackingConsent = context.hasTrackingConsent;
         this.welcomeScreenCompleted = context.welcomeScreenCompleted;
         this.connectedDevice = context.connectedDevice;
+        if (becameGeoBlocked) {
+          this.navigation.navigateTo(this.destinations.geoBlock);
+        }
         this.host.requestUpdate();
       });
   }
@@ -146,11 +152,21 @@ export class RootNavigationController implements ReactiveController {
   }
 
   async computeInitialState(family?: BlockchainFamily) {
+    if (this.navigateToGeoBlockWhenBlocked()) {
+      return;
+    }
+
     // For a family-specific request, only that family's account counts as
     // "already connected"; otherwise fall back to the active selection.
     const selectedAccount = family
       ? this.core.getSelectedAccount(family)
       : await this.core.getActiveSelectedAccount();
+
+    // The context may have flagged the user as geo-blocked while the account
+    // lookup was pending: the block screen must not be overwritten.
+    if (this.navigateToGeoBlockWhenBlocked()) {
+      return;
+    }
 
     if (!selectedAccount) {
       this.navigation.navigateTo(this.onboardingDestination);
@@ -159,6 +175,15 @@ export class RootNavigationController implements ReactiveController {
       this.navigation.navigateTo(this.destinations.home);
       return;
     }
+  }
+
+  private navigateToGeoBlockWhenBlocked(): boolean {
+    if (!this.isGeoBlocked) {
+      return false;
+    }
+
+    this.navigation.navigateTo(this.destinations.geoBlock);
+    return true;
   }
 
   private get onboardingDestination(): Destination {
@@ -211,6 +236,10 @@ export class RootNavigationController implements ReactiveController {
     params?: NavigationIntentParams,
   ) {
     this.params = params ?? undefined;
+
+    if (this.navigateToGeoBlockWhenBlocked()) {
+      return;
+    }
 
     switch (route) {
       case "selectAccount": {

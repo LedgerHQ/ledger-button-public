@@ -8,8 +8,8 @@ import {
 } from "@api/model/ButtonCoreContext";
 import { accountModuleTypes } from "@internal/account/di/accountModuleTypes";
 import { type FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase";
-import { type ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

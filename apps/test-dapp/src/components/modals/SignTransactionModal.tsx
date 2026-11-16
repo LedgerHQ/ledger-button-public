@@ -28,7 +28,7 @@ export function SignTransactionModal({
       <div>
         <textarea
           ref={textareaRef}
-          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base placeholder:text-muted font-mono focus:outline-none focus:border-active resize-y"
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active resize-y"
           rows={5}
           placeholder='{"to": "0x...", "value": "0x0", "data": "0x..."}'
         />

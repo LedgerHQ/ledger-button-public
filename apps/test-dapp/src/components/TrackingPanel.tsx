@@ -65,7 +65,7 @@ function TrackingEntryRow({ entry }: { entry: TrackingEntry }) {
           ? "border-l-success"
           : entry.status === "error"
             ? "border-l-error"
-            : "border-l-accent",
+            : "",
       )}
     >
       <div
@@ -74,7 +74,7 @@ function TrackingEntryRow({ entry }: { entry: TrackingEntry }) {
       >
         <StatusIcon status={entry.status} />
         <Tag appearance="accent" size="sm" label={entry.eventType} />
-        <span className="body-4 font-mono text-base truncate flex-1">
+        <span className="body-4 text-base truncate flex-1">
           {entry.eventName}
         </span>
         {entry.httpStatus && (
@@ -84,7 +84,7 @@ function TrackingEntryRow({ entry }: { entry: TrackingEntry }) {
             label={String(entry.httpStatus)}
           />
         )}
-        <span className="body-4 text-muted font-mono shrink-0">
+        <span className="body-4 text-muted shrink-0">
           {formatTime(entry.timestamp)}
         </span>
       </div>
@@ -92,7 +92,7 @@ function TrackingEntryRow({ entry }: { entry: TrackingEntry }) {
       {expanded && (
         <div className="mt-8 pt-8 border-t border-muted">
           <div className="flex items-start gap-8">
-            <pre className="body-4 font-mono text-muted break-all leading-relaxed whitespace-pre-wrap min-w-0 flex-1">
+            <pre className="body-4 text-muted break-all whitespace-pre-wrap min-w-0 flex-1">
               {payloadJson}
             </pre>
             <CopyButton text={payloadJson} />

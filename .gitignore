@@ -55,6 +55,7 @@ test-output
 # Next.js
 .next
 out
+next-env.d.ts
 
 storybook-static
 
@@ -69,3 +70,8 @@ elm-stuff
 
 # Agent tooling worktrees
 agent-files/claude/worktrees/
+
+# Playwright
+.playwright
+test-results/
+playwright-report/

@@ -18,7 +18,7 @@ export type {
   SignIntentParams,
   SignNavigationIntent,
   WalletNavigationIntent,
-  WalletProvider,
+  WalletProviderInjector,
 } from "./blockchain-provider/model/types";
 export { createOpenAppConfig } from "./blockchain-provider/utils/createOpenAppConfig";
 export { mapOpenAppDeviceActionError } from "./blockchain-provider/utils/mapOpenAppDeviceActionError";

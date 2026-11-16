@@ -114,6 +114,36 @@ describe("Event Schema Validation", () => {
       });
     });
 
+    describe("xrp", () => {
+      const anXrpInvoicingEvent = (transactionHash: string) => ({
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "ledger",
+        timestamp_ms: 1759918630007,
+        event_type: "invoicing_transaction_signed",
+        blockchain_network_selected: "xrp",
+        chain_id: "mainnet",
+        transaction_hash: transactionHash,
+        recipient_address: "",
+        unsigned_transaction_hash: "02f90552017a8427e021408427e021408304c04c",
+      });
+
+      it("should accept an uppercase hex transaction_hash", () => {
+        const result = InvoicingTransactionSignedEventSchema.safeParse(
+          anXrpInvoicingEvent(
+            "1EBF404FEFEEF0ACE02B696C35CBDB051BFE45A5004B9A9A685445F62430452A",
+          ),
+        );
+        expect(result.success).toBe(true);
+      });
+
+      it("should reject a transaction_hash that is not uppercase hex", () => {
+        const result = InvoicingTransactionSignedEventSchema.safeParse(
+          anXrpInvoicingEvent("not-a-hash"),
+        );
+        expect(result.success).toBe(false);
+      });
+    });
+
     it("should reject invalid event_id format", () => {
       const invalidEvent = {
         event_id: "not-a-uuid",

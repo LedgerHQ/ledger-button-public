@@ -9,6 +9,7 @@
  * with "You provided an invalid object where a stream was expected".
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,17 +18,21 @@ const WORKSPACE_ROOT = resolve(
   "../..",
 );
 const PACKAGES_DIR = join(WORKSPACE_ROOT, "packages");
+const require = createRequire(import.meta.url);
+const {
+  filterReleaseProjects,
+  loadReleaseProjects,
+  parseProjectSelector,
+} = require(join(WORKSPACE_ROOT, "packages/ldb-tools/release-projects.cjs"));
 
 /**
- * The four library packages that must always be built before this script runs.
- * A missing dist/index.js in any of these is an error, not a skip.
+ * Directories from the nx release groups. RELEASE_PROJECTS narrows the set
+ * for a filtered publish. A missing dist/index.js in this set is an error.
  */
-const REQUIRED_PACKAGES = [
-  "ledger-button",
-  "ledger-button-core",
-  "ledger-wallet-provider-evm",
-  "ledger-wallet-provider-solana",
-];
+const REQUIRED_PACKAGES = filterReleaseProjects(
+  loadReleaseProjects(WORKSPACE_ROOT),
+  parseProjectSelector(process.env.RELEASE_PROJECTS),
+).map((project) => project.directory);
 
 /** Strings that only exist in a dependency's own source code. */
 const INLINE_MARKERS = [
@@ -114,7 +119,10 @@ const results = readdirSync(PACKAGES_DIR)
   .filter((packageDir) => statSync(packageDir).isDirectory())
   .map((packageDir) => ({
     packageDir,
-    ...checkPackage(packageDir, REQUIRED_PACKAGES.includes(packageDir.split("/").at(-1))),
+    ...checkPackage(
+      packageDir,
+      REQUIRED_PACKAGES.includes(packageDir.split("/").at(-1)),
+    ),
   }));
 
 const checked = results.filter((result) => !result.skipped);

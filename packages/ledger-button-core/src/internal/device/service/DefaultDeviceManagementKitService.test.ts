@@ -1,9 +1,16 @@
 import {
   ConsoleLogger,
   DeviceManagementKit,
+  DeviceManagementKitBuilder,
   DiscoveredDevice,
   NoAccessibleDeviceError,
 } from "@ledgerhq/device-management-kit";
+import {
+  mockserverIdentifier,
+  mockserverTransportFactory,
+} from "@ledgerhq/device-transport-kit-mockserver";
+import { webBleTransportFactory } from "@ledgerhq/device-transport-kit-web-ble";
+import { webHidTransportFactory } from "@ledgerhq/device-transport-kit-web-hid";
 import { Observable, of, throwError } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,6 +21,17 @@ import {
 } from "../__tests__/mocks";
 import { DeviceConnectionError } from "../model/errors";
 import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService";
+
+vi.mock("@ledgerhq/device-transport-kit-mockserver", async () => {
+  const actual = await vi.importActual<
+    typeof import("@ledgerhq/device-transport-kit-mockserver")
+  >("@ledgerhq/device-transport-kit-mockserver");
+
+  return {
+    ...actual,
+    mockserverTransportFactory: vi.fn(actual.mockserverTransportFactory),
+  };
+});
 
 vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");
@@ -92,6 +110,84 @@ describe("DefaultDeviceManagementKitService", () => {
     );
   });
 
+  describe("mock transport configuration", () => {
+    const DEFAULT_MOCK_SERVER_URL =
+      "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
+
+    function createService(mockServerConfig?: {
+      serverToken?: string;
+      serverUrl?: string;
+    }) {
+      return new DefaultDeviceManagementKitService(
+        mockLoggerFactory,
+        {},
+        "error",
+        mockServerConfig,
+      );
+    }
+
+    function lastAddTransport() {
+      const result = vi.mocked(DeviceManagementKitBuilder).mock.results.at(-1);
+      if (!result || result.type !== "return") {
+        throw new Error("DeviceManagementKitBuilder was not constructed");
+      }
+
+      const builder = result.value as unknown as {
+        addTransport: ReturnType<typeof vi.fn>;
+      };
+      return builder.addTransport;
+    }
+
+    it("should register only USB and Bluetooth transports without mock configuration", () => {
+      createService();
+
+      expect(mockserverTransportFactory).not.toHaveBeenCalled();
+      expect(lastAddTransport()).toHaveBeenNthCalledWith(
+        1,
+        webHidTransportFactory,
+      );
+      expect(lastAddTransport()).toHaveBeenNthCalledWith(
+        2,
+        webBleTransportFactory,
+      );
+      expect(lastAddTransport()).toHaveBeenCalledTimes(2);
+    });
+
+    it("should register the mock transport with the default URL when the URL is omitted", () => {
+      createService({ serverToken: "session-token" });
+
+      expect(mockserverTransportFactory).toHaveBeenCalledWith(
+        DEFAULT_MOCK_SERVER_URL,
+        "session-token",
+      );
+      expect(lastAddTransport()).toHaveBeenNthCalledWith(
+        3,
+        vi.mocked(mockserverTransportFactory).mock.results[0]?.value,
+      );
+    });
+
+    it("should register the mock transport with the configured URL and token", () => {
+      createService({
+        serverToken: "session-token",
+        serverUrl: "https://mock.example",
+      });
+
+      expect(mockserverTransportFactory).toHaveBeenCalledWith(
+        "https://mock.example",
+        "session-token",
+      );
+    });
+
+    it("should pass an omitted token through to the mock transport factory", () => {
+      createService({ serverUrl: "https://mock.example" });
+
+      expect(mockserverTransportFactory).toHaveBeenCalledWith(
+        "https://mock.example",
+        undefined,
+      );
+    });
+  });
+
   describe("connectToDevice", () => {
     beforeEach(() => {
       vi.mocked(mockDmk.startDiscovering).mockReturnValue(
@@ -129,6 +225,38 @@ describe("DefaultDeviceManagementKitService", () => {
         expect(service.connectedDevice?.name).toBe(mockConnectedDevice.name);
       },
     );
+
+    it("should discover through the mock transport when it is configured", async () => {
+      const mockService = new DefaultDeviceManagementKitService(
+        mockLoggerFactory,
+        {},
+        "error",
+        { serverToken: "token" },
+      );
+      vi.mocked(mockService.dmk.startDiscovering).mockReturnValue(
+        of(mockDiscoveredDevice) as Observable<DiscoveredDevice>,
+      );
+      vi.mocked(mockService.dmk.stopDiscovering).mockResolvedValue(undefined);
+      vi.mocked(mockService.dmk.connect).mockResolvedValue(
+        mockConnectedDevice.sessionId,
+      );
+      vi.mocked(mockService.dmk.getConnectedDevice).mockResolvedValue(
+        mockConnectedDevice,
+      );
+
+      await mockService.connectToDevice({ type: "mock" });
+
+      expect(mockService.dmk.startDiscovering).toHaveBeenCalledWith({
+        transport: mockserverIdentifier,
+      });
+    });
+
+    it("should reject mock connections when no mock transport is configured", async () => {
+      await expect(
+        service.connectToDevice({ type: "mock" }),
+      ).rejects.toBeInstanceOf(DeviceConnectionError);
+      expect(mockDmk.startDiscovering).not.toHaveBeenCalled();
+    });
 
     it.each([
       {

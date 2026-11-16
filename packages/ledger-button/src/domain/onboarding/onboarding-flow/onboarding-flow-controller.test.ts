@@ -24,6 +24,7 @@ function createMockContext(
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "usd",
+    isGeoBlocked: false,
     ...overrides,
   };
 }

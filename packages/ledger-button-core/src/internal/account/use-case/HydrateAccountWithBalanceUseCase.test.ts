@@ -145,6 +145,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
             decimals: 6,
             balance: BigInt("1000000000"),
             balanceFormatted: "1000.0",
+            categories: ["stablecoins"],
           } as unknown as TokenBalance,
           {
             ledgerId: "ethereum/erc20/dai",
@@ -153,6 +154,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
             decimals: 18,
             balance: BigInt("500000000000000000000"),
             balanceFormatted: "500.0",
+            categories: [],
           } as unknown as TokenBalance,
         ],
       };
@@ -172,6 +174,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
         name: "USD Coin",
         balance: "1000.0",
         fiatBalance: undefined,
+        categories: ["stablecoins"],
       });
       expect(result.tokens[1]).toEqual({
         ledgerId: "ethereum/erc20/dai",
@@ -179,6 +182,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
         name: "Dai Stablecoin",
         balance: "500.0",
         fiatBalance: undefined,
+        categories: [],
       });
       expect(mockBalanceService.getBalanceForAccount).toHaveBeenCalledWith(
         mockAccount,

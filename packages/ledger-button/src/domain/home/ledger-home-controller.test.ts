@@ -47,6 +47,7 @@ function createContext(
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "usd",
+    isGeoBlocked: false,
     ...overrides,
   };
 }
@@ -163,6 +164,24 @@ describe("LedgerHomeController", () => {
       contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
 
       expect(host.requestUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe("showNetworkPicker", () => {
+    it.each<[BlockchainFamily, boolean]>([
+      ["ethereum", true],
+      ["solana", false],
+      ["xrp", false],
+    ])("for %s is %s", (family, expected) => {
+      core.getActiveFamily = vi.fn().mockReturnValue(family);
+
+      expect(controller.showNetworkPicker).toBe(expected);
+    });
+
+    it("is hidden when no family is active", () => {
+      core.getActiveFamily = vi.fn().mockReturnValue(undefined);
+
+      expect(controller.showNetworkPicker).toBe(false);
     });
   });
 

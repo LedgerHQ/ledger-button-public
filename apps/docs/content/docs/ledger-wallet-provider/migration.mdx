@@ -1,27 +1,23 @@
 ---
-title: Migration guide — 1.x → 2.0.0
+title: Migration guide — 1.x.x → 2.0.0
 category: how-to
 ---
 
-import { Callout, Steps } from "nextra/components";
+import { Steps } from "nextra/components";
 
 # Migration guide — 1.x.x → 2.0.0
 
 This page covers the breaking changes introduced in **2.0.0** and explains how to update your integration from 1.x.x.
 
-<Callout type="warning">
-  **2.0.0 is not yet released.** This guide documents the planned breaking
-  changes so you can prepare your integration in advance.
-</Callout>
-
 ## What changed
 
 ### You must now declare which blockchains you support
 
-In v1, the EVM provider was registered automatically when `initializeLedgerProvider` was called. Starting from **2.0.0**, the SDK ships no chain by default: you pass one factory per blockchain family you want to handle, and at least one is mandatory.
+In v1, the EVM provider was registered automatically when `initializeLedgerProvider` was called.
 
 In v2, the SDK ships no chain by default: you declare the blockchain families you want to handle by passing one factory per family to `initializeLedgerProvider`.
 The choice is yours: initialize the LedgerProvider with one or several family packages, for each blockchain you support. The SDK registers only the families that you opted for if they are enabled in your partner configuration.
+
 **Before (1.x.x and earlier)**
 
 ```ts
@@ -78,7 +74,7 @@ initializeLedgerProvider({
 
 ### Register any other families you support
 
-Solana (available in upcoming v2.0.0) is passed the same way as EVM.
+Solana is passed the same way as EVM.
 Add it as well if your dApp supports Solana:
 
 ```bash

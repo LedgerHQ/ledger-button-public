@@ -5,7 +5,7 @@ import {
 
 import { Device } from "../model/Device";
 
-export type ConnectionType = "bluetooth" | "usb" | "";
+export type ConnectionType = "bluetooth" | "usb" | "mock" | "";
 
 export interface DeviceManagementKitService {
   dmk: DeviceManagementKit;

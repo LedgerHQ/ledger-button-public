@@ -1,7 +1,7 @@
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 
 // Solana uses Ed25519 keypairs with a coin-type of 501. As per SLIP-0010 all
-// derivation-path indexes are promoted to hardened. Ledger Live derives Solana
+// derivation-path indexes are promoted to hardened. Ledger Wallet derives Solana
 // accounts on several schemes depending on the account derivation mode.
 const SOLANA_DERIVATION_MODE: Record<string, string> = {
   solanaMain: "44'/501'",

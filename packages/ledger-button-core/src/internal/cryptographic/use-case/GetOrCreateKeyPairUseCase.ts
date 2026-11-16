@@ -9,13 +9,13 @@ import { type Factory, inject, injectable } from "inversify";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import { cryptographicModuleTypes } from "../di/cryptographicModuleTypes";
 import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase";
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase";
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKeyUseCase";
 
 @injectable()
 export class GetOrCreateKeyPairUseCase {

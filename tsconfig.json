@@ -23,6 +23,9 @@
     },
     {
       "path": "./packages/ledger-wallet-provider-solana"
+    },
+    {
+      "path": "./packages/ledger-wallet-provider-xrp"
     }
   ]
 }

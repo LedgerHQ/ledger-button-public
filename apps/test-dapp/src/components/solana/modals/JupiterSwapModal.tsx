@@ -117,7 +117,7 @@ export function JupiterSwapModal({
   return (
     <div className="space-y-16">
       <div className="space-y-8">
-        <h4 className="body-4-semi-bold text-muted tracking-wider uppercase">
+        <h4 className="body-4-semi-bold text-muted uppercase">
           Quick presets
         </h4>
         <div className="grid grid-cols-1 gap-8">
@@ -203,7 +203,7 @@ export function JupiterSwapModal({
 
       {error && (
         <div className="border-error bg-error-transparent rounded-lg border p-12">
-          <code className="body-4 text-error font-mono">{error}</code>
+          <code className="body-4 text-error">{error}</code>
         </div>
       )}
 
