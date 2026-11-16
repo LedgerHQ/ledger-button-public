@@ -1,3 +1,14 @@
+## 1.0.4 (2026-11-16)
+
+### 🩹 Fixes
+
+- Upgrade the Solana signer kit to 1.16.0 and forward the full wire transaction to it, so delayed signing refreshes the blockhash on multi-signer transactions that no one has signed yet, and keeps it on transactions already signed by a co-signer. ([1dd9d400](https://github.com/LedgerHQ/ledger-button/commit/1dd9d400))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Pierre Aoun
+
 ## 1.0.3 (2026-11-02)
 
 ### 🩹 Fixes
