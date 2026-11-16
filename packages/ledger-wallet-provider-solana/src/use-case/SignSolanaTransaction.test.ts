@@ -113,7 +113,7 @@ describe("SignSolanaTransaction", () => {
     );
   });
 
-  it("forwards the compiled message bytes (not the wire transaction) to the device", async () => {
+  it("forwards the full wire transaction so the signer-kit sees existing signatures", async () => {
     executeDeviceAction.mockReturnValue({
       observable: of({
         status: DeviceActionStatus.Completed,
@@ -124,7 +124,7 @@ describe("SignSolanaTransaction", () => {
     await lastValueFrom(createUseCase().execute(params, createAccount()));
 
     const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
-    expect(deviceAction.input.transaction).toEqual(messageBytes);
+    expect(deviceAction.input.transaction).toEqual(transaction);
   });
 
   it("always forwards delayed-signing options and lets the signer-kit decide", async () => {
@@ -148,6 +148,7 @@ describe("SignSolanaTransaction", () => {
     );
 
     const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
+    expect(deviceAction.input.transaction).toEqual(coSigned);
     expect(deviceAction.input.delayed).toBe(true);
     expect(deviceAction.input.fetchBlockhash).toBeTypeOf("function");
   });
