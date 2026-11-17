@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { inject, injectable } from "inversify";
 
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -7,6 +6,14 @@ import { Config } from "@internal/config/model/config";
 import { LOG_LEVELS, type LogLevel } from "../model/constant";
 import { LogData } from "./LoggerPublisher";
 import { LoggerSubscriber } from "./LoggerSubscriber";
+
+const STYLE_BY_LEVEL: Record<LogLevel, string> = {
+  [LOG_LEVELS.debug]: "color: darkcyan",
+  [LOG_LEVELS.info]: "color: green",
+  [LOG_LEVELS.warn]: "color: darkorange",
+  [LOG_LEVELS.error]: "color: red",
+  [LOG_LEVELS.fatal]: "color: white; background: red",
+};
 
 @injectable()
 export class ConsoleLoggerSubscriber implements LoggerSubscriber {
@@ -18,22 +25,8 @@ export class ConsoleLoggerSubscriber implements LoggerSubscriber {
     return level <= this.config.logLevel;
   }
 
-  private formatMessage(level: LogLevel, message: string): string {
-    const colorByLevel = {
-      [LOG_LEVELS.debug]: chalk.cyan,
-      [LOG_LEVELS.info]: chalk.green,
-      [LOG_LEVELS.warn]: chalk.yellow,
-      [LOG_LEVELS.error]: chalk.red,
-      [LOG_LEVELS.fatal]: chalk.bgRed,
-    };
-
-    const color = colorByLevel[level];
-
-    if (!color) {
-      return chalk.white(message);
-    }
-
-    return color(message);
+  private formatMessage(level: LogLevel, message: string): [string, string] {
+    return [`%c${message}`, STYLE_BY_LEVEL[level]];
   }
 
   log(level: LogLevel, message: string, data: LogData): void | Promise<void> {
@@ -43,20 +36,20 @@ export class ConsoleLoggerSubscriber implements LoggerSubscriber {
 
     const tag = `[${data.tag}]`;
 
-    console.group(this.formatMessage(level, `${tag}: ${data.timestamp}`));
+    console.group(...this.formatMessage(level, `${tag}: ${data.timestamp}`));
     switch (level) {
       case LOG_LEVELS.debug:
-        console.debug(this.formatMessage(level, message), data.data);
+        console.debug(...this.formatMessage(level, message), data.data);
         break;
       case LOG_LEVELS.info:
-        console.info(this.formatMessage(level, message), data.data);
+        console.info(...this.formatMessage(level, message), data.data);
         break;
       case LOG_LEVELS.warn:
-        console.warn(this.formatMessage(level, message), data.data);
+        console.warn(...this.formatMessage(level, message), data.data);
         break;
       case LOG_LEVELS.error:
       case LOG_LEVELS.fatal:
-        console.error(this.formatMessage(level, message), data.data);
+        console.error(...this.formatMessage(level, message), data.data);
         break;
     }
     console.groupEnd();

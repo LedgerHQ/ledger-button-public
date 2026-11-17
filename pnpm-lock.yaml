@@ -950,9 +950,6 @@ importers:
       bignumber.js:
         specifier: 'catalog:'
         version: 9.3.1
-      chalk:
-        specifier: 'catalog:'
-        version: 5.6.2
       ethers:
         specifier: 'catalog:'
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
