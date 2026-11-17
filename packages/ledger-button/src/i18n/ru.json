@@ -1,7 +1,7 @@
 {
   "geoBlock": {
     "title": "Страна не обслуживается",
-    "description": "Устройство Ledger недоступно в этой локации.",
+    "description": "Ledger Wallet недоступно в этой локации.",
     "learnMore": "Подробнее"
   },
   "common": {
