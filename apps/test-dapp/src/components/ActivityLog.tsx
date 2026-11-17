@@ -33,7 +33,7 @@ const KIND_STYLES: Record<
   event: {
     tag: "accent",
     border: "border-l-accent",
-    icon: <Bolt size={16} className="text-accent" />,
+    icon: <Bolt size={16} />,
   },
   result: {
     tag: "success",
@@ -155,7 +155,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
                 <div className="flex items-center gap-8 mb-6">
                   {style.icon}
                   <Tag appearance={style.tag} size="sm" label={entry.label} />
-                  <span className="body-4 text-muted font-mono ml-auto">
+                  <span className="body-4 text-muted ml-auto">
                     {formatTime(entry.timestamp)}
                   </span>
                 </div>
@@ -163,7 +163,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
                   <div className="flex items-start gap-8">
                     <pre
                       className={cn(
-                        "body-4 font-mono break-all leading-relaxed whitespace-pre-wrap min-w-0 flex-1",
+                        "body-4 break-all whitespace-pre-wrap min-w-0 flex-1",
                         entry.kind === "error" ? "text-error" : "text-muted",
                       )}
                     >

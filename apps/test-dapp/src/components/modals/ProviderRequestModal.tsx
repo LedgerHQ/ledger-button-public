@@ -107,7 +107,7 @@ export function ProviderRequestModal({
         </label>
         <textarea
           ref={paramsRef}
-          className="border-muted body-4 bg-muted placeholder:text-muted focus:border-active w-full resize-y rounded-lg border px-12 py-8 font-mono text-base focus:outline-none"
+          className="border-muted body-4 bg-muted placeholder:text-muted focus:border-active w-full resize-y rounded-lg border px-12 py-8 text-base focus:outline-none"
           rows={3}
           placeholder="[]"
         />

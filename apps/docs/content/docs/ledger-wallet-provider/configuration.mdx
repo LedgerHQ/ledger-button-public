@@ -77,7 +77,7 @@ This page describes all available configuration options for `initializeLedgerPro
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
-  environment?: 'production' | 'trial';              // default: 'production'
+  environment?: 'production' | 'trial' | 'staging';    // default: 'production'
   blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options
@@ -138,10 +138,11 @@ Log verbosity. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debu
 
 ### `environment`
 
-Which Ledger services the SDK calls. Accepted values: `'production'`, `'trial'`. Default is `'production'`.
+Which Ledger services the SDK calls. Accepted values: `'production'`, `'trial'`, `'staging'`. Default is `'production'`.
 
 - `'production'` — wallet services, Clear Signing, and Transaction Check use your partner configuration. Pass the API key from Ledger's partner program.
 - `'trial'` — wallet services and Ledger Sync stay on production. Clear Signing and Transaction Check are authenticated with a trial API key.
+- `'staging'` — wallet services, the crypto assets service (CAL) and Ledger Sync point to Ledger's test infrastructure. Clear Signing and Transaction Check keep their default endpoints.
 
 #### Trial
 
@@ -158,6 +159,23 @@ initializeLedgerProvider({
   blockchainProviderFactories: [evmBlockchainProviderFactory],
 });
 ```
+
+#### Staging
+
+Set `environment` to `'staging'` to run against Ledger's pre-production services:
+
+```ts
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+  environment: "staging",
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
+});
+```
+
+<Callout type="warning">
+  Staging is a test environment. Use `'production'` for released applications.
+</Callout>
 
 ### `target`
 

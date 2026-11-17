@@ -1,3 +1,36 @@
+## 1.0.4 (2026-11-16)
+
+### 🩹 Fixes
+
+- Upgrade the Solana signer kit to 1.16.0 and forward the full wire transaction to it, so delayed signing refreshes the blockhash on multi-signer transactions that no one has signed yet, and keeps it on transactions already signed by a co-signer. ([1dd9d400](https://github.com/LedgerHQ/ledger-button/commit/1dd9d400))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Pierre Aoun
+
+## 1.0.3 (2026-11-02)
+
+### 🩹 Fixes
+
+- Upgrade the Solana signer kit to 1.15.0 to support Solana v1 transactions, with the Device Management Kit 1.11.0 and the context module 2.8.0 it requires ([8a92e7d2](https://github.com/LedgerHQ/ledger-button/commit/8a92e7d2))
+- Advertise v1 transactions in `supportedTransactionVersions` for `solana:signTransaction` and `solana:signAndSendTransaction`, so Wallet Standard dApps send them to the wallet ([984e5fb8](https://github.com/LedgerHQ/ledger-button/commit/984e5fb8))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Pierre Vautherin
+
+## 1.0.2 (2026-10-28)
+
+### 🩹 Fixes
+
+- Fix the EVM and Solana providers staying "busy" forever after a failed sign request is dismissed: closing the error screen now rejects the pending request with a user rejection instead of leaving it unsettled ([234f9fdb](https://github.com/LedgerHQ/ledger-button/commit/234f9fdb))
+
+### ❤️ Thank You
+
+- pdeville-ledger
+
 ## 1.0.1 (2026-10-05)
 
 ### 🩹 Fixes

@@ -130,6 +130,16 @@ describe("SolanaWalletProvider (connection)", () => {
         "solana:signAndSendTransaction",
       ]);
     });
+
+    it("advertises legacy, v0 and v1 transactions for signing", () => {
+      const { features } = createWallet();
+      expect(
+        features["solana:signTransaction"].supportedTransactionVersions,
+      ).toEqual(["legacy", 0, 1]);
+      expect(
+        features["solana:signAndSendTransaction"].supportedTransactionVersions,
+      ).toEqual(["legacy", 0, 1]);
+    });
   });
 
   describe("connect", () => {
@@ -525,6 +535,33 @@ describe("SolanaWalletProvider (connection)", () => {
       await expect(firstValueFrom(intent.status$)).resolves.toBe(errorStatus);
 
       globalThis.dispatchEvent(new Event("ledger-provider-close"));
+      await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
+    });
+
+    it("rejects the pending request when the UI finishes the intent after an error", async () => {
+      signUseCase.execute.mockReturnValue(
+        of({
+          signType: "transaction",
+          status: "error",
+          error: new Error("device disconnected"),
+        } as SignFlowStatus),
+      );
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const pending = wallet.features["solana:signTransaction"].signTransaction(
+        {
+          account: {} as never,
+          transaction,
+        },
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        finish: () => void;
+      };
+      intent.finish();
+
       await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
     });
 

@@ -3,6 +3,7 @@
   "name": "ldb-tools",
   "sourceRoot": "packages/ldb-tools",
   "projectType": "library",
+  "tags": ["scope:tooling"],
   "targets": {
     "run": {
       "executor": "nx:run-commands",

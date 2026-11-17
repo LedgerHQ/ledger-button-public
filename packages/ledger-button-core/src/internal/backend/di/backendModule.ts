@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultBackendService } from "../DefaultBackendService";
+import { DefaultBackendService } from "../service/DefaultBackendService";
 import { backendModuleTypes } from "./backendModuleTypes";
 
 type BackendModuleOptions = {

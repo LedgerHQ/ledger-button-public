@@ -1,7 +1,11 @@
 #!/usr/bin/env zx
 
 require("zx/globals");
-const { getPublicPackages } = require("./public-packages.cjs");
+const {
+  filterReleaseProjects,
+  loadReleaseProjects,
+  parseProjectSelector,
+} = require("./release-projects.cjs");
 const { resolveRcVersions } = require("./rc-versions.cjs");
 
 /**
@@ -9,13 +13,17 @@ const { resolveRcVersions } = require("./rc-versions.cjs");
  * X.Y.Z. Does not commit, tag, or write version plans: the caller decides
  * whether the result lands in git or only in a CI runner.
  * @param {string|number} number - The release candidate number (e.g. 0, 1, 2)
+ * @param {string | string[] | undefined} projects - Release projects to suffix. Empty means every release group.
  */
-async function bumpRc(number) {
+async function bumpRc(number, projects) {
   try {
-    console.log(chalk.blue("📦 Finding all public packages..."));
+    console.log(chalk.blue("📦 Finding release packages..."));
     console.log("");
 
-    const publicPackages = await getPublicPackages();
+    const publicPackages = filterReleaseProjects(
+      loadReleaseProjects(),
+      parseProjectSelector(projects),
+    );
 
     if (publicPackages.length === 0) {
       throw new Error("No public packages found");

@@ -13,12 +13,12 @@ import type { AccountGroup } from "@api/model/Account";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
+import { accountModuleTypes } from "../di/accountModuleTypes";
 import {
   accountMatchesQuery,
   groupAccountsByAddress,
   toAccountListItem,
-} from "../accountFiatUtils";
-import { accountModuleTypes } from "../di/accountModuleTypes";
+} from "../utils/accountFiatUtils";
 import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
 
 export type ObserveAccountGroupsOptions = {

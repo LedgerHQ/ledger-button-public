@@ -314,6 +314,7 @@ const RELEASABLE_PACKAGE_PATHS = [
   "packages/ledger-button-core/",
   "packages/ledger-wallet-provider-evm/",
   "packages/ledger-wallet-provider-solana/",
+  "packages/ledger-wallet-provider-xrp/",
 ];
 
 const VERSION_PLAN_PATH_PREFIX = ".nx/version-plans/";

@@ -68,6 +68,18 @@ Followed by a small description.
 
 Changelog are automatically generated based on the commit history.
 
+#### Release targeting
+
+`nx release version` can target one group or one package. The root relationship is `independent`, and both the `libraries` and `providers` groups are `independent`, so Core and the UI package can be versioned separately.
+
+`updateDependents` is `auto`: a bump patches dependents in the same release group only.
+
+- Releasing Solana versions Solana only. Core is a dependency of Solana, so it is left unchanged.
+- Releasing Core also patches the UI package, because it depends on Core and they share the `libraries` group. EVM and Solana stay unchanged; release those packages explicitly after a Core bump.
+- Providers keep `adjustSemverBumpsForZeroMajorVersion: false`, so a `premajor` on a `0.x` provider becomes `1.0.0-rc.0`.
+
+Publishing reads the same groups. Add a blockchain package to the `providers` group and it joins the default build, pack, and CI lists. The RC and snapshot workflows take an optional `projects` input (package name, unscoped name, or directory). Leave it empty to publish every release group; set it to one package to build, pack, and publish only that package. Nx still builds the dependencies that package needs.
+
 #### Commit message
 
 We use the standard [**Conventional Commits**](https://www.conventionalcommits.org/) specification.

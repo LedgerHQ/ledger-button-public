@@ -31,7 +31,7 @@ export type FloatingButtonPosition =
 export type FloatingButtonVariant = "circular" | "compact";
 
 const floatingButtonVariants = cva(
-  "text-on-interactive flex cursor-pointer items-center justify-center bg-black shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-[transform,box-shadow] duration-200 ease-in-out hover:shadow-[0_6px_16px_rgba(0,0,0,0.4)]",
+  "text-on-interactive flex cursor-pointer items-center justify-center bg-black shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-[transform,box-shadow] duration-200 hover:shadow-[0_6px_16px_rgba(0,0,0,0.4)]",
   {
     variants: {
       variant: {

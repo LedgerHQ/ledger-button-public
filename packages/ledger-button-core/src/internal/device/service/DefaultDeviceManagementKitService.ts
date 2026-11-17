@@ -22,7 +22,7 @@ import {
 import { type Factory, inject, injectable, optional } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-import { type DeviceModuleOptions, type MockServerConfig } from "@internal/diTypes";
+import { type DeviceModuleOptions, type MockServerConfig } from "@internal/di/diTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LogLevelKey } from "@internal/logger/model/constant";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";

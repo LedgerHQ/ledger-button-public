@@ -9,7 +9,7 @@ import {
 import type { Config } from "@internal/config/model/config";
 import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
 import type { CloudSyncData } from "../model/cloudSyncTypes";
 import { DefaultCloudSyncService } from "./DefaultCloudSyncService";

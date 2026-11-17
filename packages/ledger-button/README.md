@@ -185,7 +185,7 @@ Initializes the Ledger Wallet Provider and injects the UI components into the DO
   apiKey?: string;             // Your Ledger API key
   dAppIdentifier?: string;     // Your dApp identifier
   loggerLevel?: string;        // default: 'info'
-  environment?: 'production' | 'trial'; // default: 'production'
+  environment?: 'production' | 'trial' | 'staging'; // default: 'production'
   blockchainProviderFactories?: BlockchainProviderFactory[]; // Blockchain families to register
 
   // Ui options
@@ -217,6 +217,19 @@ initializeLedgerProvider({
   dAppIdentifier: "ledger-sandbox",
   apiKey: "your-trial-api-key",
   environment: "trial",
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
+});
+```
+
+#### Staging environment
+
+`'staging'` runs against Ledger's pre-production services: wallet services, the crypto assets service (CAL) and Ledger Sync use Ledger's test infrastructure. Clear Signing and Transaction Check keep their default endpoints. Staging is a test environment: use `"production"` for released applications.
+
+```javascript
+initializeLedgerProvider({
+  dAppIdentifier: "ledger-sandbox",
+  apiKey: "your-api-key",
+  environment: "staging",
   blockchainProviderFactories: [evmBlockchainProviderFactory],
 });
 ```

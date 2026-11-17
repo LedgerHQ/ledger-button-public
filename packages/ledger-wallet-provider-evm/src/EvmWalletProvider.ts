@@ -542,6 +542,9 @@ export class EvmWalletProvider extends EventTarget implements EIP1193Provider {
         status$: status$.asObservable(),
         retry: () => start(),
         finish: () => {
+          // Settle a still-pending request (e.g. error screen dismissed):
+          // the close listener is removed here, so it would never fire.
+          onClose();
           cleanup();
           status$.complete();
         },

@@ -3,8 +3,8 @@ import { Maybe } from "purify-ts";
 
 import type { Account } from "@api/model/Account";
 import { getActiveSelectedAccount } from "@api/model/ButtonCoreContext";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 
 import { accountModuleTypes } from "../di/accountModuleTypes";
 import type { AccountService } from "../service/AccountService";

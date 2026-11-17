@@ -369,7 +369,7 @@ export function SettingsDialog() {
           </div>
 
           <div className="space-y-10">
-            <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+            <h4 className="body-2-semi-bold text-muted uppercase">
               Transaction confirmation
             </h4>
             <p className="body-2 text-muted">
@@ -400,7 +400,7 @@ export function SettingsDialog() {
           </div>
 
           <div className="space-y-10">
-            <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+            <h4 className="body-2-semi-bold text-muted uppercase">
               Wallet Actions
             </h4>
             <div className="flex flex-wrap gap-8">
@@ -427,7 +427,7 @@ export function SettingsDialog() {
 
           {isSolana && (
             <div className="space-y-10">
-              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+              <h4 className="body-2-semi-bold text-muted uppercase">
                 Network
               </h4>
               <Select

@@ -3,7 +3,7 @@ import { ContainerModule } from "inversify";
 import { DecryptKeyPairUseCase } from "../use-case/DecryptKeyPairUseCase";
 import { EncryptKeyPairUseCase } from "../use-case/EncryptKeyPairUseCase";
 import { GenerateKeyPairUseCase } from "../use-case/GenerateKeyPairUseCase";
-import { GetEncryptionKeyUseCase } from "../use-case/GetEncryptionKey";
+import { GetEncryptionKeyUseCase } from "../use-case/GetEncryptionKeyUseCase";
 import { GetOrCreateKeyPairUseCase } from "../use-case/GetOrCreateKeyPairUseCase";
 import { cryptographicModuleTypes } from "./cryptographicModuleTypes";
 

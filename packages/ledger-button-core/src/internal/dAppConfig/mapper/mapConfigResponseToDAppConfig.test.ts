@@ -1,4 +1,4 @@
-import type { ConfigResponse } from "@internal/backend/types";
+import type { ConfigResponse } from "@internal/backend/model/types";
 
 import { mapConfigResponseToDAppConfig } from "./mapConfigResponseToDAppConfig";
 

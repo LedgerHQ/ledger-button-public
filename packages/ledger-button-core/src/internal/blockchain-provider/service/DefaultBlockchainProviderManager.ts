@@ -11,13 +11,13 @@ import type {
   BlockchainConfig,
   BlockchainNetwork,
 } from "@api/model/dappConfig/BlockchainConfig";
-import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { ContextService } from "@internal/context/service/ContextService";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 

@@ -1,4 +1,4 @@
-import { formatBalance } from "@internal/currency/currencyUtils";
+import { formatBalance } from "@internal/currency/utils/currencyUtils";
 
 export type AccountBalance = {
   nativeBalance: NativeBalance;

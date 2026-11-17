@@ -97,12 +97,12 @@ export class SignSolanaTransaction {
         const contextModule = this.buildContextModule.execute();
         const openAppConfig = createOpenAppConfig(this.blockchainConfig);
 
-        // Wallet Standard delivers a full wire transaction, but the Ledger
-        // Solana app signs the compiled message only. Strip the signature
-        // envelope so the device does not reject the request with `6a80`.
+        // Wallet Standard delivers a full wire transaction. It is forwarded as
+        // is: the signer-kit strips the signature envelope before the device
+        // signs, and reads the signature slots to decide whether a blockhash
+        // refresh is safe. An unsigned multi-signer transaction is refreshed;
+        // one already signed by a co-signer, or with a durable nonce, is not.
         const messageBytes = getSolanaMessageBytes(transaction);
-        // The signer-kit decides whether a refresh is safe. It skips
-        // co-signed transactions and durable-nonce lifetimes itself.
         let refreshedBlockhash: Uint8Array | undefined;
         const fetchBlockhash = async (): Promise<Uint8Array> => {
           const hash = await this.fetchLatestBlockhash(selectedAccount);
@@ -129,7 +129,7 @@ export class SignSolanaTransaction {
           input: {
             signType,
             derivationPath,
-            transaction: messageBytes,
+            transaction,
             expectedAddress: selectedAccount.freshAddress,
             openAppInput: openAppConfig,
             contextModule,

@@ -20,7 +20,7 @@ function CopyableValue({ label, value }: { label: string; value: string }) {
       <div className="flex items-start justify-between gap-8">
         <span
           data-testid={`connected-${label.toLowerCase().replace(/\s+/g, "-")}`}
-          className="body-2-semi-bold text-base font-mono break-all"
+          className="body-2-semi-bold text-base break-all"
         >
           {value}
         </span>
@@ -59,8 +59,8 @@ export function ConnectionStatus({
     return (
       <div className="border border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
-          <div className="size-10 rounded-full bg-warning-transparent animate-pulse" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <div className="size-10 rounded-full bg-warning-transparent" />
+          <span className="body-2-semi-bold text-muted uppercase">
             Status
           </span>
         </div>
@@ -85,7 +85,7 @@ export function ConnectionStatus({
       <div className="border border-dashed border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
           <div className="size-10 rounded-full bg-muted" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <span className="body-2-semi-bold text-muted uppercase">
             Status
           </span>
         </div>
@@ -115,7 +115,7 @@ export function ConnectionStatus({
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
           <div className="size-10 rounded-full bg-success-transparent" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <span className="body-2-semi-bold text-muted uppercase">
             Connected
           </span>
         </div>
@@ -137,7 +137,7 @@ export function ConnectionStatus({
           <span className="body-2-semi-bold text-base truncate">
             {selectedProvider.info.name}
           </span>
-          <span className="body-2 text-muted font-mono truncate">
+          <span className="body-2 text-muted truncate">
             {selectedProvider.info.rdns ||
               selectedProvider.info.uuid.slice(0, 12)}
           </span>

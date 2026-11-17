@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Account } from "@api/model/Account";
 import type { TransactionHistoryItem } from "@api/model/TransactionHistory";
-import type { ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/service/ContextService";
 import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 import type { TransactionHistoryResult } from "@internal/transaction-history/model/transactionHistoryTypes";
 import type { FetchTransactionHistoryUseCase } from "@internal/transaction-history/use-case/FetchTransactionHistoryUseCase";

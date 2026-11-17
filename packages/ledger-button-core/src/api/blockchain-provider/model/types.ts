@@ -11,7 +11,7 @@ import type { SignIntentType } from "@api/model/signing/SignIntentType";
  * Used by the manager to dispatch to the right provider implementation based on
  * the selected account / currency.
  */
-export type BlockchainFamily = "ethereum" | "solana";
+export type BlockchainFamily = "ethereum" | "solana" | "xrp";
 
 /**
  * Public, blackbox surface of a wallet provider.

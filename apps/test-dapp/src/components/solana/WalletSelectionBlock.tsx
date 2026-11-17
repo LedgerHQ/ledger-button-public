@@ -90,7 +90,7 @@ export function WalletSelectionBlock({
 
         {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
-            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            <h4 className="body-2-semi-bold text-muted uppercase">
               Detected Wallets ({uniqueWallets.length})
             </h4>
             <div className="space-y-10">
@@ -221,7 +221,7 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
         <div className="flex flex-col gap-2">
           <span className="body-2-semi-bold text-base">{wallet.name}</span>
           {isSelected && (
-            <span className="body-4 text-muted font-mono">
+            <span className="body-4 text-muted">
               {selectedAccount?.address.slice(0, 8)}…
             </span>
           )}

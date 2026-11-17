@@ -60,6 +60,11 @@ const availableCommands = [
         description:
           "snapshot dist-tag (e.g., develop, canary) - defaults to develop",
       },
+      {
+        name: "projects",
+        description:
+          "comma-separated release projects to snapshot (default: every release group)",
+      },
     ],
   },
   {
@@ -70,6 +75,11 @@ const availableCommands = [
       {
         name: "number",
         description: "release candidate number (e.g., 0, 1, 2)",
+      },
+      {
+        name: "projects",
+        description:
+          "comma-separated release projects to suffix (default: every release group)",
       },
     ],
   },
@@ -118,6 +128,11 @@ const availableCommands = [
         name: "distDir",
         description: "the output directory for packed files (default: dist)",
       },
+      {
+        name: "projects",
+        description:
+          "comma-separated release projects to pack (default: every release group)",
+      },
     ],
   },
   {
@@ -146,6 +161,7 @@ const {
   check,
   tag,
   number,
+  projects,
 } = argv;
 
 async function main() {
@@ -168,18 +184,18 @@ async function main() {
     case "bump-snapshot":
       console.log(
         chalk.green(
-          `🔖 (packages): Creating snapshot versions for all public packages with tag: ${tag}`,
+          `🔖 (packages): Creating snapshot versions for tag: ${tag}`,
         ),
       );
-      await bumpSnapshot(tag);
+      await bumpSnapshot(tag, projects);
       break;
     case "bump-rc":
       console.log(
         chalk.green(
-          `🔖 (packages): Setting release candidate rc.${number} for all public packages`,
+          `🔖 (packages): Setting release candidate rc.${number}`,
         ),
       );
-      await bumpRc(number);
+      await bumpRc(number, projects);
       break;
     case "create-release-pr":
       console.log(chalk.green("🔖 (packages): Creating release pull request"));
@@ -227,7 +243,7 @@ async function main() {
       break;
     case "pack":
       console.log(chalk.green("📦 (packages): Packing"));
-      await pack(packagesDir, distDir)
+      await pack(packagesDir, distDir, projects)
         .then(() => {
           console.log(chalk.green("✅ Pack succeeded"));
           process.exitCode = 0;

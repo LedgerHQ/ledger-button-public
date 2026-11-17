@@ -28,6 +28,7 @@ import "../domain/settings/developer/dapp-config/network-screen";
 import "../domain/settings/developer/dapp-config/add-network-screen";
 import "../domain/home-flow/home-flow";
 import "../domain/available-networks/available-networks";
+import "../domain/geo-block/geo-block-screen";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -411,6 +412,16 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
         title: "",
         canClose: true,
         showLogo: true,
+      },
+    },
+    geoBlock: {
+      name: "geoBlock",
+      component: "geo-block-screen",
+      canGoBack: false,
+      skipHistory: true,
+      toolbar: {
+        title: "",
+        canClose: false,
       },
     },
     notFound: {

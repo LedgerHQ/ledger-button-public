@@ -42,7 +42,7 @@ import type {
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
 import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
 import { type WalletActionType } from "../internal/backend/model/trackEvent";
-import type { JSONRPCRequest } from "../internal/backend/types";
+import type { JSONRPCRequest } from "../internal/backend/model/types";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
 import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
@@ -52,11 +52,11 @@ import { configModuleTypes } from "../internal/config/di/configModuleTypes";
 import { Config } from "../internal/config/model/config";
 import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes";
 import { type ConsentService } from "../internal/consent/service/ConsentService";
-import { ContextService } from "../internal/context/ContextService";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
-import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant";
+import { ContextService } from "../internal/context/service/ContextService";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes";
 import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/model/constant";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes";
 import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase";
@@ -65,27 +65,29 @@ import {
   type ConnectionType,
   type DeviceManagementKitService,
 } from "../internal/device/service/DeviceManagementKitService";
-import { ConnectDevice } from "../internal/device/use-case/ConnectDevice";
-import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice";
-import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices";
-import { SwitchDevice } from "../internal/device/use-case/SwitchDevice";
-import { createContainer } from "../internal/di";
-import { type ContainerOptions } from "../internal/diTypes";
+import { ConnectDeviceUseCase } from "../internal/device/use-case/ConnectDeviceUseCase";
+import { DisconnectDeviceUseCase } from "../internal/device/use-case/DisconnectDeviceUseCase";
+import { ListAvailableDevicesUseCase } from "../internal/device/use-case/ListAvailableDevicesUseCase";
+import { SwitchDeviceUseCase } from "../internal/device/use-case/SwitchDeviceUseCase";
+import { createContainer } from "../internal/di/di";
+import { type ContainerOptions } from "../internal/di/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
-import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
-import { TrackDeviceConnection } from "../internal/event-tracking/use-case/TrackDeviceConnection";
-import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
-import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
-import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
-import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened";
-import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet";
-import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding";
+import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case/TrackCurrencyChangedUseCase";
+import { TrackDeviceConnectionUseCase } from "../internal/event-tracking/use-case/TrackDeviceConnectionUseCase";
+import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
+import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
+import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncOpenedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncOpenedUseCase";
+import { TrackMobileRedirectLedgerWalletUseCase } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWalletUseCase";
+import { TrackOnboardingUseCase } from "../internal/event-tracking/use-case/TrackOnboardingUseCase";
 import {
   TrackViewAllTransactions,
   type TrackViewAllTransactionsParams,
 } from "../internal/event-tracking/use-case/TrackViewAllTransactions";
-import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick";
+import { TrackViewTransactionDetailsClickUseCase } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClickUseCase";
 import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction";
+import { geoBlockModuleTypes } from "../internal/geo-block/di/geoBlockModuleTypes";
+import type { CheckGeoBlockUseCase } from "../internal/geo-block/use-case/CheckGeoBlockUseCase";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService";
 import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
@@ -105,7 +107,7 @@ import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupp
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
 import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
-import { type StorageService } from "../internal/storage/StorageService";
+import { type StorageService } from "../internal/storage/service/StorageService";
 import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
@@ -178,15 +180,21 @@ export class LedgerButtonCore {
     // Providers are built once and handed to dApps, which keep the object they
     // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
     // orphan their reference, so it must stay out of `restoreContext`.
+    // They are announced even to a geo-blocked user: the block is shown when
+    // the user acts (the UI swaps every screen for the geo-block one), not as
+    // a modal nobody asked for.
     this.container
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .init(
-        coreFacade,
-        dappConfig,
-        this.opts.blockchainProviderFactories ?? [],
-      );
+      .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+
+    // Not awaited: the probe only flags the context and must never delay the
+    // announcement (it can take up to its 3s timeout). It is fail-open and
+    // never rejects.
+    void this.container
+      .get<CheckGeoBlockUseCase>(geoBlockModuleTypes.CheckGeoBlockUseCase)
+      .execute();
 
     await this.restoreContext();
 
@@ -233,8 +241,7 @@ export class LedgerButtonCore {
           .orDefault(1)
       : 1;
 
-    const welcomeScreenCompleted =
-      await storageService.isWelcomeScreenCompleted();
+    const welcomeScreenCompleted = await storageService.isWelcomeScreenCompleted();
 
     const userConsent = await storageService.getUserConsent();
 
@@ -267,6 +274,7 @@ export class LedgerButtonCore {
         hasDeveloperMode,
         isMobilePlatform,
         preferredFiatCurrency,
+        isGeoBlocked: this._contextService.getContext().isGeoBlocked,
       },
     });
 
@@ -339,7 +347,7 @@ export class LedgerButtonCore {
   private async releaseDeviceSafely(): Promise<void> {
     try {
       await this.container
-        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .get<DisconnectDeviceUseCase>(deviceModuleTypes.DisconnectDeviceUseCase)
         .execute();
     } catch (error) {
       this._logger.warn("Failed to release the device session", { error });
@@ -408,8 +416,8 @@ export class LedgerButtonCore {
       if (type !== "bluetooth" && type !== "usb") return;
 
       this.container
-        .get<TrackDeviceConnection>(
-          eventTrackingModuleTypes.TrackDeviceConnection,
+        .get<TrackDeviceConnectionUseCase>(
+          eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
         )
         .execute({ ...outcome, connectionType: type });
     };
@@ -417,13 +425,13 @@ export class LedgerButtonCore {
     // Tracked before connecting so failed / abandoned connections still count.
     trackConnection({ status: "selected" });
 
-    let device: Awaited<ReturnType<ConnectDevice["execute"]>>;
+    let device: Awaited<ReturnType<ConnectDeviceUseCase["execute"]>>;
     try {
       await this.waitForPendingDeviceCleanup();
       await this.releaseCurrentDeviceIfNeeded();
 
       device = await this.container
-        .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
+        .get<ConnectDeviceUseCase>(deviceModuleTypes.ConnectDeviceUseCase)
         .execute({ type });
     } catch (error) {
       trackConnection({ status: "failed", error });
@@ -431,7 +439,6 @@ export class LedgerButtonCore {
     }
 
     trackConnection({ status: "succeeded" });
-
     this._contextService.onEvent({
       type: "device_connected",
       device: device,
@@ -446,7 +453,7 @@ export class LedgerButtonCore {
     this.stopListeningToDevice();
 
     const result = await this.container
-      .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+      .get<DisconnectDeviceUseCase>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
 
     this._contextService.onEvent({
@@ -466,7 +473,7 @@ export class LedgerButtonCore {
   async switchDevice(type: ConnectionType) {
     this._logger.debug("Switching device", { type });
     return this.container
-      .get<SwitchDevice>(deviceModuleTypes.SwitchDeviceUseCase)
+      .get<SwitchDeviceUseCase>(deviceModuleTypes.SwitchDeviceUseCase)
       .execute({ type });
   }
 
@@ -529,9 +536,7 @@ export class LedgerButtonCore {
   }
 
   selectAccount(account: Account) {
-    const { family, chainId } = this.resolveFamilyAndChainId(
-      account.currencyId,
-    );
+    const { family, chainId } = this.resolveFamilyAndChainId(account.currencyId);
 
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -545,7 +550,7 @@ export class LedgerButtonCore {
     });
 
     this.container
-      .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
+      .get<TrackOnboardingUseCase>(eventTrackingModuleTypes.TrackOnboardingUseCase)
       .execute(account, family);
   }
 
@@ -584,9 +589,7 @@ export class LedgerButtonCore {
       )
       .describeCurrency(currencyId);
     return {
-      family: descriptor
-        .map((c) => c.family)
-        .orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
+      family: descriptor.map((c) => c.family).orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
       chainId: descriptor
         .chain((c) => {
           const parsed = Number(c.networkId);
@@ -607,7 +610,7 @@ export class LedgerButtonCore {
   async listAvailableDevices() {
     this._logger.debug("Listing available devices");
     return this.container
-      .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
+      .get<ListAvailableDevicesUseCase>(deviceModuleTypes.ListAvailableDevicesUseCase)
       .execute();
   }
 
@@ -785,8 +788,8 @@ export class LedgerButtonCore {
 
     if (!isOnboarded) {
       this.container
-        .get<TrackLedgerSyncOpened>(
-          eventTrackingModuleTypes.TrackLedgerSyncOpened,
+        .get<TrackLedgerSyncOpenedUseCase>(
+          eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase,
         )
         .execute();
     }
@@ -809,8 +812,8 @@ export class LedgerButtonCore {
 
         //TODO move inside context service onEvent
         await this.container
-          .get<TrackLedgerSyncActivated>(
-            eventTrackingModuleTypes.TrackLedgerSyncActivated,
+          .get<TrackLedgerSyncActivatedUseCase>(
+            eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase,
           )
           .execute();
       }),
@@ -889,11 +892,7 @@ export class LedgerButtonCore {
       .describeNetwork(String(chainId))
       .map((c) => c.currencyId)
       .extract();
-    this._contextService.onEvent({
-      type: "chain_changed",
-      chainId,
-      currencyId,
-    });
+    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
   }
 
   getChainId(): number {
@@ -918,16 +917,16 @@ export class LedgerButtonCore {
 
   async trackMobileRedirectLedgerWallet(): Promise<void> {
     await this.container
-      .get<TrackMobileRedirectLedgerWallet>(
-        eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
+      .get<TrackMobileRedirectLedgerWalletUseCase>(
+        eventTrackingModuleTypes.TrackMobileRedirectLedgerWalletUseCase,
       )
       .execute();
   }
 
   async trackFloatingButtonClick(): Promise<void> {
     await this.container
-      .get<TrackFloatingButtonClick>(
-        eventTrackingModuleTypes.TrackFloatingButtonClick,
+      .get<TrackFloatingButtonClickUseCase>(
+        eventTrackingModuleTypes.TrackFloatingButtonClickUseCase,
       )
       .execute();
   }
@@ -937,8 +936,8 @@ export class LedgerButtonCore {
     family: BlockchainFamily,
   ): Promise<void> {
     await this.container
-      .get<TrackViewTransactionDetailsClick>(
-        eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
+      .get<TrackViewTransactionDetailsClickUseCase>(
+        eventTrackingModuleTypes.TrackViewTransactionDetailsClickUseCase,
       )
       .execute(transactionHash, family);
   }
@@ -975,13 +974,13 @@ export class LedgerButtonCore {
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
     await this.container
-      .get<TrackLanguageChanged>(eventTrackingModuleTypes.TrackLanguageChanged)
+      .get<TrackLanguageChangedUseCase>(eventTrackingModuleTypes.TrackLanguageChangedUseCase)
       .execute(languageKey);
   }
 
   async trackCurrencyChanged(currencyCode: string): Promise<void> {
     await this.container
-      .get<TrackCurrencyChanged>(eventTrackingModuleTypes.TrackCurrencyChanged)
+      .get<TrackCurrencyChangedUseCase>(eventTrackingModuleTypes.TrackCurrencyChangedUseCase)
       .execute(currencyCode);
   }
 

@@ -20,6 +20,11 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "name": "@ledgerhq/ledger-wallet-provider-evm",
+  "nx": {
+    "tags": [
+      "scope:provider"
+    ]
+  },
   "peerDependencies": {
     "@ledgerhq/device-management-kit": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
@@ -32,7 +37,7 @@
   },
   "type": "module",
   "types": "./dist/index.d.ts",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/LedgerHQ/ledger-button-public.git"

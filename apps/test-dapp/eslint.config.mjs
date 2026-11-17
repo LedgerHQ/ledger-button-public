@@ -2,6 +2,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import nx from "@nx/eslint-plugin";
 
 import baseConfig from "../../eslint.config.mjs";
+import { lumenTailwind } from "../../tools/eslint/lumen.mjs";
 
 export default [
   ...baseConfig,
@@ -11,4 +12,8 @@ export default [
   {
     ignores: [".next/**/*"],
   },
+  ...lumenTailwind({
+    entryPoint: "src/app/global.css",
+    files: ["src/**/*.{ts,tsx}"],
+  }),
 ];
