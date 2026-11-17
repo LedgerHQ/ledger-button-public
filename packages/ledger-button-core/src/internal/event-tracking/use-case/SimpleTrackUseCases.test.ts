@@ -69,6 +69,7 @@ describe("Track use cases that send a single event", () => {
           loggerFactory,
           eventTrackingService,
           config,
+          contextService,
         );
         return { execute: () => useCase.execute("EUR") };
       },
@@ -80,6 +81,7 @@ describe("Track use cases that send a single event", () => {
           loggerFactory,
           eventTrackingService,
           config,
+          contextService,
         ),
     ],
     [
@@ -89,6 +91,7 @@ describe("Track use cases that send a single event", () => {
           loggerFactory,
           eventTrackingService,
           config,
+          contextService,
         );
         return { execute: () => useCase.execute("fr") };
       },
@@ -128,9 +131,43 @@ describe("Track use cases that send a single event", () => {
           loggerFactory,
           eventTrackingService,
           config,
+          contextService,
         ),
     ],
   ];
+
+  const withoutSession = ["TrackMobileRedirectLedgerWalletUseCase"];
+  const beforeLedgerSync = [
+    ...withoutSession,
+    "TrackConsentGivenUseCase",
+    "TrackLedgerSyncOpenedUseCase",
+  ];
+
+  it.each(cases.filter(([name]) => !withoutSession.includes(name)))(
+    "%s sends the session id",
+    async (_name, build) => {
+      await build().execute();
+
+      expect(eventTrackingService.trackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ session_id: "session-id" }),
+        }),
+      );
+    },
+  );
+
+  it.each(cases.filter(([name]) => !beforeLedgerSync.includes(name)))(
+    "%s sends the trust chain id as ledger_sync_user_id",
+    async (_name, build) => {
+      await build().execute();
+
+      expect(eventTrackingService.trackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ ledger_sync_user_id: "trust-chain" }),
+        }),
+      );
+    },
+  );
 
   it.each(cases)("%s sends one event for the dApp", async (_name, build) => {
     await build().execute();

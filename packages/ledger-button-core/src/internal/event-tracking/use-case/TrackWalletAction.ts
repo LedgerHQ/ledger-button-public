@@ -3,6 +3,8 @@ import { type Factory, inject, injectable } from "inversify";
 import { type WalletActionType } from "@internal/backend/model/trackEvent";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
@@ -21,6 +23,8 @@ export class TrackWalletAction {
     private readonly eventTrackingService: EventTrackingService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("TrackWalletAction UseCase");
   }
@@ -31,6 +35,7 @@ export class TrackWalletAction {
     const event = EventTrackingUtils.createWalletActionClickedEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: this.contextService.getContext().trustChainId,
       walletAction: walletAction,
     });
 
@@ -47,6 +52,7 @@ export class TrackWalletAction {
     const event = EventTrackingUtils.createWalletRedirectConfirmedEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: this.contextService.getContext().trustChainId,
       walletAction: walletAction,
     });
 
@@ -63,6 +69,7 @@ export class TrackWalletAction {
     const event = EventTrackingUtils.createWalletRedirectCancelledEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: this.contextService.getContext().trustChainId,
       walletAction: walletAction,
     });
 

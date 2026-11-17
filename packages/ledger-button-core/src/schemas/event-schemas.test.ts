@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ConsentGivenEventSchema,
+  ConsentRemovedEventSchema,
   DeviceConnectionFailedEventSchema,
   DeviceConnectionSelectedEventSchema,
   DeviceConnectionSucceededEventSchema,
+  FloatingButtonClickEventSchema,
   InvoicingTransactionSignedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
+  OpenSessionEventSchema,
   TransactionFlowCompletionEventSchema,
   ViewAllTransactionsClickedEventSchema,
   ViewAllTransactionsRedirectCancelledEventSchema,
@@ -426,6 +430,45 @@ describe("Event Schema Validation", () => {
         MobileRedirectLedgerWalletEventSchema.safeParse(invalidEvent);
       expect(result.success).toBe(false);
     });
+  });
+
+  describe("session and user identifiers", () => {
+    const base = {
+      event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+      transaction_dapp_id: "1Inch",
+      timestamp_ms: 1770980790515,
+      session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+    };
+
+    it.each([
+      ["consent_given", ConsentGivenEventSchema],
+      ["consent_removed", ConsentRemovedEventSchema],
+    ] as const)("%s requires a session_id", (eventType, schema) => {
+      expect(schema.safeParse({ ...base, event_type: eventType }).success).toBe(
+        true,
+      );
+
+      const { session_id: _sessionId, ...withoutSession } = base;
+      expect(
+        schema.safeParse({ ...withoutSession, event_type: eventType }).success,
+      ).toBe(false);
+    });
+
+    it.each([
+      ["open_session", OpenSessionEventSchema],
+      ["floating_button_clicked", FloatingButtonClickEventSchema],
+    ] as const)(
+      "%s accepts an optional ledger_sync_user_id",
+      (eventType, schema) => {
+        const event = { ...base, event_type: eventType };
+
+        expect(schema.safeParse(event).success).toBe(true);
+        expect(
+          schema.safeParse({ ...event, ledger_sync_user_id: "trust-chain" })
+            .success,
+        ).toBe(true);
+      },
+    );
   });
 
   describe("ViewTransactionDetailsClickedEventSchema", () => {

@@ -94,6 +94,7 @@ describe("DefaultEventTrackingService", () => {
         } as EventRequest["data"];
       case EventType.ConsentGiven:
       case EventType.ConsentRemoved:
+        return { ...base, session_id: VALID_UUID } as EventRequest["data"];
       case EventType.MobileRedirectLedgerWallet:
         return base as EventRequest["data"];
       case EventType.TransactionFlowInitialization:
