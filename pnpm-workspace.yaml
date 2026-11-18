@@ -26,18 +26,18 @@ catalog:
   "@ledgerhq/lumen-ui-react": ^0.1.66
   "@lit/context": 1.1.6
   "@next/eslint-plugin-next": 16.3.4
-  "@nx/devkit": 23.2.0
-  "@nx/eslint": 23.2.0
-  "@nx/eslint-plugin": 23.2.0
-  "@nx/jest": 23.2.0
-  "@nx/js": 23.2.0
-  "@nx/next": 23.2.0
-  "@nx/playwright": 23.2.0
-  "@nx/react": 23.2.0
-  "@nx/storybook": 23.2.0
-  "@nx/vite": 23.2.0
-  "@nx/vitest": 23.2.0
-  "@nx/web": 23.2.0
+  "@nx/devkit": 23.2.1
+  "@nx/eslint": 23.2.1
+  "@nx/eslint-plugin": 23.2.1
+  "@nx/jest": 23.2.1
+  "@nx/js": 23.2.1
+  "@nx/next": 23.2.1
+  "@nx/playwright": 23.2.1
+  "@nx/react": 23.2.1
+  "@nx/storybook": 23.2.1
+  "@nx/vite": 23.2.1
+  "@nx/vitest": 23.2.1
+  "@nx/web": 23.2.1
   "@playwright/test": 1.63.0
   "@solana-program/system": ^0.12.2
   "@solana/kit": ^6.9.0
