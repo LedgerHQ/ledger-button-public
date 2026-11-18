@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { MockInstance } from "vitest";
 
 import { Config } from "@internal/config/model/config";
@@ -82,11 +81,13 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(groupSpy).toHaveBeenCalledWith(
-          chalk.cyan("[test]: 2025-06-24T16:05:37.110Z"),
+          "%c[test]: 2025-06-24T16:05:37.110Z",
+          "color: darkcyan",
         );
 
         expect(debugSpy).toHaveBeenCalledWith(
-          chalk.cyan("test"),
+          "%ctest",
+          "color: darkcyan",
           expect.objectContaining({ test: "debug" }),
         );
 
@@ -125,21 +126,25 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(debugSpy).toHaveBeenCalledWith(
-          chalk.cyan("test debug"),
+          "%ctest debug",
+          "color: darkcyan",
           expect.objectContaining({ test: "debug" }),
         );
         expect(infoSpy).toHaveBeenCalledWith(
-          chalk.green("test info"),
+          "%ctest info",
+          "color: green",
           expect.objectContaining({ test: "info" }),
         );
         expect(warnSpy).toHaveBeenCalledWith(
-          chalk.yellow("test warn"),
+          "%ctest warn",
+          "color: darkorange",
           expect.objectContaining({ test: "warn" }),
         );
 
         expect(errorSpy).toHaveBeenNthCalledWith(
           1,
-          chalk.red("test error"),
+          "%ctest error",
+          "color: red",
           expect.objectContaining({
             test: "error",
             error: new Error("test error"),
@@ -148,7 +153,8 @@ describe("ConsoleLoggerSubscriber", () => {
 
         expect(errorSpy).toHaveBeenNthCalledWith(
           2,
-          chalk.bgRed("test fatal"),
+          "%ctest fatal",
+          "color: white; background: red",
           expect.objectContaining({ test: "fatal" }),
         );
       });
@@ -172,11 +178,13 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(groupSpy).toHaveBeenCalledWith(
-          chalk.green("[test]: 2025-06-24T16:05:37.110Z"),
+          "%c[test]: 2025-06-24T16:05:37.110Z",
+          "color: green",
         );
 
         expect(infoSpy).toHaveBeenCalledWith(
-          chalk.green("test info"),
+          "%ctest info",
+          "color: green",
           expect.objectContaining({ test: "info" }),
         );
 
@@ -239,11 +247,13 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(groupSpy).toHaveBeenCalledWith(
-          chalk.yellow("[test]: 2025-06-24T16:05:37.110Z"),
+          "%c[test]: 2025-06-24T16:05:37.110Z",
+          "color: darkorange",
         );
 
         expect(warnSpy).toHaveBeenCalledWith(
-          chalk.yellow("test warn"),
+          "%ctest warn",
+          "color: darkorange",
           expect.objectContaining({ test: "warn" }),
         );
 
@@ -309,11 +319,13 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(groupSpy).toHaveBeenCalledWith(
-          chalk.red("[test]: 2025-06-24T16:05:37.110Z"),
+          "%c[test]: 2025-06-24T16:05:37.110Z",
+          "color: red",
         );
 
         expect(errorSpy).toHaveBeenCalledWith(
-          chalk.red("test error"),
+          "%ctest error",
+          "color: red",
           expect.objectContaining({ test: "error" }),
         );
 
@@ -379,11 +391,13 @@ describe("ConsoleLoggerSubscriber", () => {
         });
 
         expect(groupSpy).toHaveBeenCalledWith(
-          chalk.bgRed("[test]: 2025-06-24T16:05:37.110Z"),
+          "%c[test]: 2025-06-24T16:05:37.110Z",
+          "color: white; background: red",
         );
 
         expect(errorSpy).toHaveBeenCalledWith(
-          chalk.bgRed("test fatal"),
+          "%ctest fatal",
+          "color: white; background: red",
           expect.objectContaining({ test: "fatal" }),
         );
 

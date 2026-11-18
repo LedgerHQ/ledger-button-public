@@ -7,7 +7,6 @@
     "@ledgerhq/device-transport-kit-web-ble": "catalog:",
     "@ledgerhq/device-transport-kit-web-hid": "catalog:",
     "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "catalog:",
-    "chalk": "catalog:",
     "ethers": "catalog:",
     "inversify": "catalog:",
     "pako": "catalog:",
