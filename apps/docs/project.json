@@ -6,7 +6,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "next build --webpack && pagefind --site .next/server/app --output-path public/_pagefind",
+        "command": "next build --webpack && node scripts/build-search-index.mjs",
         "cwd": "{projectRoot}"
       },
       "inputs": ["default", "^production", { "externalDependencies": ["next", "pagefind"] }],
