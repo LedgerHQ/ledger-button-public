@@ -1,8 +1,8 @@
 {
   "geoBlock": {
-    "title": "Location unavailable",
-    "description": "Ledger Wallet is not available in this location.",
-    "learnMore": "Learn more"
+    "title": "Local indisponível",
+    "description": "A carteira Ledger não está disponível neste local.",
+    "learnMore": "Saiba Mais"
   },
   "common": {
     "connect": "Conectar",

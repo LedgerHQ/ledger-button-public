@@ -1,8 +1,8 @@
 {
   "geoBlock": {
-    "title": "Location unavailable",
-    "description": "Ledger Wallet is not available in this location.",
-    "learnMore": "Learn more"
+    "title": "Konum kullanılamıyor",
+    "description": "Ledger Wallet bu konumda kullanılamıyor.",
+    "learnMore": "Daha fazla bilgi"
   },
   "common": {
     "connect": "Bağlan",

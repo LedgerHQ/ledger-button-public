@@ -1,8 +1,8 @@
 {
   "geoBlock": {
-    "title": "Location unavailable",
-    "description": "Ledger Wallet is not available in this location.",
-    "learnMore": "Learn more"
+    "title": "Страна не обслуживается",
+    "description": "Ledger Wallet недоступно в этой локации.",
+    "learnMore": "Подробнее"
   },
   "common": {
     "connect": "Подключить",

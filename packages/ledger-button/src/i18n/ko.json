@@ -1,8 +1,8 @@
 {
   "geoBlock": {
-    "title": "Location unavailable",
-    "description": "Ledger Wallet is not available in this location.",
-    "learnMore": "Learn more"
+    "title": "서비스 미지원 지역",
+    "description": "현재 위치에서는 Ledger Wallet을 이용할 수 없습니다.",
+    "learnMore": "자세히 알아보기"
   },
   "common": {
     "connect": "연결",
