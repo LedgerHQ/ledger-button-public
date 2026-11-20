@@ -35,6 +35,7 @@ import {
   type WalletRedirectCancelledEventData,
   type WalletRedirectConfirmedEventData,
 } from "@internal/backend/model/trackEvent";
+import type { ConnectionType } from "@internal/device/service/DeviceManagementKitService";
 import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
 
 import { generateUUID } from "./utils";
@@ -87,6 +88,13 @@ export function stringToSha256(string: string): string {
   const bytes = new TextEncoder().encode(string);
   const hexString = bufferToHexaString(bytes);
   return sha256(hexString);
+}
+
+/** Only user connections are tracked: the mock transport is a dev tool. */
+export function isTrackedConnectionType(
+  connectionType: ConnectionType,
+): connectionType is DeviceConnectionType {
+  return connectionType === "bluetooth" || connectionType === "usb";
 }
 
 export class EventTrackingUtils {

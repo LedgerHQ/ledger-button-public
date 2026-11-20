@@ -54,6 +54,15 @@ describe("TrackDeviceConnectionSelectedUseCase", () => {
     },
   );
 
+  it.each(["mock", ""] as const)(
+    "does not track the %s connection type",
+    async (connectionType) => {
+      await useCase.execute(connectionType);
+
+      expect(mockEventTrackingService.trackEvent).not.toHaveBeenCalled();
+    },
+  );
+
   it("sets ledger_sync_user_id from the trust chain id", async () => {
     vi.mocked(mockContextService.getContext).mockReturnValue({
       trustChainId: "trust-chain-id",

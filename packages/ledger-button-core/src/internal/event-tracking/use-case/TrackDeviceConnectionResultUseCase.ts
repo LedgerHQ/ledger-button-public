@@ -9,6 +9,7 @@ import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { type ContextService } from "@internal/context/service/ContextService";
+import type { ConnectionType } from "@internal/device/service/DeviceManagementKitService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
@@ -18,15 +19,17 @@ import { categorizeError } from "../utils/ErrorTrackingUtils";
 import {
   type DeviceConnectionTracking,
   EventTrackingUtils,
+  isTrackedConnectionType,
 } from "../utils/EventTrackingUtils";
 
 export type DeviceConnectionResult =
-  | { status: "succeeded"; connectionType: DeviceConnectionType }
-  | { status: "failed"; connectionType: DeviceConnectionType; error: unknown };
+  | { status: "succeeded"; connectionType: ConnectionType }
+  | { status: "failed"; connectionType: ConnectionType; error: unknown };
 
 /**
  * Tracks the result of a device connection attempt:
- * `device_connection_succeeded` or `device_connection_failed`.
+ * `device_connection_succeeded` or `device_connection_failed`. The mock
+ * transport is not tracked.
  */
 @injectable()
 export class TrackDeviceConnectionResultUseCase {
@@ -46,11 +49,16 @@ export class TrackDeviceConnectionResultUseCase {
   }
 
   async execute(result: DeviceConnectionResult): Promise<void> {
+    const { connectionType } = result;
+    if (!isTrackedConnectionType(connectionType)) {
+      return;
+    }
+
     const event = EventTrackingUtils.createDeviceConnectionEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: this.eventTrackingService.getSessionId(),
       trustChainId: this.contextService.getContext().trustChainId,
-      ...this.toTracking(result),
+      ...this.toTracking(result, connectionType),
     });
 
     this.logger.debug("Tracking device connection result event", { event });
@@ -58,9 +66,12 @@ export class TrackDeviceConnectionResultUseCase {
     await this.eventTrackingService.trackEvent(event);
   }
 
-  private toTracking(result: DeviceConnectionResult): DeviceConnectionTracking {
+  private toTracking(
+    result: DeviceConnectionResult,
+    connectionType: DeviceConnectionType,
+  ): DeviceConnectionTracking {
     if (result.status !== "failed") {
-      return result;
+      return { status: "succeeded", connectionType };
     }
 
     const error =
@@ -70,7 +81,7 @@ export class TrackDeviceConnectionResultUseCase {
 
     return {
       status: "failed",
-      connectionType: result.connectionType,
+      connectionType,
       errorType: toErrorType(error),
       errorCategory: toErrorCategory(error),
     };

@@ -179,35 +179,25 @@ export class SelectDeviceController implements ReactiveController {
       return;
     }
 
-    // The mock transport is a dev tool, not a user connection.
-    const trackedConnectionType =
-      detail.connectionType === "mock" ? undefined : detail.connectionType;
-
     // Tracked before connecting so failed / abandoned connections still count.
-    if (trackedConnectionType) {
-      void this.core.trackDeviceConnectionSelected(trackedConnectionType);
-    }
+    void this.core.trackDeviceConnectionSelected(detail.connectionType);
 
     try {
       await this.core.connectToDevice(detail.connectionType);
     } catch (error) {
-      if (trackedConnectionType) {
-        void this.core.trackDeviceConnectionResult({
-          status: "failed",
-          connectionType: trackedConnectionType,
-          error,
-        });
-      }
+      void this.core.trackDeviceConnectionResult({
+        status: "failed",
+        connectionType: detail.connectionType,
+        error,
+      });
       console.error("Failed to connect to device", error);
       this.mapErrors(error);
       return;
     }
 
-    if (trackedConnectionType) {
-      void this.core.trackDeviceConnectionResult({
-        status: "succeeded",
-        connectionType: trackedConnectionType,
-      });
-    }
+    void this.core.trackDeviceConnectionResult({
+      status: "succeeded",
+      connectionType: detail.connectionType,
+    });
   }
 }

@@ -166,16 +166,5 @@ describe("SelectDeviceController", () => {
         error,
       });
     });
-
-    it("does not track the mock transport", async () => {
-      await controller.connectToDevice({
-        title: "Mock",
-        connectionType: "mock",
-        timestamp: 1,
-      });
-
-      expect(core.trackDeviceConnectionSelected).not.toHaveBeenCalled();
-      expect(core.trackDeviceConnectionResult).not.toHaveBeenCalled();
-    });
   });
 });

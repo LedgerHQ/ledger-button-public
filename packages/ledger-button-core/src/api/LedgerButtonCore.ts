@@ -41,10 +41,7 @@ import type {
 } from "../internal/account/use-case/observeAccountGroupsUseCase";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
 import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
-import {
-  type DeviceConnectionType,
-  type WalletActionType,
-} from "../internal/backend/model/trackEvent";
+import { type WalletActionType } from "../internal/backend/model/trackEvent";
 import type { JSONRPCRequest } from "../internal/backend/model/types";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
 import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
@@ -955,7 +952,7 @@ export class LedgerButtonCore {
   }
 
   async trackDeviceConnectionSelected(
-    connectionType: DeviceConnectionType,
+    connectionType: ConnectionType,
   ): Promise<void> {
     await this.container
       .get<TrackDeviceConnectionSelectedUseCase>(

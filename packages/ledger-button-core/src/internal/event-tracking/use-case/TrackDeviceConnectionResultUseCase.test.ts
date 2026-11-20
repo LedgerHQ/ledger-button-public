@@ -54,6 +54,16 @@ describe("TrackDeviceConnectionResultUseCase", () => {
     });
   });
 
+  it("does not track the mock transport", async () => {
+    await useCase.execute({
+      status: "failed",
+      connectionType: "mock",
+      error: new Error("boom"),
+    });
+
+    expect(mockEventTrackingService.trackEvent).not.toHaveBeenCalled();
+  });
+
   it("sets ledger_sync_user_id from the trust chain id", async () => {
     vi.mocked(mockContextService.getContext).mockReturnValue({
       trustChainId: "trust-chain-id",
