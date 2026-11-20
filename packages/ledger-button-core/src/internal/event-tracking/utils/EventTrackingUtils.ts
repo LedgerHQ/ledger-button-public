@@ -7,7 +7,6 @@ import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
   type CurrencyChangedEventData,
-  type DeviceConnectionErrorCategory,
   type DeviceConnectionFailedEventData,
   type DeviceConnectionSelectedEventData,
   type DeviceConnectionSucceededEventData,
@@ -69,8 +68,7 @@ export type DeviceConnectionTracking =
   | {
       status: "failed";
       connectionType: DeviceConnectionType;
-      errorType: string;
-      errorCategory: DeviceConnectionErrorCategory;
+      failureReason: string;
     };
 
 const DEVICE_CONNECTION_EVENT_TYPES = {
@@ -169,8 +167,7 @@ export class EventTrackingUtils {
         ? {
             ...base,
             event_type: EventType.DeviceConnectionFailed,
-            error_type: params.errorType,
-            error_category: params.errorCategory,
+            failure_reason: params.failureReason,
           }
         : {
             ...base,

@@ -110,8 +110,7 @@ export const DeviceConnectionSucceededEventSchema =
 export const DeviceConnectionFailedEventSchema =
   DeviceConnectionBaseEventDataSchema.extend({
     event_type: z.literal("device_connection_failed"),
-    error_type: z.string().min(1),
-    error_category: z.enum(["device", "ledgersync"]),
+    failure_reason: z.string().min(1),
   }).strict();
 
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({

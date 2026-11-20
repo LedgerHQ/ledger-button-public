@@ -209,8 +209,7 @@ describe("EventTrackingUtils", () => {
           trustChainId: "trust-chain-id",
           status: "failed",
           connectionType: "usb",
-          errorType: "DeviceNotOnboardedError",
-          errorCategory: "device",
+          failureReason: "DeviceNotOnboardedError",
         });
 
         const result = EventTrackingUtils.validateEvent(event);
@@ -222,8 +221,7 @@ describe("EventTrackingUtils", () => {
           session_id: sessionId,
           ledger_sync_user_id: "trust-chain-id",
           connection_type: "usb",
-          error_type: "DeviceNotOnboardedError",
-          error_category: "device",
+          failure_reason: "DeviceNotOnboardedError",
         });
       });
 

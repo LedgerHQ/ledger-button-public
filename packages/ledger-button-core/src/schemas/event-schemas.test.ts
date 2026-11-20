@@ -355,7 +355,7 @@ describe("Event Schema Validation", () => {
     it("should reject failure fields", () => {
       const result = DeviceConnectionSucceededEventSchema.safeParse({
         ...validEvent,
-        error_type: "DeviceConnectionError",
+        failure_reason: "DeviceConnectionError",
       });
       expect(result.success).toBe(false);
     });
@@ -369,39 +369,22 @@ describe("Event Schema Validation", () => {
       event_type: "device_connection_failed",
       session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
       connection_type: "bluetooth",
-      error_type: "DeviceDisconnectedError",
-      error_category: "device",
+      failure_reason: "DeviceDisconnectedError",
     };
 
-    it.each(["device", "ledgersync"])(
-      "should validate a %s failure",
-      (errorCategory) => {
-        const result = DeviceConnectionFailedEventSchema.safeParse({
-          ...validEvent,
-          error_category: errorCategory,
-        });
-        expect(result.success).toBe(true);
-      },
-    );
-
-    it("should reject an unknown error_category", () => {
-      const result = DeviceConnectionFailedEventSchema.safeParse({
-        ...validEvent,
-        error_category: "transaction",
-      });
-      expect(result.success).toBe(false);
+    it("should validate a failed event", () => {
+      expect(
+        DeviceConnectionFailedEventSchema.safeParse(validEvent).success,
+      ).toBe(true);
     });
 
-    it.each(["error_type", "error_category"])(
-      "should reject a missing %s",
-      (field) => {
-        const invalidEvent: Record<string, unknown> = { ...validEvent };
-        delete invalidEvent[field];
-        expect(
-          DeviceConnectionFailedEventSchema.safeParse(invalidEvent).success,
-        ).toBe(false);
-      },
-    );
+    it("should reject a missing failure_reason", () => {
+      const invalidEvent: Record<string, unknown> = { ...validEvent };
+      delete invalidEvent.failure_reason;
+      expect(
+        DeviceConnectionFailedEventSchema.safeParse(invalidEvent).success,
+      ).toBe(false);
+    });
   });
 
   describe("MobileRedirectLedgerWalletEventSchema", () => {

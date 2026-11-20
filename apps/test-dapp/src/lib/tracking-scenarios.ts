@@ -124,8 +124,7 @@ const deviceConnectionFailed = (ctx: ScenarioContext): EventRequest => ({
     event_type: "device_connection_failed",
     session_id: ctx.sessionId,
     connection_type: "bluetooth",
-    error_type: "DeviceDisconnectedError",
-    error_category: "device",
+    failure_reason: "DeviceDisconnectedError",
   },
 });
 

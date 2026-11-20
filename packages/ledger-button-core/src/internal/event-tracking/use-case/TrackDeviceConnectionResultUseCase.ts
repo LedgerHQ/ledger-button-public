@@ -1,10 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import { DeviceConnectionError } from "@api/errors/DeviceFlowErrors";
-import type {
-  DeviceConnectionErrorCategory,
-  DeviceConnectionType,
-} from "@internal/backend/model/trackEvent";
+import type { DeviceConnectionType } from "@internal/backend/model/trackEvent";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
@@ -15,7 +12,6 @@ import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { categorizeError } from "../utils/ErrorTrackingUtils";
 import {
   type DeviceConnectionTracking,
   EventTrackingUtils,
@@ -81,21 +77,15 @@ export class TrackDeviceConnectionResultUseCase {
     return {
       status: "failed",
       connectionType,
-      errorType: toErrorType(error),
-      errorCategory: toErrorCategory(error),
+      failureReason: toFailureReason(error),
     };
   }
 }
 
-function toErrorType(error: Error): string {
+function toFailureReason(error: Error): string {
   if (error instanceof DeviceConnectionError && error.context?.type) {
     return error.context.type;
   }
 
   return error.name || "Error";
-}
-
-/** A connection failure is a device failure unless it comes from Ledger Sync. */
-function toErrorCategory(error: Error): DeviceConnectionErrorCategory {
-  return categorizeError(error) === "ledgersync" ? "ledgersync" : "device";
 }

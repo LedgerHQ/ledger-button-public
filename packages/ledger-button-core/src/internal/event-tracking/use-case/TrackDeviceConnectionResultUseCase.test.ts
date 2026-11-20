@@ -4,7 +4,6 @@ import { DeviceDisconnectedError } from "@api/errors/DeviceErrors";
 import { DeviceConnectionError } from "@api/errors/DeviceFlowErrors";
 import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/service/ContextService";
-import { LedgerSyncConnectionFailedError } from "@internal/ledgersync/model/errors";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
@@ -76,7 +75,7 @@ describe("TrackDeviceConnectionResultUseCase", () => {
     });
   });
 
-  it("tracks a device failure with its error type", async () => {
+  it("tracks a failure with the error name as failure_reason", async () => {
     await useCase.execute({
       status: "failed",
       connectionType: "bluetooth",
@@ -86,8 +85,7 @@ describe("TrackDeviceConnectionResultUseCase", () => {
     expect(trackedData()).toMatchObject({
       event_type: "device_connection_failed",
       connection_type: "bluetooth",
-      error_type: "DeviceDisconnectedError",
-      error_category: "device",
+      failure_reason: "DeviceDisconnectedError",
     });
   });
 
@@ -101,33 +99,17 @@ describe("TrackDeviceConnectionResultUseCase", () => {
     });
 
     expect(trackedData()).toMatchObject({
-      error_type: "no-accessible-device",
-      error_category: "device",
+      failure_reason: "no-accessible-device",
     });
   });
 
-  it("categorizes a Ledger Sync failure as ledgersync", async () => {
+  it("falls back to Error for a non-Error value", async () => {
     await useCase.execute({
       status: "failed",
       connectionType: "usb",
-      error: new LedgerSyncConnectionFailedError("sync failed"),
+      error: "boom",
     });
 
-    expect(trackedData()).toMatchObject({
-      error_type: "LedgerSyncConnectionFailedError",
-      error_category: "ledgersync",
-    });
-  });
-
-  it.each([
-    ["an unmapped error", new TypeError("boom"), "TypeError"],
-    ["a non-Error value", "boom", "Error"],
-  ])("falls back to the device category for %s", async (_, error, type) => {
-    await useCase.execute({ status: "failed", connectionType: "usb", error });
-
-    expect(trackedData()).toMatchObject({
-      error_type: type,
-      error_category: "device",
-    });
+    expect(trackedData()).toMatchObject({ failure_reason: "Error" });
   });
 });

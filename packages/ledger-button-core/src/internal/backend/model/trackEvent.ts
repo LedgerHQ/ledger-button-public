@@ -65,8 +65,6 @@ export type OpenLedgerSyncEventData = BaseEventData & {
 
 export type DeviceConnectionType = "bluetooth" | "usb";
 
-export type DeviceConnectionErrorCategory = "device" | "ledgersync";
-
 type DeviceConnectionBaseEventData = BaseEventData & {
   session_id: string;
   ledger_sync_user_id?: string;
@@ -85,8 +83,7 @@ export type DeviceConnectionSucceededEventData =
 
 export type DeviceConnectionFailedEventData = DeviceConnectionBaseEventData & {
   event_type: "device_connection_failed";
-  error_type: string;
-  error_category: DeviceConnectionErrorCategory;
+  failure_reason: string;
 };
 
 export type LedgerSyncActivatedEventData = BaseEventData & {
