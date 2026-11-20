@@ -12,7 +12,7 @@ import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
 import type { EventTrackingService } from "../service/EventTrackingService";
 import {
   EventTrackingUtils,
-  isTrackedConnectionType,
+  isDeviceMockServer,
 } from "../utils/EventTrackingUtils";
 
 @injectable()
@@ -32,8 +32,8 @@ export class TrackDeviceConnectionSelectedUseCase {
     this.logger = loggerFactory("TrackDeviceConnectionSelected UseCase");
   }
 
-  async execute(connectionType: ConnectionType): Promise<void> {
-    if (!isTrackedConnectionType(connectionType)) {
+  async execute(connectionType: Exclude<ConnectionType, "">): Promise<void> {
+    if (isDeviceMockServer(connectionType)) {
       return;
     }
 

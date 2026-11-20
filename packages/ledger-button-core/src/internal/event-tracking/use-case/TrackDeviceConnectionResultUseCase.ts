@@ -19,12 +19,16 @@ import { categorizeError } from "../utils/ErrorTrackingUtils";
 import {
   type DeviceConnectionTracking,
   EventTrackingUtils,
-  isTrackedConnectionType,
+  isDeviceMockServer,
 } from "../utils/EventTrackingUtils";
 
 export type DeviceConnectionResult =
-  | { status: "succeeded"; connectionType: ConnectionType }
-  | { status: "failed"; connectionType: ConnectionType; error: unknown };
+  | { status: "succeeded"; connectionType: Exclude<ConnectionType, ""> }
+  | {
+      status: "failed";
+      connectionType: Exclude<ConnectionType, "">;
+      error: unknown;
+    };
 
 @injectable()
 export class TrackDeviceConnectionResultUseCase {
@@ -45,7 +49,7 @@ export class TrackDeviceConnectionResultUseCase {
 
   async execute(result: DeviceConnectionResult): Promise<void> {
     const { connectionType } = result;
-    if (!isTrackedConnectionType(connectionType)) {
+    if (isDeviceMockServer(connectionType)) {
       return;
     }
 

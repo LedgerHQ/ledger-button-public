@@ -90,11 +90,11 @@ export function stringToSha256(string: string): string {
   return sha256(hexString);
 }
 
-/** Only user connections are tracked: the mock transport is a dev tool. */
-export function isTrackedConnectionType(
+/** The mock transport is a dev tool, not a user connection: it is not tracked. */
+export function isDeviceMockServer(
   connectionType: ConnectionType,
-): connectionType is DeviceConnectionType {
-  return connectionType !== "mock" && connectionType !== "";
+): connectionType is "mock" {
+  return connectionType === "mock";
 }
 
 export class EventTrackingUtils {

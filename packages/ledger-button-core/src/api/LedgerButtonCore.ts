@@ -952,7 +952,7 @@ export class LedgerButtonCore {
   }
 
   async trackDeviceConnectionSelected(
-    connectionType: ConnectionType,
+    connectionType: Exclude<ConnectionType, "">,
   ): Promise<void> {
     await this.container
       .get<TrackDeviceConnectionSelectedUseCase>(
