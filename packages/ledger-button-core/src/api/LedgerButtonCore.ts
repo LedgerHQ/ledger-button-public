@@ -77,7 +77,7 @@ import { type ContainerOptions } from "../internal/di/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case/TrackCurrencyChangedUseCase";
 import {
-  type DeviceConnectionOutcome,
+  type DeviceConnectionResult,
   TrackDeviceConnectionResultUseCase,
 } from "../internal/event-tracking/use-case/TrackDeviceConnectionResultUseCase";
 import { TrackDeviceConnectionSelectedUseCase } from "../internal/event-tracking/use-case/TrackDeviceConnectionSelectedUseCase";
@@ -965,13 +965,13 @@ export class LedgerButtonCore {
   }
 
   async trackDeviceConnectionResult(
-    outcome: DeviceConnectionOutcome,
+    result: DeviceConnectionResult,
   ): Promise<void> {
     await this.container
       .get<TrackDeviceConnectionResultUseCase>(
         eventTrackingModuleTypes.TrackDeviceConnectionResultUseCase,
       )
-      .execute(outcome);
+      .execute(result);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
