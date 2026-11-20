@@ -94,7 +94,7 @@ export function stringToSha256(string: string): string {
 export function isTrackedConnectionType(
   connectionType: ConnectionType,
 ): connectionType is DeviceConnectionType {
-  return connectionType === "bluetooth" || connectionType === "usb";
+  return connectionType !== "mock" && connectionType !== "";
 }
 
 export class EventTrackingUtils {

@@ -15,11 +15,6 @@ import {
   isTrackedConnectionType,
 } from "../utils/EventTrackingUtils";
 
-/**
- * Tracks `device_connection_selected`, before the connection attempt, so that
- * failed and abandoned connections are still counted. The mock transport is
- * not tracked.
- */
 @injectable()
 export class TrackDeviceConnectionSelectedUseCase {
   private readonly logger: LoggerPublisher;

@@ -179,7 +179,6 @@ export class SelectDeviceController implements ReactiveController {
       return;
     }
 
-    // Tracked before connecting so failed / abandoned connections still count.
     void this.core.trackDeviceConnectionSelected(detail.connectionType);
 
     try {

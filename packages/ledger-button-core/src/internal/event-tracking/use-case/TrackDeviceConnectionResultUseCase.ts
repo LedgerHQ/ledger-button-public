@@ -26,11 +26,6 @@ export type DeviceConnectionResult =
   | { status: "succeeded"; connectionType: ConnectionType }
   | { status: "failed"; connectionType: ConnectionType; error: unknown };
 
-/**
- * Tracks the result of a device connection attempt:
- * `device_connection_succeeded` or `device_connection_failed`. The mock
- * transport is not tracked.
- */
 @injectable()
 export class TrackDeviceConnectionResultUseCase {
   private readonly logger: LoggerPublisher;
@@ -88,11 +83,6 @@ export class TrackDeviceConnectionResultUseCase {
   }
 }
 
-/**
- * The error name, or the connection error type (e.g. `no-accessible-device`
- * when the user dismisses the browser device picker) for a
- * `DeviceConnectionError`.
- */
 function toErrorType(error: Error): string {
   if (error instanceof DeviceConnectionError && error.context?.type) {
     return error.context.type;
