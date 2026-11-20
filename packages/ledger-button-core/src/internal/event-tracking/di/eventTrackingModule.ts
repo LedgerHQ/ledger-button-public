@@ -6,7 +6,8 @@ import { StubEventTrackingService } from "../service/StubEventTrackingService";
 import { TrackConsentGivenUseCase } from "../use-case/TrackConsentGivenUseCase";
 import { TrackConsentRemovedUseCase } from "../use-case/TrackConsentRemovedUseCase";
 import { TrackCurrencyChangedUseCase } from "../use-case/TrackCurrencyChangedUseCase";
-import { TrackDeviceConnectionUseCase } from "../use-case/TrackDeviceConnectionUseCase";
+import { TrackDeviceConnectionResultUseCase } from "../use-case/TrackDeviceConnectionResultUseCase";
+import { TrackDeviceConnectionSelectedUseCase } from "../use-case/TrackDeviceConnectionSelectedUseCase";
 import { TrackFloatingButtonClickUseCase } from "../use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../use-case/TrackLedgerSyncActivatedUseCase";
@@ -77,9 +78,13 @@ export const eventTrackingModuleFactory = ({
       eventTrackingModuleTypes.TrackTransactionCompletedUseCase,
     ).to(TrackTransactionCompletedUseCase);
 
-    bind<TrackDeviceConnectionUseCase>(
-      eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
-    ).to(TrackDeviceConnectionUseCase);
+    bind<TrackDeviceConnectionSelectedUseCase>(
+      eventTrackingModuleTypes.TrackDeviceConnectionSelectedUseCase,
+    ).to(TrackDeviceConnectionSelectedUseCase);
+
+    bind<TrackDeviceConnectionResultUseCase>(
+      eventTrackingModuleTypes.TrackDeviceConnectionResultUseCase,
+    ).to(TrackDeviceConnectionResultUseCase);
 
     bind<TrackLedgerSyncOpenedUseCase>(
       eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase,

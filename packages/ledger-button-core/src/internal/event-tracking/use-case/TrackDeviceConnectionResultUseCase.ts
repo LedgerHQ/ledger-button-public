@@ -20,15 +20,15 @@ import {
 } from "../utils/EventTrackingUtils";
 
 export type DeviceConnectionOutcome =
-  | { status: "selected" | "succeeded"; connectionType: DeviceConnectionType }
+  | { status: "succeeded"; connectionType: DeviceConnectionType }
   | { status: "failed"; connectionType: DeviceConnectionType; error: unknown };
 
 /**
- * Tracks the device connection funnel: `device_connection_selected` before
- * the attempt, then `device_connection_succeeded` or `device_connection_failed`.
+ * Tracks the outcome of a device connection attempt:
+ * `device_connection_succeeded` or `device_connection_failed`.
  */
 @injectable()
-export class TrackDeviceConnectionUseCase {
+export class TrackDeviceConnectionResultUseCase {
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -41,7 +41,7 @@ export class TrackDeviceConnectionUseCase {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("TrackDeviceConnection UseCase");
+    this.logger = loggerFactory("TrackDeviceConnectionResult UseCase");
   }
 
   async execute(outcome: DeviceConnectionOutcome): Promise<void> {
@@ -52,7 +52,7 @@ export class TrackDeviceConnectionUseCase {
       ...this.toTracking(outcome),
     });
 
-    this.logger.debug("Tracking device connection event", { event });
+    this.logger.debug("Tracking device connection result event", { event });
 
     await this.eventTrackingService.trackEvent(event);
   }

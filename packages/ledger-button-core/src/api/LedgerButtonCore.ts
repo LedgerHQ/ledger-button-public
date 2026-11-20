@@ -76,7 +76,11 @@ import { createContainer } from "../internal/di/di";
 import { type ContainerOptions } from "../internal/di/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case/TrackCurrencyChangedUseCase";
-import { TrackDeviceConnectionUseCase } from "../internal/event-tracking/use-case/TrackDeviceConnectionUseCase";
+import {
+  type DeviceConnectionOutcome,
+  TrackDeviceConnectionResultUseCase,
+} from "../internal/event-tracking/use-case/TrackDeviceConnectionResultUseCase";
+import { TrackDeviceConnectionSelectedUseCase } from "../internal/event-tracking/use-case/TrackDeviceConnectionSelectedUseCase";
 import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
@@ -954,26 +958,20 @@ export class LedgerButtonCore {
     connectionType: DeviceConnectionType,
   ): Promise<void> {
     await this.container
-      .get<TrackDeviceConnectionUseCase>(
-        eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
+      .get<TrackDeviceConnectionSelectedUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionSelectedUseCase,
       )
-      .execute({ status: "selected", connectionType });
+      .execute(connectionType);
   }
 
   async trackDeviceConnectionResult(
-    result:
-      | { status: "succeeded"; connectionType: DeviceConnectionType }
-      | {
-          status: "failed";
-          connectionType: DeviceConnectionType;
-          error: unknown;
-        },
+    outcome: DeviceConnectionOutcome,
   ): Promise<void> {
     await this.container
-      .get<TrackDeviceConnectionUseCase>(
-        eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
+      .get<TrackDeviceConnectionResultUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionResultUseCase,
       )
-      .execute(result);
+      .execute(outcome);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {

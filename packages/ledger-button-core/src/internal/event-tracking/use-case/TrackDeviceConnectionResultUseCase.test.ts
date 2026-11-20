@@ -7,14 +7,14 @@ import { LedgerSyncConnectionFailedError } from "@internal/ledgersync/model/erro
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackDeviceConnectionUseCase } from "./TrackDeviceConnectionUseCase";
+import { TrackDeviceConnectionResultUseCase } from "./TrackDeviceConnectionResultUseCase";
 
 const SESSION_ID = "a93f987c-11df-40d7-abe7-cfd2c7be92a2";
 
-describe("TrackDeviceConnectionUseCase", () => {
+describe("TrackDeviceConnectionResultUseCase", () => {
   let mockEventTrackingService: EventTrackingService;
   let mockContextService: ContextService;
-  let useCase: TrackDeviceConnectionUseCase;
+  let useCase: TrackDeviceConnectionResultUseCase;
 
   const trackedData = () =>
     vi.mocked(mockEventTrackingService.trackEvent).mock.calls[0][0].data;
@@ -31,7 +31,7 @@ describe("TrackDeviceConnectionUseCase", () => {
       getContext: vi.fn().mockReturnValue({ trustChainId: undefined }),
     } as unknown as ContextService;
 
-    useCase = new TrackDeviceConnectionUseCase(
+    useCase = new TrackDeviceConnectionResultUseCase(
       () => mockLogger,
       mockEventTrackingService,
       { dAppIdentifier: "test-dapp" } as Config,
@@ -39,29 +39,26 @@ describe("TrackDeviceConnectionUseCase", () => {
     );
   });
 
-  it.each(["selected", "succeeded"] as const)(
-    "tracks device_connection_%s",
-    async (status) => {
-      await useCase.execute({ status, connectionType: "usb" });
+  it("tracks device_connection_succeeded", async () => {
+    await useCase.execute({ status: "succeeded", connectionType: "usb" });
 
-      expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ type: `device_connection_${status}` }),
-      );
-      expect(trackedData()).toMatchObject({
-        event_type: `device_connection_${status}`,
-        transaction_dapp_id: "test-dapp",
-        session_id: SESSION_ID,
-        connection_type: "usb",
-      });
-    },
-  );
+    expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "device_connection_succeeded" }),
+    );
+    expect(trackedData()).toMatchObject({
+      event_type: "device_connection_succeeded",
+      transaction_dapp_id: "test-dapp",
+      session_id: SESSION_ID,
+      connection_type: "usb",
+    });
+  });
 
   it("sets ledger_sync_user_id from the trust chain id", async () => {
     vi.mocked(mockContextService.getContext).mockReturnValue({
       trustChainId: "trust-chain-id",
     } as ReturnType<ContextService["getContext"]>);
 
-    await useCase.execute({ status: "selected", connectionType: "bluetooth" });
+    await useCase.execute({ status: "succeeded", connectionType: "bluetooth" });
 
     expect(trackedData()).toMatchObject({
       ledger_sync_user_id: "trust-chain-id",

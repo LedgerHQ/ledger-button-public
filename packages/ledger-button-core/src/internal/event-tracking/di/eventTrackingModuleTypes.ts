@@ -4,7 +4,12 @@ export const eventTrackingModuleTypes = {
   TrackConsentRemovedUseCase: Symbol.for("TrackConsentRemovedUseCase"),
   TrackLanguageChangedUseCase: Symbol.for("TrackLanguageChangedUseCase"),
   TrackCurrencyChangedUseCase: Symbol.for("TrackCurrencyChangedUseCase"),
-  TrackDeviceConnectionUseCase: Symbol.for("TrackDeviceConnectionUseCase"),
+  TrackDeviceConnectionSelectedUseCase: Symbol.for(
+    "TrackDeviceConnectionSelectedUseCase",
+  ),
+  TrackDeviceConnectionResultUseCase: Symbol.for(
+    "TrackDeviceConnectionResultUseCase",
+  ),
   TrackFloatingButtonClickUseCase: Symbol.for("TrackFloatingButtonClickUseCase"),
   TrackOpenSessionUseCase: Symbol.for("TrackOpenSessionUseCase"),
   TrackLedgerSyncOpenedUseCase: Symbol.for("TrackLedgerSyncOpenedUseCase"),
