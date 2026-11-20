@@ -41,7 +41,10 @@ import type {
 } from "../internal/account/use-case/observeAccountGroupsUseCase";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
 import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
-import { type WalletActionType } from "../internal/backend/model/trackEvent";
+import {
+  type DeviceConnectionType,
+  type WalletActionType,
+} from "../internal/backend/model/trackEvent";
 import type { JSONRPCRequest } from "../internal/backend/model/types";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
 import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
@@ -407,38 +410,13 @@ export class LedgerButtonCore {
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
 
-    const trackConnection = (
-      outcome:
-        | { status: "selected" | "succeeded" }
-        | { status: "failed"; error: unknown },
-    ) => {
-      // The mock transport is a dev tool, not a user connection.
-      if (type !== "bluetooth" && type !== "usb") return;
+    await this.waitForPendingDeviceCleanup();
+    await this.releaseCurrentDeviceIfNeeded();
 
-      this.container
-        .get<TrackDeviceConnectionUseCase>(
-          eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
-        )
-        .execute({ ...outcome, connectionType: type });
-    };
+    const device = await this.container
+      .get<ConnectDeviceUseCase>(deviceModuleTypes.ConnectDeviceUseCase)
+      .execute({ type });
 
-    // Tracked before connecting so failed / abandoned connections still count.
-    trackConnection({ status: "selected" });
-
-    let device: Awaited<ReturnType<ConnectDeviceUseCase["execute"]>>;
-    try {
-      await this.waitForPendingDeviceCleanup();
-      await this.releaseCurrentDeviceIfNeeded();
-
-      device = await this.container
-        .get<ConnectDeviceUseCase>(deviceModuleTypes.ConnectDeviceUseCase)
-        .execute({ type });
-    } catch (error) {
-      trackConnection({ status: "failed", error });
-      throw error;
-    }
-
-    trackConnection({ status: "succeeded" });
     this._contextService.onEvent({
       type: "device_connected",
       device: device,
@@ -970,6 +948,32 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackViewAllTransactions,
       )
       .trackRedirectCancelled(params);
+  }
+
+  async trackDeviceConnectionSelected(
+    connectionType: DeviceConnectionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackDeviceConnectionUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
+      )
+      .execute({ status: "selected", connectionType });
+  }
+
+  async trackDeviceConnectionResult(
+    result:
+      | { status: "succeeded"; connectionType: DeviceConnectionType }
+      | {
+          status: "failed";
+          connectionType: DeviceConnectionType;
+          error: unknown;
+        },
+  ): Promise<void> {
+    await this.container
+      .get<TrackDeviceConnectionUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionUseCase,
+      )
+      .execute(result);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {

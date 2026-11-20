@@ -349,59 +349,40 @@ describe("LedgerButtonCore", () => {
   });
 
   describe("device connection tracking", () => {
-    it.each(["bluetooth", "usb"] as const)(
-      "tracks the %s connection selection and success",
-      async (type) => {
-        const core = createCore();
-
-        await core.connectToDevice(type);
-
-        expect(trackConnection.execute).toHaveBeenNthCalledWith(1, {
-          status: "selected",
-          connectionType: type,
-        });
-        expect(trackConnection.execute).toHaveBeenNthCalledWith(2, {
-          status: "succeeded",
-          connectionType: type,
-        });
-      },
-    );
-
-    it("tracks the selection before the connection attempt", async () => {
+    it("does not track anything when connecting to a device", async () => {
       const core = createCore();
 
       await core.connectToDevice("usb");
 
-      expect(trackConnection.execute.mock.invocationCallOrder[0]).toBeLessThan(
-        connectDevice.execute.mock.invocationCallOrder[0],
-      );
+      expect(trackConnection.execute).not.toHaveBeenCalled();
     });
 
-    it("tracks the failure and rethrows when the connection fails", async () => {
+    it("tracks the device connection selection", async () => {
       const core = createCore();
-      const error = new Error("connection failed");
-      connectDevice.execute.mockRejectedValue(error);
 
-      await expect(core.connectToDevice("bluetooth")).rejects.toThrow(error);
+      await core.trackDeviceConnectionSelected("bluetooth");
 
-      expect(trackConnection.execute).toHaveBeenCalledTimes(2);
-      expect(trackConnection.execute).toHaveBeenNthCalledWith(1, {
+      expect(trackConnection.execute).toHaveBeenCalledWith({
         status: "selected",
         connectionType: "bluetooth",
       });
-      expect(trackConnection.execute).toHaveBeenNthCalledWith(2, {
-        status: "failed",
-        connectionType: "bluetooth",
-        error,
-      });
     });
 
-    it("does not track the mock transport", async () => {
+    it("tracks the device connection result", async () => {
       const core = createCore();
+      const error = new Error("connection failed");
 
-      await core.connectToDevice("mock");
+      await core.trackDeviceConnectionResult({
+        status: "failed",
+        connectionType: "usb",
+        error,
+      });
 
-      expect(trackConnection.execute).not.toHaveBeenCalled();
+      expect(trackConnection.execute).toHaveBeenCalledWith({
+        status: "failed",
+        connectionType: "usb",
+        error,
+      });
     });
   });
 

@@ -23,6 +23,8 @@ describe("SelectDeviceController", () => {
     };
     core = {
       connectToDevice: vi.fn(),
+      trackDeviceConnectionSelected: vi.fn(),
+      trackDeviceConnectionResult: vi.fn(),
     } as unknown as CoreContext;
     const lang = {
       currentTranslation: {
@@ -118,5 +120,62 @@ describe("SelectDeviceController", () => {
         message: "Reconnect your Ledger device.",
       }),
     );
+  });
+
+  describe("device connection tracking", () => {
+    it("tracks the selection before connecting, then the success", async () => {
+      vi.mocked(core.connectToDevice).mockResolvedValue(
+        {} as Awaited<ReturnType<CoreContext["connectToDevice"]>>,
+      );
+
+      await controller.connectToDevice({
+        title: "Bluetooth",
+        connectionType: "bluetooth",
+        timestamp: 1,
+      });
+
+      expect(core.trackDeviceConnectionSelected).toHaveBeenCalledWith(
+        "bluetooth",
+      );
+      expect(
+        vi.mocked(core.trackDeviceConnectionSelected).mock
+          .invocationCallOrder[0],
+      ).toBeLessThan(
+        vi.mocked(core.connectToDevice).mock.invocationCallOrder[0],
+      );
+      expect(core.trackDeviceConnectionResult).toHaveBeenCalledWith({
+        status: "succeeded",
+        connectionType: "bluetooth",
+      });
+    });
+
+    it("tracks the failure when the connection fails", async () => {
+      const error = new Error("connection failed");
+      vi.mocked(core.connectToDevice).mockRejectedValue(error);
+
+      await controller.connectToDevice({
+        title: "USB",
+        connectionType: "usb",
+        timestamp: 1,
+      });
+
+      expect(core.trackDeviceConnectionResult).toHaveBeenCalledTimes(1);
+      expect(core.trackDeviceConnectionResult).toHaveBeenCalledWith({
+        status: "failed",
+        connectionType: "usb",
+        error,
+      });
+    });
+
+    it("does not track the mock transport", async () => {
+      await controller.connectToDevice({
+        title: "Mock",
+        connectionType: "mock",
+        timestamp: 1,
+      });
+
+      expect(core.trackDeviceConnectionSelected).not.toHaveBeenCalled();
+      expect(core.trackDeviceConnectionResult).not.toHaveBeenCalled();
+    });
   });
 });
