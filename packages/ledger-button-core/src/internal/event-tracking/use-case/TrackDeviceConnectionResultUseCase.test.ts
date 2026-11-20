@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DeviceDisconnectedError } from "@api/errors/DeviceErrors";
+import { DeviceConnectionError } from "@api/errors/DeviceFlowErrors";
 import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/service/ContextService";
 import { LedgerSyncConnectionFailedError } from "@internal/ledgersync/model/errors";
@@ -76,6 +77,21 @@ describe("TrackDeviceConnectionResultUseCase", () => {
       event_type: "device_connection_failed",
       connection_type: "bluetooth",
       error_type: "DeviceDisconnectedError",
+      error_category: "device",
+    });
+  });
+
+  it("sends the connection error type for a DeviceConnectionError", async () => {
+    await useCase.execute({
+      status: "failed",
+      connectionType: "bluetooth",
+      error: new DeviceConnectionError("No accessible device", {
+        type: "no-accessible-device",
+      }),
+    });
+
+    expect(trackedData()).toMatchObject({
+      error_type: "no-accessible-device",
       error_category: "device",
     });
   });

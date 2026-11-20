@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import { DeviceConnectionError } from "@api/errors/DeviceFlowErrors";
 import type {
   DeviceConnectionErrorCategory,
   DeviceConnectionType,
@@ -70,10 +71,23 @@ export class TrackDeviceConnectionResultUseCase {
     return {
       status: "failed",
       connectionType: result.connectionType,
-      errorType: error.name || "Error",
+      errorType: toErrorType(error),
       errorCategory: toErrorCategory(error),
     };
   }
+}
+
+/**
+ * The error name, or the connection error type (e.g. `no-accessible-device`
+ * when the user dismisses the browser device picker) for a
+ * `DeviceConnectionError`.
+ */
+function toErrorType(error: Error): string {
+  if (error instanceof DeviceConnectionError && error.context?.type) {
+    return error.context.type;
+  }
+
+  return error.name || "Error";
 }
 
 /** A connection failure is a device failure unless it comes from Ledger Sync. */
