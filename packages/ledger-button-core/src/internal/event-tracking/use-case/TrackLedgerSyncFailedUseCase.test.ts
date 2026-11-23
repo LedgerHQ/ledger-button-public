@@ -56,7 +56,6 @@ describe("TrackLedgerSyncFailedUseCase", () => {
         failure_reason: "user_rejected",
       }),
     );
-    expect(trackedData()).not.toHaveProperty("error_type", expect.anything());
   });
 
   it("sets ledger_sync_user_id from the trust chain id", async () => {
@@ -69,7 +68,6 @@ describe("TrackLedgerSyncFailedUseCase", () => {
     expect(trackedData()).toMatchObject({
       ledger_sync_user_id: "trust-chain-id",
       failure_reason: "unknown",
-      error_type: "Error",
     });
   });
 });

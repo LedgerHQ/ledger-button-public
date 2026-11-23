@@ -104,7 +104,6 @@ export const LedgerSyncFailedEventSchema = BaseEventDataSchema.extend({
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
   failure_reason: z.enum(LEDGER_SYNC_FAILURE_REASONS),
-  error_type: z.string().min(1).optional(),
 }).strict();
 
 export const OnboardingEventSchema = BaseEventDataSchema.extend({

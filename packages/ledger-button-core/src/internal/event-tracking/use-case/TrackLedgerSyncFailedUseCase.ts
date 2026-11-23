@@ -10,7 +10,7 @@ import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
 import type { EventTrackingService } from "../service/EventTrackingService";
 import { EventTrackingUtils } from "../utils/EventTrackingUtils";
-import { toLedgerSyncFailure } from "../utils/LedgerSyncFailureUtils";
+import { toLedgerSyncFailureReason } from "../utils/LedgerSyncFailureUtils";
 
 @injectable()
 export class TrackLedgerSyncFailedUseCase {
@@ -34,7 +34,7 @@ export class TrackLedgerSyncFailedUseCase {
       dAppId: this.config.dAppIdentifier,
       sessionId: this.eventTrackingService.getSessionId(),
       trustChainId: this.contextService.getContext().trustChainId,
-      ...toLedgerSyncFailure(error),
+      failureReason: toLedgerSyncFailureReason(error),
     });
 
     this.logger.debug("Tracking ledger sync failed event", { event });

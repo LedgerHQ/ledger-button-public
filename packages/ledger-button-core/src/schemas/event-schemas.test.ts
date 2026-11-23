@@ -538,7 +538,6 @@ describe("Event Schema Validation", () => {
       event_type: "ledger_sync_failed",
       session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
       failure_reason: "network_error",
-      error_type: "LedgerKeyringProtocolError",
     };
 
     it("should validate a failed event", () => {
@@ -547,14 +546,13 @@ describe("Event Schema Validation", () => {
       );
     });
 
-    it("should validate an event without error_type", () => {
-      const { error_type: _, ...event } = validEvent;
+    it("should reject error_type", () => {
       expect(
         LedgerSyncFailedEventSchema.safeParse({
-          ...event,
-          failure_reason: "user_rejected",
+          ...validEvent,
+          error_type: "LedgerKeyringProtocolError",
         }).success,
-      ).toBe(true);
+      ).toBe(false);
     });
 
     it("should reject an unknown failure_reason", () => {

@@ -140,10 +140,7 @@ export class EventTrackingUtils {
   }
 
   static createLedgerSyncFailedEvent(
-    params: SessionEventParams & {
-      failureReason: LedgerSyncFailureReason;
-      errorType?: string;
-    },
+    params: SessionEventParams & { failureReason: LedgerSyncFailureReason },
   ): EventRequest {
     const data: LedgerSyncFailedEventData = {
       event_id: generateUUID(),
@@ -153,7 +150,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       failure_reason: params.failureReason,
-      error_type: params.errorType,
     };
 
     return {

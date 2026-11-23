@@ -9,24 +9,14 @@ import { LedgerSyncAuthenticationError } from "@api/model/errors";
 import type { LedgerSyncFailureReason } from "@internal/backend/model/trackEvent";
 import { LedgerSyncConnectionFailedError } from "@internal/ledgersync/model/errors";
 
-export type LedgerSyncFailure = {
-  failureReason: LedgerSyncFailureReason;
-  errorType?: string;
-};
-
 const USER_REJECTED_CODES = new Set(["6985", "5501"]);
 const APP_NOT_INSTALLED_CODE = "6807";
 const DEVICE_LOCKED_CODE = "5515";
 
-export function toLedgerSyncFailure(error: unknown): LedgerSyncFailure {
-  const cause = unwrapAuthenticationError(error);
-  const failureReason = toFailureReason(cause);
-
-  if (failureReason === "user_rejected") {
-    return { failureReason };
-  }
-
-  return { failureReason, errorType: toErrorType(cause) };
+export function toLedgerSyncFailureReason(
+  error: unknown,
+): LedgerSyncFailureReason {
+  return toFailureReason(unwrapAuthenticationError(error));
 }
 
 function unwrapAuthenticationError(error: unknown): unknown {
@@ -74,17 +64,6 @@ function toFailureReason(error: unknown): LedgerSyncFailureReason {
   }
 
   return "unknown";
-}
-
-function toErrorType(error: unknown): string | undefined {
-  const { tag, errorCode } = readDeviceError(error);
-  const name = tag ?? (error instanceof Error ? error.name : undefined);
-
-  if (!name) {
-    return undefined;
-  }
-
-  return errorCode ? `${name}:${errorCode}` : name;
 }
 
 function readDeviceError(error: unknown): {

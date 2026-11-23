@@ -85,7 +85,6 @@ export type LedgerSyncFailedEventData = BaseEventData & {
   session_id: string;
   ledger_sync_user_id?: string;
   failure_reason: LedgerSyncFailureReason;
-  error_type?: string;
 };
 
 export type OnboardingEventData = BaseEventData & {
