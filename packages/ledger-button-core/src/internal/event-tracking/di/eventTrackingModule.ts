@@ -9,6 +9,7 @@ import { TrackCurrencyChangedUseCase } from "../use-case/TrackCurrencyChangedUse
 import { TrackFloatingButtonClickUseCase } from "../use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncFailedUseCase } from "../use-case/TrackLedgerSyncFailedUseCase";
 import { TrackLedgerSyncOpenedUseCase } from "../use-case/TrackLedgerSyncOpenedUseCase";
 import { TrackMobileRedirectLedgerWalletUseCase } from "../use-case/TrackMobileRedirectLedgerWalletUseCase";
 import { TrackOnboardingUseCase } from "../use-case/TrackOnboardingUseCase";
@@ -87,6 +88,10 @@ export const eventTrackingModuleFactory = ({
     bind<TrackLedgerSyncActivatedUseCase>(
       eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase,
     ).to(TrackLedgerSyncActivatedUseCase);
+
+    bind<TrackLedgerSyncFailedUseCase>(
+      eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+    ).to(TrackLedgerSyncFailedUseCase);
 
     bind<TrackTypedMessageStartedUseCase>(
       eventTrackingModuleTypes.TrackTypedMessageStartedUseCase,

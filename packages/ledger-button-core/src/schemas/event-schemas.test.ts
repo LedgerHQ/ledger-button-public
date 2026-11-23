@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   InvoicingTransactionSignedEventSchema,
+  LedgerSyncFailedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   TransactionFlowCompletionEventSchema,
   ViewAllTransactionsClickedEventSchema,
@@ -526,6 +527,48 @@ describe("Event Schema Validation", () => {
         ViewAllTransactionsRedirectCancelledEventSchema.safeParse(invalidEvent);
 
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("LedgerSyncFailedEventSchema", () => {
+    const validEvent = {
+      event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+      transaction_dapp_id: "1Inch",
+      timestamp_ms: 1770980790515,
+      event_type: "ledger_sync_failed",
+      session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+      failure_reason: "network_error",
+      error_type: "LedgerKeyringProtocolError",
+    };
+
+    it("should validate a failed event", () => {
+      expect(LedgerSyncFailedEventSchema.safeParse(validEvent).success).toBe(
+        true,
+      );
+    });
+
+    it("should validate an event without error_type", () => {
+      const { error_type: _, ...event } = validEvent;
+      expect(
+        LedgerSyncFailedEventSchema.safeParse({
+          ...event,
+          failure_reason: "user_rejected",
+        }).success,
+      ).toBe(true);
+    });
+
+    it("should reject an unknown failure_reason", () => {
+      expect(
+        LedgerSyncFailedEventSchema.safeParse({
+          ...validEvent,
+          failure_reason: "NoTrustchainFound",
+        }).success,
+      ).toBe(false);
+    });
+
+    it("should reject a missing failure_reason", () => {
+      const { failure_reason: _, ...event } = validEvent;
+      expect(LedgerSyncFailedEventSchema.safeParse(event).success).toBe(false);
     });
   });
 });

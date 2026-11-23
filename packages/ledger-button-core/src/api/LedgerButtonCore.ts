@@ -26,6 +26,7 @@ import {
   getSelectedAccount,
 } from "./model/ButtonCoreContext";
 import type { BlockchainNetwork } from "./model/dappConfig/BlockchainConfig";
+import { LedgerSyncAuthenticationError } from "./model/errors";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -76,6 +77,7 @@ import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case
 import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncFailedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncFailedUseCase";
 import { TrackLedgerSyncOpenedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncOpenedUseCase";
 import { TrackMobileRedirectLedgerWalletUseCase } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWalletUseCase";
 import { TrackOnboardingUseCase } from "../internal/event-tracking/use-case/TrackOnboardingUseCase";
@@ -772,7 +774,23 @@ export class LedgerButtonCore {
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
       .authenticate();
 
+    const trackFailure = (error: unknown) => {
+      if (isOnboarded) return;
+
+      void this.container
+        .get<TrackLedgerSyncFailedUseCase>(
+          eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+        )
+        .execute(error);
+    };
+
     return res.pipe(
+      tap({
+        next: (res) => {
+          if (res instanceof LedgerSyncAuthenticationError) trackFailure(res);
+        },
+        error: trackFailure,
+      }),
       tap(async (res: LedgerSyncAuthenticateResponse) => {
         if (!this.isAuthContext(res)) return;
 

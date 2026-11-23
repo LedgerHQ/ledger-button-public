@@ -13,6 +13,8 @@ import {
   type InvoicingTransactionSignedEventData,
   type LanguageChangedEventData,
   type LedgerSyncActivatedEventData,
+  type LedgerSyncFailedEventData,
+  type LedgerSyncFailureReason,
   type MobileRedirectLedgerWalletEventData,
   type OnboardingEventData,
   type OpenLedgerSyncEventData,
@@ -133,6 +135,30 @@ export class EventTrackingUtils {
     return {
       name: EventType.LedgerSyncActivated,
       type: EventType.LedgerSyncActivated,
+      data,
+    };
+  }
+
+  static createLedgerSyncFailedEvent(
+    params: SessionEventParams & {
+      failureReason: LedgerSyncFailureReason;
+      errorType?: string;
+    },
+  ): EventRequest {
+    const data: LedgerSyncFailedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.LedgerSyncFailed,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      failure_reason: params.failureReason,
+      error_type: params.errorType,
+    };
+
+    return {
+      name: EventType.LedgerSyncFailed,
+      type: EventType.LedgerSyncFailed,
       data,
     };
   }

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { LEDGER_SYNC_FAILURE_REASONS } from "@internal/backend/model/trackEvent";
+
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const hexPattern = /^[0-9a-f]+$/;
@@ -95,6 +97,14 @@ export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
+}).strict();
+
+export const LedgerSyncFailedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("ledger_sync_failed"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
+  failure_reason: z.enum(LEDGER_SYNC_FAILURE_REASONS),
+  error_type: z.string().min(1).optional(),
 }).strict();
 
 export const OnboardingEventSchema = BaseEventDataSchema.extend({
@@ -240,6 +250,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
   LedgerSyncActivatedEventSchema,
+  LedgerSyncFailedEventSchema,
   OnboardingEventSchema,
   TransactionFlowInitializationEventSchema,
   TransactionFlowCompletionEventSchema,
