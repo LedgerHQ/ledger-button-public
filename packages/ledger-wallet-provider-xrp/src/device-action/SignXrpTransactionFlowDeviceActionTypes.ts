@@ -1,3 +1,4 @@
+import type { ContextModule } from "@ledgerhq/context-module";
 import type {
   DmkError,
   OpenAppWithDependenciesDAError,
@@ -36,6 +37,7 @@ export type SignXrpTransactionFlowDAInput = {
   readonly transaction: XrpTransaction;
   readonly expectedAddress: string;
   readonly openAppInput: OpenAppWithDependenciesDAInput;
+  readonly contextModule: ContextModule;
 };
 
 export type SignXrpTransactionFlowDAError =
