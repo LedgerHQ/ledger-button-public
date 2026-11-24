@@ -179,11 +179,24 @@ export class SelectDeviceController implements ReactiveController {
       return;
     }
 
+    void this.core.trackDeviceConnectionSelected(detail.connectionType);
+
     try {
       await this.core.connectToDevice(detail.connectionType);
     } catch (error) {
+      void this.core.trackDeviceConnectionResult({
+        status: "failed",
+        connectionType: detail.connectionType,
+        error,
+      });
       console.error("Failed to connect to device", error);
       this.mapErrors(error);
+      return;
     }
+
+    void this.core.trackDeviceConnectionResult({
+      status: "succeeded",
+      connectionType: detail.connectionType,
+    });
   }
 }

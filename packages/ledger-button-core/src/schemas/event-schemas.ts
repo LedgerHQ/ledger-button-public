@@ -93,6 +93,28 @@ export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
 }).strict();
 
+const DeviceConnectionBaseEventDataSchema = BaseEventDataSchema.extend({
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
+  connection_type: z.enum(["bluetooth", "usb"]),
+});
+
+export const DeviceConnectionSelectedEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_selected"),
+  }).strict();
+
+export const DeviceConnectionSucceededEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_succeeded"),
+  }).strict();
+
+export const DeviceConnectionFailedEventSchema =
+  DeviceConnectionBaseEventDataSchema.extend({
+    event_type: z.literal("device_connection_failed"),
+    failure_reason: z.string().min(1),
+  }).strict();
+
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -248,6 +270,9 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   FloatingButtonClickEventSchema,
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
+  DeviceConnectionSelectedEventSchema,
+  DeviceConnectionSucceededEventSchema,
+  DeviceConnectionFailedEventSchema,
   LedgerSyncActivatedEventSchema,
   LedgerSyncFailedEventSchema,
   OnboardingEventSchema,
@@ -274,6 +299,15 @@ export type ConsentGivenEvent = z.infer<typeof ConsentGivenEventSchema>;
 export type ConsentRemovedEvent = z.infer<typeof ConsentRemovedEventSchema>;
 export type OpenSessionEvent = z.infer<typeof OpenSessionEventSchema>;
 export type OpenLedgerSyncEvent = z.infer<typeof OpenLedgerSyncEventSchema>;
+export type DeviceConnectionSelectedEvent = z.infer<
+  typeof DeviceConnectionSelectedEventSchema
+>;
+export type DeviceConnectionSucceededEvent = z.infer<
+  typeof DeviceConnectionSucceededEventSchema
+>;
+export type DeviceConnectionFailedEvent = z.infer<
+  typeof DeviceConnectionFailedEventSchema
+>;
 export type LedgerSyncActivatedEvent = z.infer<
   typeof LedgerSyncActivatedEventSchema
 >;

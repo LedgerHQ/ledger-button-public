@@ -1,7 +1,14 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
+  ClearSignContextType,
+  type ContextModule,
+} from "@ledgerhq/context-module";
+import {
   CommandResultFactory,
   DeviceActionStatus,
+  DeviceModelId,
+  DeviceSessionStateType,
+  DeviceStatus,
 } from "@ledgerhq/device-management-kit";
 import { Just } from "purify-ts";
 import { decode } from "ripple-binary-codec";
@@ -31,6 +38,9 @@ vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
 
 /** Length byte followed by the five 32-bit indexes of `44'/144'/0'/0/0`. */
 const DERIVATION_PATH_PREFIX_LENGTH = 1 + 5 * 4;
+
+const MPT_ISSUANCE_ID = "00000001A407AF5856CCF3C42619DAA925813FC955C72983";
+const MPT_DESCRIPTOR = "0102030405";
 
 type SentCommand = {
   readonly name: string;
@@ -74,5 +84,64 @@ describe("SignXrpTransactionFlowDeviceAction with the XRP signer kit", () => {
       Account: DEFAULT_ADDRESS,
       SigningPubKey: PUBLIC_KEY.toUpperCase(),
     });
+  });
+
+  it("gives the XRP app the descriptor of the MPT before signing", async () => {
+    setupOpenAppMock();
+    const internalApi = makeInternalApiMock();
+    (internalApi.getDeviceSessionState as Mock).mockReturnValue({
+      sessionStateType: DeviceSessionStateType.ReadyWithoutSecureChannel,
+      deviceStatus: DeviceStatus.CONNECTED,
+      deviceModelId: DeviceModelId.STAX,
+      currentApp: { name: "XRP", version: "2.9.0" },
+      installedApps: [],
+      isSecureConnectionAllowed: false,
+    });
+    const sentCommands: SentCommand[] = [];
+    (internalApi.sendCommand as Mock).mockImplementation(
+      async (command: SentCommand) => {
+        sentCommands.push(command);
+        switch (command.name) {
+          case "GetAddress":
+            return CommandResultFactory({
+              data: { address: DEFAULT_ADDRESS, publicKey: PUBLIC_KEY },
+            });
+          case "GetAppConfig":
+            return CommandResultFactory({ data: { version: "2.9.0" } });
+          case "ProvideMptDescriptor":
+            return CommandResultFactory({ data: undefined });
+          default:
+            return CommandResultFactory({ data: Just(DER_SIGNATURE) });
+        }
+      },
+    );
+    const getContexts = vi
+      .fn()
+      .mockResolvedValue([
+        { type: ClearSignContextType.XRP_MPT, payload: MPT_DESCRIPTOR },
+      ]);
+    const contextModule = { getContexts } as unknown as ContextModule;
+
+    const da = new SignXrpTransactionFlowDeviceAction({
+      input: {
+        ...DEFAULT_INPUT,
+        transaction: {
+          ...DEFAULT_INPUT.transaction,
+          Amount: { mpt_issuance_id: MPT_ISSUANCE_ID, value: "100" },
+        },
+        contextModule,
+      },
+    });
+    const result = await lastValueFrom(da._execute(internalApi).observable);
+
+    expect(result).toMatchObject({ status: DeviceActionStatus.Completed });
+    expect(getContexts).toHaveBeenCalledWith(
+      { mptIssuanceIds: [MPT_ISSUANCE_ID], deviceModelId: DeviceModelId.STAX },
+      [ClearSignContextType.XRP_MPT],
+    );
+    const names = sentCommands.map(({ name }) => name);
+    const provideIndex = names.indexOf("ProvideMptDescriptor");
+    expect(provideIndex).toBeGreaterThan(-1);
+    expect(names.slice(provideIndex + 1)).toContain("SignTransaction");
   });
 });

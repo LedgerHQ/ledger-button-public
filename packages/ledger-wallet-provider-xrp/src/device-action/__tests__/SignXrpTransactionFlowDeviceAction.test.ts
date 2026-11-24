@@ -221,6 +221,14 @@ describe("SignXrpTransactionFlowDeviceAction", () => {
         Amount: "1000000",
       });
     });
+
+    it("gives the context module to the XRP signer kit", async () => {
+      await lastValueFrom(execute());
+
+      expect(SignTransactionDeviceActionFactory).toHaveBeenCalledWith(
+        expect.objectContaining({ contextModule: DEFAULT_INPUT.contextModule }),
+      );
+    });
   });
 
   describe("Error cases", () => {

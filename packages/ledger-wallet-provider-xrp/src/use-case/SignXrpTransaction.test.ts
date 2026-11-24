@@ -17,6 +17,7 @@ import {
 } from "../__mocks__/coreFacadeMock";
 import { SignXrpTransactionFlowDeviceAction } from "../device-action/SignXrpTransactionFlowDeviceAction";
 import { SignXrpTransactionFlowDAStep } from "../device-action/SignXrpTransactionFlowDeviceActionTypes";
+import type { BuildXrpContextModule } from "./BuildXrpContextModule";
 import { SignXrpTransaction } from "./SignXrpTransaction";
 
 vi.mock("../device-action/SignXrpTransactionFlowDeviceAction", () => ({
@@ -28,6 +29,7 @@ vi.mock("../device-action/SignXrpTransactionFlowDeviceAction", () => ({
 const PUBLIC_KEY =
   "03430ce12840c76b40f778c7900dc706cedaf6073947a1437179ef8bd402f871af";
 const DER_SIGNATURE = new Uint8Array([0x30, 0x45, 0x02, 0x21]);
+const CONTEXT_MODULE = { id: "xrp-context-module" };
 const TX = {
   TransactionType: "Payment",
   Destination: "rQruxtzFbPR2JgBp47FEbh4pAyYDStcLJH",
@@ -71,7 +73,9 @@ function createUseCase(states: unknown[] = [COMPLETED_STATE]) {
   return {
     dmk,
     core,
-    useCase: new SignXrpTransaction(core, XRP_TEST_BLOCKCHAIN_CONFIG),
+    useCase: new SignXrpTransaction(core, XRP_TEST_BLOCKCHAIN_CONFIG, {
+      execute: vi.fn(() => CONTEXT_MODULE),
+    } as unknown as BuildXrpContextModule),
   };
 }
 
@@ -111,6 +115,7 @@ describe("SignXrpTransaction", () => {
         derivationPath: "44'/144'/0'/0/0",
         transaction: TX,
         expectedAddress: XRP_TEST_ACCOUNT.freshAddress,
+        contextModule: CONTEXT_MODULE,
       }),
       inspect: false,
     });

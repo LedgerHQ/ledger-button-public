@@ -74,6 +74,11 @@ import { createContainer } from "../internal/di/di";
 import { type ContainerOptions } from "../internal/di/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { TrackCurrencyChangedUseCase } from "../internal/event-tracking/use-case/TrackCurrencyChangedUseCase";
+import {
+  type DeviceConnectionResult,
+  TrackDeviceConnectionResultUseCase,
+} from "../internal/event-tracking/use-case/TrackDeviceConnectionResultUseCase";
+import { TrackDeviceConnectionSelectedUseCase } from "../internal/event-tracking/use-case/TrackDeviceConnectionSelectedUseCase";
 import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
@@ -962,6 +967,26 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackViewAllTransactions,
       )
       .trackRedirectCancelled(params);
+  }
+
+  async trackDeviceConnectionSelected(
+    connectionType: Exclude<ConnectionType, "">,
+  ): Promise<void> {
+    await this.container
+      .get<TrackDeviceConnectionSelectedUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionSelectedUseCase,
+      )
+      .execute(connectionType);
+  }
+
+  async trackDeviceConnectionResult(
+    result: DeviceConnectionResult,
+  ): Promise<void> {
+    await this.container
+      .get<TrackDeviceConnectionResultUseCase>(
+        eventTrackingModuleTypes.TrackDeviceConnectionResultUseCase,
+      )
+      .execute(result);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {

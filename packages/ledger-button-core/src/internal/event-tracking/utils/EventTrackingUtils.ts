@@ -7,6 +7,10 @@ import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
   type CurrencyChangedEventData,
+  type DeviceConnectionFailedEventData,
+  type DeviceConnectionSelectedEventData,
+  type DeviceConnectionSucceededEventData,
+  type DeviceConnectionType,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
@@ -32,6 +36,7 @@ import {
   type WalletRedirectCancelledEventData,
   type WalletRedirectConfirmedEventData,
 } from "@internal/backend/model/trackEvent";
+import type { ConnectionType } from "@internal/device/service/DeviceManagementKitService";
 import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
 
 import { generateUUID } from "./utils";
@@ -57,6 +62,23 @@ interface SessionEventParams extends BaseEventParams {
   trustChainId?: string;
 }
 
+export type DeviceConnectionTracking =
+  | {
+      status: "selected" | "succeeded";
+      connectionType: DeviceConnectionType;
+    }
+  | {
+      status: "failed";
+      connectionType: DeviceConnectionType;
+      failureReason: string;
+    };
+
+const DEVICE_CONNECTION_EVENT_TYPES = {
+  selected: EventType.DeviceConnectionSelected,
+  succeeded: EventType.DeviceConnectionSucceeded,
+  failed: EventType.DeviceConnectionFailed,
+} as const satisfies Record<DeviceConnectionTracking["status"], EventType>;
+
 interface TransactionEventParams extends SessionEventParams {
   family: BlockchainFamily;
   chainId: string | null;
@@ -66,6 +88,13 @@ export function stringToSha256(string: string): string {
   const bytes = new TextEncoder().encode(string);
   const hexString = bufferToHexaString(bytes);
   return sha256(hexString);
+}
+
+/** The mock transport is a dev tool, not a user connection: it is not tracked. */
+export function isDeviceMockServer(
+  connectionType: ConnectionType,
+): connectionType is "mock" {
+  return connectionType === "mock";
 }
 
 export class EventTrackingUtils {
@@ -118,6 +147,41 @@ export class EventTrackingUtils {
       type: EventType.OpenLedgerSync,
       data,
     };
+  }
+
+  static createDeviceConnectionEvent(
+    params: SessionEventParams & DeviceConnectionTracking,
+  ): EventRequest {
+    const base = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      connection_type: params.connectionType,
+    };
+
+    const data:
+      | DeviceConnectionSelectedEventData
+      | DeviceConnectionSucceededEventData
+      | DeviceConnectionFailedEventData =
+      params.status === "failed"
+        ? {
+            ...base,
+            event_type: EventType.DeviceConnectionFailed,
+            failure_reason: params.failureReason,
+          }
+        : {
+            ...base,
+            event_type:
+              params.status === "selected"
+                ? EventType.DeviceConnectionSelected
+                : EventType.DeviceConnectionSucceeded,
+          };
+
+    const type = DEVICE_CONNECTION_EVENT_TYPES[params.status];
+
+    return { name: type, type, data };
   }
 
   static createLedgerSyncActivatedEvent(
@@ -174,7 +238,9 @@ export class EventTrackingUtils {
     };
   }
 
-  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
+  static createConsentRemovedEvent(
+    params: BaseEventParams & { trustChainId?: string },
+  ): EventRequest {
     const data: ConsentRemovedEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
