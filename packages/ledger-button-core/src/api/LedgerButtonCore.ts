@@ -779,22 +779,28 @@ export class LedgerButtonCore {
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
       .authenticate();
 
-    const trackFailure = (error: unknown) => {
-      if (isOnboarded) return;
-
-      void this.container
-        .get<TrackLedgerSyncFailedUseCase>(
-          eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
-        )
-        .execute(error);
-    };
-
     return res.pipe(
       tap({
         next: (res) => {
-          if (res instanceof LedgerSyncAuthenticationError) trackFailure(res);
+          if (isOnboarded || !(res instanceof LedgerSyncAuthenticationError)) {
+            return;
+          }
+
+          void this.container
+            .get<TrackLedgerSyncFailedUseCase>(
+              eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+            )
+            .execute(res);
         },
-        error: trackFailure,
+        error: (error: unknown) => {
+          if (isOnboarded) return;
+
+          void this.container
+            .get<TrackLedgerSyncFailedUseCase>(
+              eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+            )
+            .execute(error);
+        },
       }),
       tap(async (res: LedgerSyncAuthenticateResponse) => {
         if (!this.isAuthContext(res)) return;
