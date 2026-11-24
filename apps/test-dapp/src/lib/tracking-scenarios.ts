@@ -277,9 +277,12 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     name: "ledger-sync-failed",
-    description: "Session > ledger sync opened > ledger sync failed (refused)",
+    description:
+      "Session > device > ledger sync opened > ledger sync failed (refused)",
     buildEvents: (ctx) => [
       openSession(ctx),
+      deviceConnectionSelected(ctx),
+      deviceConnectionSucceeded(ctx),
       openLedgerSync(ctx),
       ledgerSyncFailed(ctx),
     ],
