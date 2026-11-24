@@ -496,6 +496,30 @@ describe("DefaultLedgerSyncService", () => {
             expect((result as Error).message).toBe(expectedMessage);
           },
         );
+
+        it("should keep the original device action error as context.cause", async () => {
+          const error = {
+            _tag: "UnknownDeviceExchangeError",
+            errorCode: "6985",
+          } as unknown as AuthenticateDAError;
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of({
+              status: DeviceActionStatus.Error,
+              error,
+            } as DeviceActionState<
+              AuthenticateDAOutput,
+              AuthenticateDAError,
+              AuthenticateDAIntermediateValue
+            >),
+          });
+
+          const result = await lastValueFrom(service.authenticate());
+
+          expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
+          expect((result as LedgerSyncAuthenticationError).context?.cause).toBe(
+            error,
+          );
+        });
       });
     });
 

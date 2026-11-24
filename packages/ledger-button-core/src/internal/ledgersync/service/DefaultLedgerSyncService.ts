@@ -318,6 +318,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
         const error = new LedgerSyncAuthenticationError(errorMessage, {
           errorType: state.error?.constructor?.name,
           originalError: JSON.stringify(state.error),
+          cause: state.error,
         });
         this.logger.error("LKRP authentication failed", { error });
         return error;

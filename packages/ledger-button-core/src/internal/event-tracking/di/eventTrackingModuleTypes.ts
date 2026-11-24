@@ -14,6 +14,7 @@ export const eventTrackingModuleTypes = {
   TrackOpenSessionUseCase: Symbol.for("TrackOpenSessionUseCase"),
   TrackLedgerSyncOpenedUseCase: Symbol.for("TrackLedgerSyncOpenedUseCase"),
   TrackLedgerSyncActivatedUseCase: Symbol.for("TrackLedgerSyncActivatedUseCase"),
+  TrackLedgerSyncFailedUseCase: Symbol.for("TrackLedgerSyncFailedUseCase"),
   TrackOnboardingUseCase: Symbol.for("TrackOnboardingUseCase"),
   TrackTransactionStartedUseCase: Symbol.for("TrackTransactionStartedUseCase"),
   TrackTransactionCompletedUseCase: Symbol.for("TrackTransactionCompletedUseCase"),

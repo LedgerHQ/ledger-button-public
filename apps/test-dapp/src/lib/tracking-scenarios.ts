@@ -134,6 +134,17 @@ const openLedgerSync = (ctx: ScenarioContext) =>
 const ledgerSyncActivated = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "ledger_sync_activated");
 
+const ledgerSyncFailed = (ctx: ScenarioContext): EventRequest => ({
+  name: "ledger_sync_failed",
+  type: "ledger_sync_failed",
+  data: {
+    ...baseData(ctx),
+    event_type: "ledger_sync_failed",
+    session_id: ctx.sessionId,
+    failure_reason: "user_rejected",
+  },
+});
+
 const onboarding = (ctx: ScenarioContext) => chainEvent(ctx, "onboarding");
 
 const floatingButtonClicked = (ctx: ScenarioContext) =>
@@ -262,6 +273,18 @@ export const SCENARIOS: Scenario[] = [
       openLedgerSync(ctx),
       ledgerSyncActivated(ctx),
       onboarding(ctx),
+    ],
+  },
+  {
+    name: "ledger-sync-failed",
+    description:
+      "Session > device > ledger sync opened > ledger sync failed (refused)",
+    buildEvents: (ctx) => [
+      openSession(ctx),
+      deviceConnectionSelected(ctx),
+      deviceConnectionSucceeded(ctx),
+      openLedgerSync(ctx),
+      ledgerSyncFailed(ctx),
     ],
   },
   {

@@ -26,6 +26,7 @@ import {
   getSelectedAccount,
 } from "./model/ButtonCoreContext";
 import type { BlockchainNetwork } from "./model/dappConfig/BlockchainConfig";
+import { LedgerSyncAuthenticationError } from "./model/errors";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -81,6 +82,7 @@ import { TrackDeviceConnectionSelectedUseCase } from "../internal/event-tracking
 import { TrackFloatingButtonClickUseCase } from "../internal/event-tracking/use-case/TrackFloatingButtonClickUseCase";
 import { TrackLanguageChangedUseCase } from "../internal/event-tracking/use-case/TrackLanguageChangedUseCase";
 import { TrackLedgerSyncActivatedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncActivatedUseCase";
+import { TrackLedgerSyncFailedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncFailedUseCase";
 import { TrackLedgerSyncOpenedUseCase } from "../internal/event-tracking/use-case/TrackLedgerSyncOpenedUseCase";
 import { TrackMobileRedirectLedgerWalletUseCase } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWalletUseCase";
 import { TrackOnboardingUseCase } from "../internal/event-tracking/use-case/TrackOnboardingUseCase";
@@ -778,6 +780,28 @@ export class LedgerButtonCore {
       .authenticate();
 
     return res.pipe(
+      tap({
+        next: (res) => {
+          if (isOnboarded || !(res instanceof LedgerSyncAuthenticationError)) {
+            return;
+          }
+
+          void this.container
+            .get<TrackLedgerSyncFailedUseCase>(
+              eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+            )
+            .execute(res);
+        },
+        error: (error: unknown) => {
+          if (isOnboarded) return;
+
+          void this.container
+            .get<TrackLedgerSyncFailedUseCase>(
+              eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase,
+            )
+            .execute(error);
+        },
+      }),
       tap(async (res: LedgerSyncAuthenticateResponse) => {
         if (!this.isAuthContext(res)) return;
 

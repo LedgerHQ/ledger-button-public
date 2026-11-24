@@ -10,6 +10,7 @@ export enum EventType {
   FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
   LedgerSyncActivated = "ledger_sync_activated",
+  LedgerSyncFailed = "ledger_sync_failed",
   Onboarding = "onboarding",
   OpenLedgerSync = "open_ledger_sync",
   OpenSession = "open_session",
@@ -90,6 +91,26 @@ export type LedgerSyncActivatedEventData = BaseEventData & {
   event_type: "ledger_sync_activated";
   session_id: string;
   ledger_sync_user_id?: string;
+};
+
+export const LEDGER_SYNC_FAILURE_REASONS = [
+  "user_rejected",
+  "app_not_installed",
+  "device_lock_timeout",
+  "no_trustchain",
+  "unauthorized",
+  "network_error",
+  "unknown",
+] as const;
+
+export type LedgerSyncFailureReason =
+  (typeof LEDGER_SYNC_FAILURE_REASONS)[number];
+
+export type LedgerSyncFailedEventData = BaseEventData & {
+  event_type: "ledger_sync_failed";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  failure_reason: LedgerSyncFailureReason;
 };
 
 export type OnboardingEventData = BaseEventData & {
@@ -231,6 +252,7 @@ export type EventData =
   | OpenSessionEventData
   | OpenLedgerSyncEventData
   | LedgerSyncActivatedEventData
+  | LedgerSyncFailedEventData
   | OnboardingEventData
   | OpenLedgerSyncEventData
   | OpenSessionEventData

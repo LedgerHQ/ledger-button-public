@@ -1,10 +1,11 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Maybe, Nothing } from "purify-ts";
-import { of, Subject } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "./blockchain-provider/model/types";
 import type { Account } from "./model/Account";
+import { LedgerSyncAuthenticationError } from "./model/errors";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
 import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
@@ -34,6 +35,7 @@ describe("LedgerButtonCore", () => {
   let trackConnectionSelected: { execute: ReturnType<typeof vi.fn> };
   let trackConnectionResult: { execute: ReturnType<typeof vi.fn> };
   let trackActivated: { execute: ReturnType<typeof vi.fn> };
+  let trackFailed: { execute: ReturnType<typeof vi.fn> };
   let selectedAccounts: Map<BlockchainFamily, Account>;
   let authResponse: unknown;
   let contextService: {
@@ -75,6 +77,7 @@ describe("LedgerButtonCore", () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     trackActivated = { execute: vi.fn().mockResolvedValue(undefined) };
+    trackFailed = { execute: vi.fn().mockResolvedValue(undefined) };
     connectDevice = {
       execute: vi.fn().mockResolvedValue({ sessionId: "new-session" }),
     };
@@ -144,6 +147,7 @@ describe("LedgerButtonCore", () => {
         trackConnectionResult,
       ],
       [eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase, trackActivated],
+      [eventTrackingModuleTypes.TrackLedgerSyncFailedUseCase, trackFailed],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
         blockchainProviderManager,
@@ -199,6 +203,41 @@ describe("LedgerButtonCore", () => {
 
       expect(trackOpened.execute).not.toHaveBeenCalled();
       expect(trackActivated.execute).not.toHaveBeenCalled();
+    });
+
+    it("tracks a failure when Ledger Sync authentication fails", () => {
+      const error = new LedgerSyncAuthenticationError("refused");
+      authResponse = error;
+      const core = createCore();
+
+      core.connectToLedgerSync().subscribe();
+
+      expect(trackFailed.execute).toHaveBeenCalledWith(error);
+      expect(trackActivated.execute).not.toHaveBeenCalled();
+    });
+
+    it("tracks a failure when Ledger Sync throws", () => {
+      const error = new Error("network");
+      const core = createCore();
+      hoisted.container
+        .get(ledgerSyncModuleTypes.LedgerSyncService)
+        .authenticate.mockReturnValue(throwError(() => error));
+
+      core.connectToLedgerSync().subscribe({ error: () => undefined });
+
+      expect(trackFailed.execute).toHaveBeenCalledWith(error);
+    });
+
+    it("does not track a failure when an account is already selected", () => {
+      selectedAccounts = new Map([
+        ["ethereum", { currencyId: "ethereum" } as Account],
+      ]);
+      authResponse = new LedgerSyncAuthenticationError("refused");
+      const core = createCore();
+
+      core.connectToLedgerSync().subscribe();
+
+      expect(trackFailed.execute).not.toHaveBeenCalled();
     });
 
     it("skips both events when an account of any family is selected", () => {
