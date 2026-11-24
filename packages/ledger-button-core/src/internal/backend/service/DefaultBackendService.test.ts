@@ -152,6 +152,7 @@ describe("DefaultBackendService", () => {
           event_type: EventType.ConsentGiven,
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
+          session_id: "session-id",
         },
       };
 

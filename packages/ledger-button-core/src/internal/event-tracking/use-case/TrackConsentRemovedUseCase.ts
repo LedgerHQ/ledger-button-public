@@ -32,6 +32,7 @@ export class TrackConsentRemovedUseCase {
 
     const event = EventTrackingUtils.createConsentRemovedEvent({
       dAppId: this.config.dAppIdentifier,
+      sessionId: this.eventTrackingService.getSessionId(),
       trustChainId,
     });
 

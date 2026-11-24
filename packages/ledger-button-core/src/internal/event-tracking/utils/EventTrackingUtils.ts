@@ -124,6 +124,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.OpenSession,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
     };
 
     return {
@@ -229,6 +230,7 @@ export class EventTrackingUtils {
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.ConsentGiven,
+      session_id: params.sessionId,
     };
 
     return {
@@ -238,14 +240,13 @@ export class EventTrackingUtils {
     };
   }
 
-  static createConsentRemovedEvent(
-    params: BaseEventParams & { trustChainId?: string },
-  ): EventRequest {
+  static createConsentRemovedEvent(params: SessionEventParams): EventRequest {
     const data: ConsentRemovedEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.ConsentRemoved,
+      session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
     };
 
@@ -265,6 +266,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.FloatingButtonClick,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
     };
 
     return {
@@ -519,6 +521,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.WalletActionClicked,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       wallet_action: params.walletAction,
     };
 
@@ -538,6 +541,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.WalletRedirectConfirmed,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       wallet_action: params.walletAction,
     };
 
@@ -557,6 +561,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.CurrencyChanged,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       currency_code: params.currencyCode,
     };
 
@@ -576,6 +581,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.LanguageChanged,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       language_key: params.languageKey,
     };
 
@@ -612,6 +618,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.WalletRedirectCancelled,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       wallet_action: params.walletAction,
     };
 

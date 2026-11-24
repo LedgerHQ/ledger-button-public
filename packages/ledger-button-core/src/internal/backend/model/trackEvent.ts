@@ -47,16 +47,19 @@ export type InvoicingTransactionSignedEventData = BaseEventData & {
 
 export type ConsentGivenEventData = BaseEventData & {
   event_type: "consent_given";
+  session_id: string;
 };
 
 export type ConsentRemovedEventData = BaseEventData & {
   event_type: "consent_removed";
+  session_id: string;
   ledger_sync_user_id?: string;
 };
 
 export type OpenSessionEventData = BaseEventData & {
   event_type: "open_session";
   session_id: string;
+  ledger_sync_user_id?: string;
 };
 
 export type OpenLedgerSyncEventData = BaseEventData & {
@@ -168,6 +171,7 @@ export type ErrorOccurredEventData = BaseEventData & {
 export type FloatingButtonClickEventData = BaseEventData & {
   event_type: "floating_button_clicked";
   session_id: string;
+  ledger_sync_user_id?: string;
 };
 
 export type WalletActionType =
@@ -176,18 +180,21 @@ export type WalletActionType =
 export type WalletActionClickedEventData = BaseEventData & {
   event_type: "wallet_action_clicked";
   session_id: string;
+  ledger_sync_user_id?: string;
   wallet_action: WalletActionType;
 };
 
 export type WalletRedirectConfirmedEventData = BaseEventData & {
   event_type: "wallet_redirect_confirmed";
   session_id: string;
+  ledger_sync_user_id?: string;
   wallet_action: WalletActionType;
 };
 
 export type WalletRedirectCancelledEventData = BaseEventData & {
   event_type: "wallet_redirect_cancelled";
   session_id: string;
+  ledger_sync_user_id?: string;
   wallet_action: WalletActionType;
 };
 
@@ -231,12 +238,14 @@ export type ViewAllTransactionsRedirectCancelledEventData = BaseEventData & {
 export type LanguageChangedEventData = BaseEventData & {
   event_type: "language_changed";
   session_id: string;
+  ledger_sync_user_id?: string;
   language_key: string;
 };
 
 export type CurrencyChangedEventData = BaseEventData & {
   event_type: "currency_changed";
   session_id: string;
+  ledger_sync_user_id?: string;
   currency_code: string;
 };
 

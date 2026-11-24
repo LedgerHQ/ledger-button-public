@@ -71,21 +71,25 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
  */
 export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
 }).strict();
 
 export const ConsentRemovedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_removed"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
 }).strict();
 
 export const FloatingButtonClickEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("floating_button_clicked"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
 }).strict();
 
 export const OpenSessionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("open_session"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
 }).strict();
 
 export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
@@ -190,18 +194,21 @@ const walletActionSchema = z.enum([
 export const WalletActionClickedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("wallet_action_clicked"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   wallet_action: walletActionSchema,
 }).strict();
 
 export const WalletRedirectConfirmedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("wallet_redirect_confirmed"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   wallet_action: walletActionSchema,
 }).strict();
 
 export const WalletRedirectCancelledEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("wallet_redirect_cancelled"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   wallet_action: walletActionSchema,
 }).strict();
 
@@ -254,12 +261,14 @@ export const ViewAllTransactionsRedirectCancelledEventSchema =
 export const LanguageChangedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("language_changed"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   language_key: z.string().min(1),
 }).strict();
 
 export const CurrencyChangedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("currency_changed"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
   currency_code: z.string().min(1),
 }).strict();
 
