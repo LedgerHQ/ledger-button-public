@@ -92,8 +92,41 @@ const consentGiven = (ctx: ScenarioContext): EventRequest => ({
   data: { ...baseData(ctx), event_type: "consent_given" },
 });
 
-const openSession = (ctx: ScenarioContext) =>
-  sessionEvent(ctx, "open_session");
+const openSession = (ctx: ScenarioContext) => sessionEvent(ctx, "open_session");
+
+const deviceConnectionSelected = (ctx: ScenarioContext): EventRequest => ({
+  name: "device_connection_selected",
+  type: "device_connection_selected",
+  data: {
+    ...baseData(ctx),
+    event_type: "device_connection_selected",
+    session_id: ctx.sessionId,
+    connection_type: "usb",
+  },
+});
+
+const deviceConnectionSucceeded = (ctx: ScenarioContext): EventRequest => ({
+  name: "device_connection_succeeded",
+  type: "device_connection_succeeded",
+  data: {
+    ...baseData(ctx),
+    event_type: "device_connection_succeeded",
+    session_id: ctx.sessionId,
+    connection_type: "usb",
+  },
+});
+
+const deviceConnectionFailed = (ctx: ScenarioContext): EventRequest => ({
+  name: "device_connection_failed",
+  type: "device_connection_failed",
+  data: {
+    ...baseData(ctx),
+    event_type: "device_connection_failed",
+    session_id: ctx.sessionId,
+    connection_type: "bluetooth",
+    failure_reason: "DeviceDisconnectedError",
+  },
+});
 
 const openLedgerSync = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "open_ledger_sync");
@@ -101,8 +134,7 @@ const openLedgerSync = (ctx: ScenarioContext) =>
 const ledgerSyncActivated = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "ledger_sync_activated");
 
-const onboarding = (ctx: ScenarioContext) =>
-  chainEvent(ctx, "onboarding");
+const onboarding = (ctx: ScenarioContext) => chainEvent(ctx, "onboarding");
 
 const floatingButtonClicked = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "floating_button_clicked");
@@ -221,10 +253,12 @@ const currencyChanged = (ctx: ScenarioContext): EventRequest => ({
 export const SCENARIOS: Scenario[] = [
   {
     name: "onboarding",
-    description: "Consent > session > ledger sync > onboarding",
+    description: "Consent > session > device > ledger sync > onboarding",
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
+      deviceConnectionSelected(ctx),
+      deviceConnectionSucceeded(ctx),
       openLedgerSync(ctx),
       ledgerSyncActivated(ctx),
       onboarding(ctx),
@@ -281,6 +315,15 @@ export const SCENARIOS: Scenario[] = [
     buildEvents: (ctx) => [languageChanged(ctx), currencyChanged(ctx)],
   },
   {
+    name: "device-connection-failed",
+    description: "Session > device selected > device connection failed",
+    buildEvents: (ctx) => [
+      openSession(ctx),
+      deviceConnectionSelected(ctx),
+      deviceConnectionFailed(ctx),
+    ],
+  },
+  {
     name: "error",
     description: "Simulated error event",
     buildEvents: (ctx) => [errorOccurred(ctx)],
@@ -291,6 +334,8 @@ export const SCENARIOS: Scenario[] = [
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
+      deviceConnectionSelected(ctx),
+      deviceConnectionSucceeded(ctx),
       openLedgerSync(ctx),
       ledgerSyncActivated(ctx),
       onboarding(ctx),

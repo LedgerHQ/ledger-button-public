@@ -1,0 +1,91 @@
+import { type Factory, inject, injectable } from "inversify";
+
+import { DeviceConnectionError } from "@api/errors/DeviceFlowErrors";
+import type { DeviceConnectionType } from "@internal/backend/model/trackEvent";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { type Config } from "@internal/config/model/config";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { type ContextService } from "@internal/context/service/ContextService";
+import type { ConnectionType } from "@internal/device/service/DeviceManagementKitService";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
+import type { EventTrackingService } from "../service/EventTrackingService";
+import {
+  type DeviceConnectionTracking,
+  EventTrackingUtils,
+  isDeviceMockServer,
+} from "../utils/EventTrackingUtils";
+
+export type DeviceConnectionResult =
+  | { status: "succeeded"; connectionType: Exclude<ConnectionType, ""> }
+  | {
+      status: "failed";
+      connectionType: Exclude<ConnectionType, "">;
+      error: unknown;
+    };
+
+@injectable()
+export class TrackDeviceConnectionResultUseCase {
+  private readonly logger: LoggerPublisher;
+
+  constructor(
+    @inject(loggerModuleTypes.LoggerPublisher)
+    loggerFactory: Factory<LoggerPublisher>,
+    @inject(eventTrackingModuleTypes.EventTrackingService)
+    private readonly eventTrackingService: EventTrackingService,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
+  ) {
+    this.logger = loggerFactory("TrackDeviceConnectionResult UseCase");
+  }
+
+  async execute(result: DeviceConnectionResult): Promise<void> {
+    const { connectionType } = result;
+    if (isDeviceMockServer(connectionType)) {
+      return;
+    }
+
+    const event = EventTrackingUtils.createDeviceConnectionEvent({
+      dAppId: this.config.dAppIdentifier,
+      sessionId: this.eventTrackingService.getSessionId(),
+      trustChainId: this.contextService.getContext().trustChainId,
+      ...this.toTracking(result, connectionType),
+    });
+
+    this.logger.debug("Tracking device connection result event", { event });
+
+    await this.eventTrackingService.trackEvent(event);
+  }
+
+  private toTracking(
+    result: DeviceConnectionResult,
+    connectionType: DeviceConnectionType,
+  ): DeviceConnectionTracking {
+    if (result.status !== "failed") {
+      return { status: "succeeded", connectionType };
+    }
+
+    const error =
+      result.error instanceof Error
+        ? result.error
+        : new Error(String(result.error));
+
+    return {
+      status: "failed",
+      connectionType,
+      failureReason: toFailureReason(error),
+    };
+  }
+}
+
+function toFailureReason(error: Error): string {
+  if (error instanceof DeviceConnectionError && error.context?.type) {
+    return error.context.type;
+  }
+
+  return error.name || "Error";
+}

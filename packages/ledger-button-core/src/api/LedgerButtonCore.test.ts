@@ -31,6 +31,8 @@ vi.mock("../internal/di/di", () => ({
 
 describe("LedgerButtonCore", () => {
   let trackOpened: { execute: ReturnType<typeof vi.fn> };
+  let trackConnectionSelected: { execute: ReturnType<typeof vi.fn> };
+  let trackConnectionResult: { execute: ReturnType<typeof vi.fn> };
   let trackActivated: { execute: ReturnType<typeof vi.fn> };
   let selectedAccounts: Map<BlockchainFamily, Account>;
   let authResponse: unknown;
@@ -66,6 +68,12 @@ describe("LedgerButtonCore", () => {
 
   const createCore = () => {
     trackOpened = { execute: vi.fn() };
+    trackConnectionSelected = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    trackConnectionResult = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
     trackActivated = { execute: vi.fn().mockResolvedValue(undefined) };
     connectDevice = {
       execute: vi.fn().mockResolvedValue({ sessionId: "new-session" }),
@@ -127,6 +135,14 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
       [eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase, trackOpened],
+      [
+        eventTrackingModuleTypes.TrackDeviceConnectionSelectedUseCase,
+        trackConnectionSelected,
+      ],
+      [
+        eventTrackingModuleTypes.TrackDeviceConnectionResultUseCase,
+        trackConnectionResult,
+      ],
       [eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase, trackActivated],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
@@ -340,6 +356,44 @@ describe("LedgerButtonCore", () => {
       expect(
         blockchainProviderManager.setSelectedAccounts,
       ).toHaveBeenCalledWith(new Map());
+    });
+  });
+
+  describe("device connection tracking", () => {
+    it("does not track anything when connecting to a device", async () => {
+      const core = createCore();
+
+      await core.connectToDevice("usb");
+
+      expect(trackConnectionSelected.execute).not.toHaveBeenCalled();
+      expect(trackConnectionResult.execute).not.toHaveBeenCalled();
+    });
+
+    it("tracks the device connection selection", async () => {
+      const core = createCore();
+
+      await core.trackDeviceConnectionSelected("bluetooth");
+
+      expect(trackConnectionSelected.execute).toHaveBeenCalledWith(
+        "bluetooth",
+      );
+    });
+
+    it("tracks the device connection result", async () => {
+      const core = createCore();
+      const error = new Error("connection failed");
+
+      await core.trackDeviceConnectionResult({
+        status: "failed",
+        connectionType: "usb",
+        error,
+      });
+
+      expect(trackConnectionResult.execute).toHaveBeenCalledWith({
+        status: "failed",
+        connectionType: "usb",
+        error,
+      });
     });
   });
 

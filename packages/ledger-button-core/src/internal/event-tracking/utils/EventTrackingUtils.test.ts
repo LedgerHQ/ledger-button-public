@@ -29,10 +29,9 @@ describe("EventTrackingUtils", () => {
     });
 
     it("should validate a correctly formatted mobile redirect event", () => {
-      const event =
-        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
-          dAppId: "test-dapp",
-        });
+      const event = EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+        dAppId: "test-dapp",
+      });
 
       const result = EventTrackingUtils.validateEvent(event);
 
@@ -41,15 +40,16 @@ describe("EventTrackingUtils", () => {
     });
 
     it("should validate a correctly formatted view transaction details clicked event", () => {
-      const event =
-        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+      const event = EventTrackingUtils.createViewTransactionDetailsClickedEvent(
+        {
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
           family: "ethereum",
           chainId: "1",
           transactionHash:
             "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
-        });
+        },
+      );
 
       const result = EventTrackingUtils.validateEvent(event);
 
@@ -80,14 +80,15 @@ describe("EventTrackingUtils", () => {
     it("should keep a Solana base58 hash on the view-details click event", () => {
       const base58Signature =
         "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
-      const event =
-        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+      const event = EventTrackingUtils.createViewTransactionDetailsClickedEvent(
+        {
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
           family: "solana",
           chainId: "mainnet",
           transactionHash: base58Signature,
-        });
+        },
+      );
 
       expect(
         (event.data as { transaction_hash: string }).transaction_hash,
@@ -96,13 +97,14 @@ describe("EventTrackingUtils", () => {
     });
 
     it("should validate and report the solana family on a transaction flow event", () => {
-      const event =
-        EventTrackingUtils.createTransactionFlowInitializationEvent({
+      const event = EventTrackingUtils.createTransactionFlowInitializationEvent(
+        {
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
           family: "solana",
           chainId: "mainnet",
-        });
+        },
+      );
 
       const result = EventTrackingUtils.validateEvent(event);
 
@@ -125,9 +127,9 @@ describe("EventTrackingUtils", () => {
 
       expect(result.success).toBe(true);
       expect(result.errors).toBeUndefined();
-      expect(
-        (event.data as { account_address: string }).account_address,
-      ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
+      expect((event.data as { account_address: string }).account_address).toBe(
+        "0xc5c0d8123456789012345678901234567890c0d8",
+      );
     });
 
     it("should validate a correctly formatted view all transactions redirect confirmed event", () => {
@@ -143,9 +145,9 @@ describe("EventTrackingUtils", () => {
 
       expect(result.success).toBe(true);
       expect(result.errors).toBeUndefined();
-      expect(
-        (event.data as { account_address: string }).account_address,
-      ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
+      expect((event.data as { account_address: string }).account_address).toBe(
+        "0xc5c0d8123456789012345678901234567890c0d8",
+      );
     });
 
     it("should validate a correctly formatted view all transactions redirect cancelled event", () => {
@@ -161,9 +163,82 @@ describe("EventTrackingUtils", () => {
 
       expect(result.success).toBe(true);
       expect(result.errors).toBeUndefined();
-      expect(
-        (event.data as { account_address: string }).account_address,
-      ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
+      expect((event.data as { account_address: string }).account_address).toBe(
+        "0xc5c0d8123456789012345678901234567890c0d8",
+      );
+    });
+
+    describe("device connection events", () => {
+      const sessionId = "a93f987c-11df-40d7-abe7-cfd2c7be92a2";
+
+      it.each([
+        ["selected", "bluetooth"],
+        ["selected", "usb"],
+        ["succeeded", "bluetooth"],
+        ["succeeded", "usb"],
+      ] as const)(
+        "should validate a device_connection_%s event (%s)",
+        (status, connectionType) => {
+          const event = EventTrackingUtils.createDeviceConnectionEvent({
+            dAppId: "test-dapp",
+            sessionId,
+            status,
+            connectionType,
+          });
+
+          const result = EventTrackingUtils.validateEvent(event);
+
+          expect(result.success).toBe(true);
+          expect(event.type).toBe(`device_connection_${status}`);
+          expect(event.data).toEqual({
+            event_id: expect.any(String),
+            transaction_dapp_id: "test-dapp",
+            timestamp_ms: expect.any(Number),
+            event_type: `device_connection_${status}`,
+            session_id: sessionId,
+            ledger_sync_user_id: undefined,
+            connection_type: connectionType,
+          });
+        },
+      );
+
+      it("should validate a device_connection_failed event", () => {
+        const event = EventTrackingUtils.createDeviceConnectionEvent({
+          dAppId: "test-dapp",
+          sessionId,
+          trustChainId: "trust-chain-id",
+          status: "failed",
+          connectionType: "usb",
+          failureReason: "DeviceNotOnboardedError",
+        });
+
+        const result = EventTrackingUtils.validateEvent(event);
+
+        expect(result.success).toBe(true);
+        expect(event.type).toBe("device_connection_failed");
+        expect(event.data).toMatchObject({
+          event_type: "device_connection_failed",
+          session_id: sessionId,
+          ledger_sync_user_id: "trust-chain-id",
+          connection_type: "usb",
+          failure_reason: "DeviceNotOnboardedError",
+        });
+      });
+
+      it("should set ledger_sync_user_id when a trust chain id is known", () => {
+        const event = EventTrackingUtils.createDeviceConnectionEvent({
+          dAppId: "test-dapp",
+          sessionId,
+          trustChainId: "trust-chain-id",
+          status: "selected",
+          connectionType: "bluetooth",
+        });
+
+        expect(EventTrackingUtils.validateEvent(event).success).toBe(true);
+        expect(event.data).toMatchObject({
+          ledger_sync_user_id: "trust-chain-id",
+        });
+      });
     });
 
     it("should validate a correctly formatted language_changed event", () => {
@@ -180,15 +255,16 @@ describe("EventTrackingUtils", () => {
     });
 
     it("should normalize the transaction_hash on the view-details click event", () => {
-      const event =
-        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+      const event = EventTrackingUtils.createViewTransactionDetailsClickedEvent(
+        {
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
           family: "ethereum",
           chainId: "1",
           transactionHash:
             "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
-        });
+        },
+      );
 
       expect(
         (event.data as { transaction_hash: string }).transaction_hash,
@@ -276,20 +352,18 @@ describe("EventTrackingUtils", () => {
 
   describe("createMobileRedirectLedgerWalletEvent", () => {
     it("should create event with correct name and type", () => {
-      const event =
-        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
-          dAppId: "test-dapp",
-        });
+      const event = EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+        dAppId: "test-dapp",
+      });
 
       expect(event.name).toBe("Mobile Redirect Ledger Wallet");
       expect(event.type).toBe(EventType.MobileRedirectLedgerWallet);
     });
 
     it("should populate base event data fields", () => {
-      const event =
-        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
-          dAppId: "my-dapp",
-        });
+      const event = EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+        dAppId: "my-dapp",
+      });
 
       const data = event.data as MobileRedirectLedgerWalletEventData;
       expect(data.event_type).toBe("mobile_redirect_ledger_wallet");
@@ -299,10 +373,9 @@ describe("EventTrackingUtils", () => {
     });
 
     it("should generate a valid UUID for event_id", () => {
-      const event =
-        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
-          dAppId: "test-dapp",
-        });
+      const event = EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+        dAppId: "test-dapp",
+      });
 
       const data = event.data as MobileRedirectLedgerWalletEventData;
       const uuidPattern =
