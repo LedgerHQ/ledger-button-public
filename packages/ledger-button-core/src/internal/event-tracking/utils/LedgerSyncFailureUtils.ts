@@ -60,7 +60,7 @@ function toFailureReason(error: unknown): LedgerSyncFailureReason {
   }
 
   if (tag === "DeviceLockedError" || errorCode === DEVICE_LOCKED_CODE) {
-    return "device_locked";
+    return "device_lock_timeout";
   }
 
   return "unknown";

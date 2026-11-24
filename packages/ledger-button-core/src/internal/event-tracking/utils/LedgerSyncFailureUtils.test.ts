@@ -31,7 +31,7 @@ describe("toLedgerSyncFailureReason", () => {
       "app_not_installed",
       { _tag: "UnknownDeviceExchangeError", errorCode: "6807" },
     ],
-    ["device_locked", { _tag: "DeviceLockedError" }],
+    ["device_lock_timeout", { _tag: "DeviceLockedError" }],
     ["no_trustchain", new LKRPTrustchainNotReady()],
     ["unauthorized", new LKRPUnauthorizedError("trustchain-id")],
     ["unauthorized", new LKRPOutdatedTrustchainError()],

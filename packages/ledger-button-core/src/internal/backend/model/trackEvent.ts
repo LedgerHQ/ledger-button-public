@@ -96,7 +96,7 @@ export type LedgerSyncActivatedEventData = BaseEventData & {
 export const LEDGER_SYNC_FAILURE_REASONS = [
   "user_rejected",
   "app_not_installed",
-  "device_locked",
+  "device_lock_timeout",
   "no_trustchain",
   "unauthorized",
   "network_error",
