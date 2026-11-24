@@ -1,4 +1,5 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
+import type { ContextModule } from "@ledgerhq/context-module";
 import {
   type DeviceActionState,
   type InternalApi,
@@ -39,6 +40,7 @@ export const DEFAULT_INPUT: SignXrpTransactionFlowDAInput = {
   },
   expectedAddress: DEFAULT_ADDRESS,
   openAppInput: { application: { name: "XRP" }, dependencies: [] },
+  contextModule: {} as ContextModule,
 };
 
 export function makeInternalApiMock(): InternalApi {

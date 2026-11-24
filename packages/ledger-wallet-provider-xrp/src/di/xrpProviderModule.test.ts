@@ -9,6 +9,7 @@ import {
   createMockCoreFacade,
   XRP_TEST_BLOCKCHAIN_CONFIG,
 } from "../__mocks__/coreFacadeMock";
+import { BuildXrpContextModule } from "../use-case/BuildXrpContextModule";
 import { SignXrpTransaction } from "../use-case/SignXrpTransaction";
 import { xrpProviderModule } from "./xrpProviderModule";
 import { xrpProviderModuleTypes } from "./xrpProviderModuleTypes";
@@ -32,5 +33,13 @@ describe("xrpProviderModule (per-provider container)", () => {
         xrpProviderModuleTypes.SignTransactionUseCase,
       ),
     ).toBeInstanceOf(SignXrpTransaction);
+  });
+
+  it("resolves the BuildXrpContextModule use-case", () => {
+    expect(
+      createLocalContainer().get<BuildXrpContextModule>(
+        xrpProviderModuleTypes.BuildContextModuleUseCase,
+      ),
+    ).toBeInstanceOf(BuildXrpContextModule);
   });
 });

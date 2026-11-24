@@ -27,6 +27,7 @@ import { xrpProviderModuleTypes } from "../di/xrpProviderModuleTypes";
 import type { XrpTransaction } from "../model/XrpTransaction";
 import { normalizeXrpDeviceError } from "../utils/normalizeXrpDeviceError";
 import { getXrpDerivationPath, XRP_FAMILY } from "../utils/xrpUtils";
+import { BuildXrpContextModule } from "./BuildXrpContextModule";
 
 type SignXrpTransactionFlowDAState = DeviceActionState<
   SignXrpTransactionFlowDAOutput,
@@ -43,6 +44,8 @@ export class SignXrpTransaction {
     private readonly core: CoreFacade,
     @inject(xrpProviderModuleTypes.BlockchainConfig)
     private readonly blockchainConfig: BlockchainConfig,
+    @inject(xrpProviderModuleTypes.BuildContextModuleUseCase)
+    private readonly buildContextModule: BuildXrpContextModule,
   ) {
     this.logger = this.core.getLogger("[SignXrpTransaction]");
   }
@@ -60,6 +63,7 @@ export class SignXrpTransaction {
     return waitForDeviceSession(this.core).pipe(
       switchMap(({ dmk, sessionId }) => {
         this.core.trackTransactionStarted(XRP_FAMILY);
+        const contextModule = this.buildContextModule.execute();
 
         const deviceAction = new SignXrpTransactionFlowDeviceAction({
           input: {
@@ -67,6 +71,7 @@ export class SignXrpTransaction {
             transaction: tx,
             expectedAddress: account.freshAddress,
             openAppInput: createOpenAppConfig(this.blockchainConfig),
+            contextModule,
           },
           inspect: false,
         });

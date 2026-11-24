@@ -1,5 +1,6 @@
 import { ContainerModule } from "inversify";
 
+import { BuildXrpContextModule } from "../use-case/BuildXrpContextModule";
 import { SignXrpTransaction } from "../use-case/SignXrpTransaction";
 import { xrpProviderModuleTypes } from "./xrpProviderModuleTypes";
 
@@ -12,5 +13,8 @@ import { xrpProviderModuleTypes } from "./xrpProviderModuleTypes";
 export function xrpProviderModule() {
   return new ContainerModule(({ bind }) => {
     bind(xrpProviderModuleTypes.SignTransactionUseCase).to(SignXrpTransaction);
+    bind(xrpProviderModuleTypes.BuildContextModuleUseCase).to(
+      BuildXrpContextModule,
+    );
   });
 }

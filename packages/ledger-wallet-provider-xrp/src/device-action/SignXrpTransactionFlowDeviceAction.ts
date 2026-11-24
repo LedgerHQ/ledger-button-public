@@ -86,6 +86,7 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
     const signTransactionDA = SignTransactionDeviceActionFactory({
       derivationPath: this.input.derivationPath,
       skipOpenApp: true,
+      contextModule: this.input.contextModule,
       loggerFactory: this.getLoggerFactory(internalApi),
     });
 
